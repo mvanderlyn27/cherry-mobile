@@ -1,137 +1,256 @@
-import { StyleSheet, Image, Platform, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
+import { observer } from "@legendapp/state/react";
+import { books$, categories$ } from "@/stores/bookStore";
+import { syncState } from "@legendapp/state";
+import { Category } from "@/types/app";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useSuperwall } from '@/hooks/useSuperwall';
-import { SUPERWALL_TRIGGERS } from '@/config/superwall';
-import { Colors } from '@/constants/Colors';
+type ExploreTab = "top" | "forYou" | "categories";
 
-export default function TabTwoScreen() {
-  const { isSubscribed, isLoading, showPaywall } = useSuperwall();
+const ExploreScreen = observer(() => {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<ExploreTab>("top");
+  const { width } = Dimensions.get("window");
 
-  const handlePremiumFeature = () => {
-    if (!isSubscribed && !isLoading) {
-      showPaywall(SUPERWALL_TRIGGERS.FEATURE_UNLOCK);
+  // const userId = userSelectors.userId.get();
+  // const allBooks = bookSelectors.allBooks.get();
+  const allCategories = Object.values(categories$.get() || {});
+
+  const isLoading = syncState(books$).isGetting;
+
+  // useEffect(() => {
+  //   // Fetch data when component mounts
+  //   bookActions.fetchBooks();
+  //   bookActions.fetchCategories();
+
+  //   if (userId) {
+  //     bookActions.fetchSavedBooks(userId);
+  //     bookActions.fetchPurchases(userId);
+  //   }
+  // }, [userId]);
+
+  const handleBookPress = (bookId: string) => {
+    router.push(`/reader/${bookId}`);
+  };
+
+  // const handleSaveBook = async (bookId: string) => {
+  //   if (!userId) return;
+
+  //   const isSaved = bookSelectors.isBookSaved(bookId).get();
+
+  //   if (isSaved) {
+  //     await bookActions.unsaveBook(userId, bookId);
+  //   } else {
+  //     await bookActions.saveBook(userId, bookId);
+  //   }
+  // };
+
+  const renderTopBooks = () => {
+    // Get top 5 books for the carousel
+    const topBooks = Object.values(books$.get() || {}).slice(0, 5);
+
+    return (
+      <View style={styles.carouselContainer}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToInterval={width}>
+          {topBooks.map((book) => (
+            <View key={book.id} style={{ width: width }} className="h-20 bg-slate-400">
+              {/* <BookCard
+                book={book}
+                layout="3d"
+                onPress={() => handleBookPress(book.id)}
+                onSave={() => handleSaveBook(book.id)}
+                isSaved={bookSelectors.isBookSaved(book.id).get()}
+                isOwned={bookSelectors.isBookOwned(book.id).get()}
+              /> */}
+              <Text>{book.title}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const renderCategoryShelf = (category: Category) => {
+    // Get books for this category (in a real app, you'd filter by category)
+    const categoryBooks = Object.values(books$.get() || {}).slice(0, 5);
+    return (
+      <View key={category.id} style={styles.categoryShelf}>
+        <Text style={styles.categoryTitle}>{category.name}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {categoryBooks.map((book) => (
+            <View key={book.id} style={{ width: width }} className="h-20 bg-slate-400">
+              {/* <BookCard
+              book={book}
+              layout="3d"
+              onpress={() => handlebookpress(book.id)}
+              onsave={() => handlesavebook(book.id)}
+              issaved={bookselectors.isbooksaved(book.id).get()}
+              isowned={bookSelectors.isBookOwned(book.id).get()}
+            /> */}
+              <Text>{book.title}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const renderForYouBooks = () => {
+    // In a real app, these would be personalized recommendations
+    const recommendedBooks = Object.values(books$.get() || {}).slice(0, 5);
+
+    return (
+      <View style={styles.forYouContainer}>
+        {recommendedBooks.map((book) => (
+          <View key={book.id} style={{ width: width }} className="h-20 bg-slate-400">
+            {/* <BookCard
+            book={book}
+            layout="3d"
+            onPress={() => handleBookPress(book.id)}
+            onSave={() => handleSaveBook(book.id)}
+            isSaved={bookSelectors.isBookSaved(book.id).get()}
+            isOwned={bookSelectors.isBookOwned(book.id).get()}
+          /> */}
+            <Text>{book.title}</Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "top":
+        return (
+          <ScrollView>
+            {renderTopBooks()}
+            {allCategories.map(renderCategoryShelf)}
+          </ScrollView>
+        );
+      case "forYou":
+        return renderForYouBooks();
+      case "categories":
+        return <ScrollView>{allCategories.map(renderCategoryShelf)}</ScrollView>;
+      default:
+        return null;
     }
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-      <Collapsible title="Premium Features">
-        <ThemedText>
-          Tap to explore premium features {isSubscribed ? '(Subscribed)' : '(Upgrade Required)'}
-        </ThemedText>
-        {!isSubscribed && (
-          <TouchableOpacity onPress={handlePremiumFeature} style={styles.upgradeButton}>
-            <ThemedText type="defaultSemiBold">Upgrade Now</ThemedText>
-          </TouchableOpacity>
-        )}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="auto" />
+      <View style={styles.header}>
+        <Text style={styles.title}>Explore</Text>
+      </View>
+
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "top" && styles.activeTab]}
+          onPress={() => setActiveTab("top")}>
+          <Text style={[styles.tabText, activeTab === "top" && styles.activeTabText]}>Top</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "forYou" && styles.activeTab]}
+          onPress={() => setActiveTab("forYou")}>
+          <Text style={[styles.tabText, activeTab === "forYou" && styles.activeTabText]}>For You</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "categories" && styles.activeTab]}
+          onPress={() => setActiveTab("categories")}>
+          <Text style={[styles.tabText, activeTab === "categories" && styles.activeTabText]}>Categories</Text>
+        </TouchableOpacity>
+      </View>
+
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <Text>Loading...</Text>
+        </View>
+      ) : (
+        renderTabContent()
+      )}
+    </SafeAreaView>
   );
-}
+});
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  upgradeButton: {
-    marginTop: 12,
-    padding: 8,
-    backgroundColor: Colors.light.tint,
-    borderRadius: 8,
-    alignItems: 'center',
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+  },
+  tabContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: "#f0f0f0",
+  },
+  activeTab: {
+    backgroundColor: "#0A7EA4",
+  },
+  tabText: {
+    color: "#333",
+  },
+  activeTabText: {
+    color: "#fff",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  carouselContainer: {
+    height: 350,
+    marginBottom: 24,
+  },
+  carouselItem: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  categoryShelf: {
+    marginBottom: 24,
+    paddingHorizontal: 16,
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  shelfItem: {
+    marginRight: 16,
+    width: 120,
+  },
+  bookCard: {
+    width: 120,
+  },
+  forYouContainer: {
+    padding: 16,
+  },
+  forYouItem: {
+    marginBottom: 16,
   },
 });
+
+export default ExploreScreen;

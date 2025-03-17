@@ -1,44 +1,36 @@
-import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Text, StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
   const handleNext = () => {
-    router.push('/onboarding/problem');
+    router.push("/onboarding/solution");
   };
 
   return (
-    <ThemedView style={styles.container}>
+    <View>
       <StatusBar style="auto" />
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.content}>
-          <View style={styles.main}>
+      <SafeAreaView>
+        <View>
+          <View>
             <MaterialCommunityIcons name="star" size={64} color="#0A7EA4" />
-            <ThemedText type="title" style={styles.title}>
-              Your App Name
-            </ThemedText>
-            <View style={styles.subtitleContainer}>
-              <ThemedText style={styles.subtitle}>
-                A short, compelling tagline that captures your app's value
-              </ThemedText>
+            <Text>Your App Name</Text>
+            <View>
+              <Text>A short, compelling tagline that captures your app's value</Text>
             </View>
           </View>
 
           <TouchableOpacity style={styles.button} onPress={handleNext}>
-            <ThemedText type="defaultSemiBold" style={styles.buttonText}>
-              Get Started
-            </ThemedText>
+            <Text>Get Started</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -52,18 +44,18 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingVertical: 24,
   },
   main: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 24,
   },
   title: {
     fontSize: 36,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 16,
   },
   subtitleContainer: {
@@ -72,17 +64,17 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     opacity: 0.7,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 24,
   },
   button: {
-    backgroundColor: '#0A7EA4',
+    backgroundColor: "#0A7EA4",
     padding: 20,
     borderRadius: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
   },
-}); 
+});

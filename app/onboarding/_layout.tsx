@@ -1,5 +1,5 @@
-import { Stack } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function Layout() {
   return (
@@ -7,13 +7,13 @@ export default function Layout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
+          animation: "slide_from_right",
           gestureEnabled: false,
           contentStyle: {
-            backgroundColor: 'transparent',
+            backgroundColor: "transparent",
           },
         }}
       />
     </SafeAreaProvider>
   );
-} 
+}
