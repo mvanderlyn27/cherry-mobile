@@ -9,7 +9,6 @@ import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PostHogProvider } from "posthog-react-native";
 import { superwallService } from "@/services/superwall";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   useFonts,
   KaiseiDecol_400Regular,

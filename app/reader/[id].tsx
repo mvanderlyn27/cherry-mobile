@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StoryReader } from "@/components/StoryReader";
 import { observer } from "@legendapp/state/react";
-import { useSuperwall } from "@/hooks/useSuperwall";
+// import { useSuperwall } from "@/hooks/useSuperwall";
 import { SUPERWALL_TRIGGERS } from "@/config/superwall";
 import { chapters$ } from "@/stores/bookStore";
 import { syncState } from "@legendapp/state";
@@ -13,7 +13,7 @@ import { syncState } from "@legendapp/state";
 const ReaderScreen = observer(() => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { showPaywall } = useSuperwall();
+  // const { showPaywall } = useSuperwall();
 
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
 
@@ -55,7 +55,7 @@ const ReaderScreen = observer(() => {
   };
 
   const handlePurchase = () => {
-    showPaywall(SUPERWALL_TRIGGERS.FEATURE_UNLOCK);
+    // showPaywall(SUPERWALL_TRIGGERS.FEATURE_UNLOCK);
   };
 
   if (isLoading.get()) {

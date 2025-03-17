@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Text, ScrollView, View, TouchableOpacity, Dimensions, SafeAreaView, StyleSheet } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
-import { useSuperwall } from "@/hooks/useSuperwall";
 import { SUPERWALL_TRIGGERS } from "@/config/superwall";
 import { chapters$ } from "@/stores/bookStore";
 import { books$ } from "@/stores/bookStore";
@@ -21,7 +20,7 @@ type BackgroundTexture = "none" | "paper" | "sepia";
 
 export const StoryReader = observer(
   ({ bookId, currentChapterIndex, onChapterChange, isOwned, onPurchase }: StoryReaderProps) => {
-    const { showPaywall } = useSuperwall();
+    // const { showPaywall } = useSuperwall();
     //setup a store to track this later, need to figure out if we're synching this with backend, or not for anon users
     const [textSize, setTextSize] = useState<number>(userPreferences$.readerSettings.fontSize.get());
     const [backgroundTexture, setBackgroundTexture] = useState<BackgroundTexture>(
@@ -38,7 +37,7 @@ export const StoryReader = observer(
       if (onPurchase) {
         onPurchase();
       } else {
-        showPaywall(SUPERWALL_TRIGGERS.FEATURE_UNLOCK);
+        // showPaywall(SUPERWALL_TRIGGERS.FEATURE_UNLOCK);
       }
     };
 

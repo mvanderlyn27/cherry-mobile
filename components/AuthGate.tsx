@@ -3,6 +3,7 @@ import { Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
 import { supabase } from "@/services/supabase";
 import * as Haptics from "expo-haptics";
+import { Icon } from "@/types/app";
 
 interface AuthGateProps {
   onAuthSuccess: (userId: string) => void;
@@ -117,17 +118,17 @@ export function AuthGate({
 
       <View>
         <TouchableOpacity onPress={handleGoogleSignIn} disabled={isLoading}>
-          <IconSymbol name="g.circle.fill" size={24} color="#4285F4" />
+          <IconSymbol name={Icon.google} size={24} color="#4285F4" />
           <Text>Continue with Google</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleAppleSignIn} disabled={isLoading}>
-          <IconSymbol name="apple.logo" size={24} color="#000" />
+          <IconSymbol name={Icon.apple} size={24} color="#000" />
           <Text>Continue with Apple</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleContinueAsGuest} disabled={isLoading}>
-          <IconSymbol name="person.fill" size={24} color="#666" />
+          <IconSymbol name={Icon.person} size={24} color="#666" />
           <Text>Continue as Guest</Text>
         </TouchableOpacity>
       </View>

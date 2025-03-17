@@ -1,6 +1,6 @@
 import { Text, View, ScrollView } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useSuperwall } from "@/hooks/useSuperwall";
+// import { useSuperwall } from "@/hooks/useSuperwall";
 import { SUPERWALL_TRIGGERS } from "@/config/superwall";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -8,11 +8,11 @@ import type { MaterialCommunityIcons as IconType } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 export default function FinalScreen() {
-  const { showPaywall } = useSuperwall();
+  // const { showPaywall } = useSuperwall();
 
   const handleGetStarted = async () => {
     try {
-      await showPaywall(SUPERWALL_TRIGGERS.ONBOARDING);
+      // await showPaywall(SUPERWALL_TRIGGERS.ONBOARDING);
       router.push("/");
     } catch (error) {
       console.error("Failed to show paywall:", error);

@@ -1,240 +1,160 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, FlatList, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { observer } from "@legendapp/state/react";
-import { AuthGate } from "@/components/AuthGate";
 import { books$ } from "@/stores/bookStore";
-import { Database } from "@/types/database";
-import { Book } from "@/types/app";
 import { syncState } from "@legendapp/state";
+import { Header } from "@/components/ui/Header";
+import { TabFilter } from "@/components/ui/TabFilter";
+import { ListBookCard } from "@/components/ui/ListBookCard";
+import { Icon } from "@/types/app";
 
 type LibraryTab = "all" | "reading" | "completed";
 
-const LibraryScreen = observer(() => {
+const Page = observer(() => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<LibraryTab>("all");
-  const [showAuthGate, setShowAuthGate] = useState(false);
+  const [activeTab, setActiveTab] = useState<LibraryTab>("reading");
   const isLoading = syncState(books$).isGetting;
-  // const userId = userSelectors.userId.get();
-  // const isAnonymous = userSelectors.isAnonymous.get();
-  // const savedBooks = bookSelectors.savedBooks.get();
-  // const purchasedBooks = bookSelectors.purchasedBooks.get();
-  // const isLoading = bookStore.isLoading.savedBooks.get() || bookStore.isLoading.purchases.get();
-
-  // useEffect(() => {
-  //   if (userId) {
-  //     bookActions.fetchSavedBooks(userId);
-  //     bookActions.fetchPurchases(userId);
-  //   }
-  // }, [userId]);
 
   const handleBookPress = (bookId: string) => {
     router.push(`/reader/${bookId}`);
   };
 
-  // const handleSaveBook = async (bookId: string) => {
-  //   if (!userId || isAnonymous) {
-  //     setShowAuthGate(true);
-  //     return;
-  //   }
-
-  // const isSaved = bookSelectors.isBookSaved(bookId).get();
-
-  //   if (isSaved) {
-  //     await bookActions.unsaveBook(userId, bookId);
-  //   } else {
-  //     await bookActions.saveBook(userId, bookId);
-  //   }
-  // };
-
-  const getFilteredBooks = (): Book[] => {
-    return Object.values(books$.get() || {}) as Book[];
-    //   // Combine saved and purchased books
-    //   const allLibraryBooks = [...new Set([...savedBooks, ...purchasedBooks])];
-
-    //   switch (activeTab) {
-    //     case "reading":
-    //       // Books that have reading progress but are not completed
-    //       return allLibraryBooks.filter((book) => {
-    //         const progress = bookSelectors.bookProgress(book.id).get();
-    //         return progress && progress.chapterId > 0 && progress.chapterId < book.chapters_count - 1;
-    //       });
-    //     case "completed":
-    //       // Books that have been read completely
-    //       return allLibraryBooks.filter((book) => {
-    //         const progress = bookSelectors.bookProgress(book.id).get();
-    //         return progress && progress.chapterId >= book.chapters_count - 1;
-    //       });
-    //     case "all":
-    //     default:
-    //       return allLibraryBooks;
-    //   }
+  const handleUnlockBook = (bookId: string) => {
+    // Handle unlocking book
+    console.log("Unlock book:", bookId);
   };
 
-  // const handleAuthSuccess = (userId: string) => {
-  //   setShowAuthGate(false);
-  //   // Refresh data
-  //   bookActions.fetchSavedBooks(userId);
-  //   bookActions.fetchPurchases(userId);
-  // };
+  // Sample data for demonstration
+  const sampleBooks = [
+    {
+      id: "1",
+      title: "I Want You...Both",
+      coverUrl: "https://picsum.photos/200/300",
+      description:
+        "When your possessive stepbrother invites his flirty best friend to stay over, things get a little heated in the house.",
+      readingTime: "2 hrs",
+      tags: [
+        { label: "18+", color: "bg-[#E57373]" },
+        { label: "2M+", color: "bg-[#BA68C8]" },
+        { label: "Stalking", color: "bg-[#4DB6AC]" },
+      ],
+      credits: 49,
+      isLocked: true,
+    },
+    {
+      id: "2",
+      title: "The Secret Promise",
+      coverUrl: "https://picsum.photos/200/301",
+      description:
+        "When you meet him again after moving away for 8 years, he asks you to be his fake girlfriend. You pretend not to remember the promise about...",
+      readingTime: "1.5 hrs",
+      tags: [
+        { label: "Fluff", color: "bg-[#E57373]" },
+        { label: "Childhood Sweetheart", color: "bg-[#BA68C8]" },
+      ],
+    },
+    {
+      id: "3",
+      title: "CEO's Plus One",
+      coverUrl: "https://picsum.photos/200/302",
+      description:
+        "After you announced you're leaving the company, the toxic CEO forces you to become his fake partner at the annual charity ball. Under the...",
+      readingTime: "2.5 hrs",
+      tags: [
+        { label: "18+", color: "bg-[#E57373]" },
+        { label: "Office", color: "bg-[#BA68C8]" },
+        { label: "Billionaire", color: "bg-[#4DB6AC]" },
+      ],
+      credits: 45,
+      isLocked: true,
+    },
+    {
+      id: "4",
+      title: "Anonymous Roses",
+      coverUrl: "https://picsum.photos/200/303",
+      description:
+        "You've been receiving anonymous roses every Monday for the past month. You're determined to find out who's behind them.",
+      readingTime: "3 hrs",
+      tags: [
+        { label: "18+", color: "bg-[#E57373]" },
+        { label: "Dark", color: "bg-[#BA68C8]" },
+        { label: "Biker", color: "bg-[#4DB6AC]" },
+      ],
+    },
+  ];
 
   const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>Your library is empty</Text>
-      <Text style={styles.emptyText}>Save books from the Explore tab to add them to your library</Text>
-      <TouchableOpacity style={styles.exploreButton} onPress={() => router.push("/explore")}>
-        <Text style={styles.exploreButtonText}>Explore Books</Text>
+    <View className="flex-1 justify-center items-center p-6">
+      <Text className="font-kaisei-bold text-xl text-gray-800 mb-2">Your library is empty</Text>
+      <Text className="text-center text-gray-600 mb-6">
+        Save books from the Explore tab to add them to your library
+      </Text>
+      <TouchableOpacity className="bg-[#E57373] px-6 py-3 rounded-lg" onPress={() => router.push("/")}>
+        <Text className="text-white font-medium">Explore Books</Text>
       </TouchableOpacity>
     </View>
   );
 
-  const renderBook = ({ item }: { item: Book }) => (
-    <TouchableOpacity onPress={() => handleBookPress(item.id)}>
-      <View className="w-full h-20 bg-pink-200 flex flex-row items-center justify-center">
-        {/* <BookCard
-        book={item}
-        layout="horizontal"
-        onPress={() => handleBookPress(item.id)}
-        onSave={() => handleSaveBook(item.id)}
-        isSaved={bookSelectors.isBookSaved(item.id).get()}
-        isOwned={bookSelectors.isBookOwned(item.id).get()}
-      /> */}
-
-        <Text>{item.title}</Text>
-      </View>
-    </TouchableOpacity>
+  const renderBook = ({ item }: { item: any }) => (
+    <ListBookCard
+      id={item.id}
+      title={item.title}
+      coverUrl={item.coverUrl}
+      description={item.description}
+      readingTime={item.readingTime}
+      tags={item.tags}
+      isLocked={item.isLocked}
+      onPress={handleBookPress}
+      onUnlock={handleUnlockBook}
+      credits={item.credits}
+    />
   );
 
-  const filteredBooks = getFilteredBooks();
+  const tabOptions = [
+    { id: "reading", label: "In Progress" },
+    { id: "all", label: "Unread" },
+    { id: "completed", label: "Completed" },
+  ];
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      <StatusBar style="auto" />
+    <SafeAreaView className="flex-1 px-4 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
+      <StatusBar style="dark" />
 
-      {/* {showAuthGate && (
-        <AuthGate
-          onAuthSuccess={handleAuthSuccess}
-          onCancel={() => setShowAuthGate(false)}
-          title="Sign in to save books"
-          message="Create an account to save books to your library and track your reading progress"
-        />
-      )} */}
+      <Header
+        title="My Library"
+        rightActions={[
+          { icon: Icon.edit, onPress: () => console.log("Edit") },
+          { icon: Icon.sort, onPress: () => console.log("Sort") },
+          { icon: Icon.search, onPress: () => console.log("Search") },
+        ]}
+      />
 
-      <View style={styles.header}>
-        <Text className="font-kaisei-bold text-[24px] text-text-light dark:text-text-dark">My Library</Text>
-      </View>
-
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "all" && styles.activeTab]}
-          onPress={() => setActiveTab("all")}>
-          <Text style={[styles.tabText, activeTab === "all" && styles.activeTabText]}>All</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "reading" && styles.activeTab]}
-          onPress={() => setActiveTab("reading")}>
-          <Text style={[styles.tabText, activeTab === "reading" && styles.activeTabText]}>Reading</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "completed" && styles.activeTab]}
-          onPress={() => setActiveTab("completed")}>
-          <Text style={[styles.tabText, activeTab === "completed" && styles.activeTabText]}>Completed</Text>
-        </TouchableOpacity>
-      </View>
+      <TabFilter
+        options={tabOptions}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as LibraryTab)}
+      />
 
       {isLoading.get() ? (
-        <View style={styles.loadingContainer}>
-          <Text>Loading...</Text>
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-600">Loading...</Text>
         </View>
-      ) : filteredBooks.length === 0 ? (
+      ) : sampleBooks.length === 0 ? (
         renderEmptyState()
       ) : (
         <FlatList
-          data={filteredBooks}
+          data={sampleBooks}
+          className="flex-1"
           renderItem={renderBook}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </SafeAreaView>
   );
 });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-  },
-  tabContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginRight: 8,
-    borderRadius: 20,
-    backgroundColor: "#f0f0f0",
-  },
-  activeTab: {
-    backgroundColor: "#0A7EA4",
-  },
-  tabText: {
-    color: "#333",
-  },
-  activeTabText: {
-    color: "#fff",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  listContent: {
-    padding: 16,
-  },
-  bookItem: {
-    marginBottom: 16,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  emptyText: {
-    textAlign: "center",
-    marginBottom: 24,
-    opacity: 0.7,
-  },
-  exploreButton: {
-    backgroundColor: "#0A7EA4",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  exploreButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-});
-
-export default LibraryScreen;
+export default Page;
