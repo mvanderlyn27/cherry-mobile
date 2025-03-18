@@ -14,13 +14,14 @@ type TabFilterProps = {
 
 export const TabFilter: React.FC<TabFilterProps> = ({ options, activeTab, onTabChange }) => {
   return (
-    <View className="flex flex-row justify-center px-6 py-4 ">
+    <View className="flex flex-row justify-between px-6 py-4">
       {options.map((option) => (
         <TouchableOpacity
           key={option.id}
-          className={`px-6 py-3 mx-4  rounded-full ${activeTab === option.id ? "bg-[#E57373]" : "bg-[#FFCDD2]"}`}
+          className={`flex-1 mx-2 py-3 rounded-full ${activeTab === option.id ? "bg-[#E57373]" : "bg-[#FFCDD2]"}`}
           onPress={() => onTabChange(option.id)}>
-          <Text className={`text-md font-medium ${activeTab === option.id ? "text-white" : "text-[#B71C1C]"}`}>
+          <Text
+            className={`text-md font-medium text-center ${activeTab === option.id ? "text-white" : "text-[#B71C1C]"}`}>
             {option.label}
           </Text>
         </TouchableOpacity>
