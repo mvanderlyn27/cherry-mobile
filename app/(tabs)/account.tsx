@@ -5,11 +5,13 @@ import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Icon } from "@/types/app";
+import { useColorScheme } from "nativewind";
 
 // Mock user data - replace with your actual auth logic
 const mockUser: null | { name: string; email: string } = null; // Set to null to show logged out state
 
 export default function Page() {
+  const { setColorScheme } = useColorScheme();
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
@@ -95,7 +97,10 @@ export default function Page() {
             undefined,
             <Switch
               value={darkMode}
-              onValueChange={setDarkMode}
+              onValueChange={(val) => {
+                setDarkMode(val);
+                setColorScheme(val ? "dark" : "light");
+              }}
               trackColor={{ false: "#D1D1D6", true: "#E57373" }}
               thumbColor="#FFFFFF"
             />

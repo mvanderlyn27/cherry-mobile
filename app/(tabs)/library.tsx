@@ -3,20 +3,22 @@ import { View, FlatList, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
-import { observer } from "@legendapp/state/react";
+import { observer, use$ } from "@legendapp/state/react";
 import { books$ } from "@/stores/bookStore";
 import { syncState } from "@legendapp/state";
-import { Header } from "@/components/ui/Header";
+import Header from "@/components/ui/Header";
 import { TabFilter } from "@/components/ui/TabFilter";
 import { ListBookCard } from "@/components/ui/ListBookCard";
 import { Icon } from "@/types/app";
+import { userStore$ } from "@/stores/userStore";
 
-type LibraryTab = "all" | "reading" | "completed";
+type LibraryTab = "reading" | "unread" | "completed";
 
 const Page = observer(() => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<LibraryTab>("reading");
   const isLoading = syncState(books$).isGetting;
+  const credits = use$(userStore$.credits.get());
 
   const handleBookPress = (bookId: string) => {
     router.push(`/reader/${bookId}`);
@@ -35,14 +37,11 @@ const Page = observer(() => {
       coverUrl: "https://picsum.photos/200/300",
       description:
         "When your possessive stepbrother invites his flirty best friend to stay over, things get a little heated in the house.",
-      readingTime: "2 hrs",
-      tags: [
-        { label: "18+", color: "bg-[#E57373]" },
-        { label: "2M+", color: "bg-[#BA68C8]" },
-        { label: "Stalking", color: "bg-[#4DB6AC]" },
-      ],
-      credits: 49,
-      isLocked: true,
+      readingTime: 120,
+      tags: [{ label: "18+", color: "bg-nsfw-light dark:bg-nsfw-dark" }, { label: "2M+" }, { label: "Stalking" }],
+      credits: 40,
+      owned: false,
+      progress: 0,
     },
     {
       id: "2",
@@ -50,11 +49,11 @@ const Page = observer(() => {
       coverUrl: "https://picsum.photos/200/301",
       description:
         "When you meet him again after moving away for 8 years, he asks you to be his fake girlfriend. You pretend not to remember the promise about...",
-      readingTime: "1.5 hrs",
-      tags: [
-        { label: "Fluff", color: "bg-[#E57373]" },
-        { label: "Childhood Sweetheart", color: "bg-[#BA68C8]" },
-      ],
+      readingTime: 90,
+      tags: [{ label: "Fluff", color: "bg-nsfw-light dark:bg-nsfw-dark" }, { label: "Childhood Sweetheart" }],
+      owned: true,
+      progress: 0,
+      started: false,
     },
     {
       id: "3",
@@ -62,14 +61,23 @@ const Page = observer(() => {
       coverUrl: "https://picsum.photos/200/302",
       description:
         "After you announced you're leaving the company, the toxic CEO forces you to become his fake partner at the annual charity ball. Under the...",
-      readingTime: "2.5 hrs",
-      tags: [
-        { label: "18+", color: "bg-[#E57373]" },
-        { label: "Office", color: "bg-[#BA68C8]" },
-        { label: "Billionaire", color: "bg-[#4DB6AC]" },
-      ],
+      readingTime: 150,
+      tags: [{ label: "18+", color: "bg-nsfw-light dark:bg-nsfw-dark" }, { label: "Office" }, { label: "Billionaire" }],
       credits: 45,
-      isLocked: true,
+      owned: false,
+      progress: 0,
+    },
+    {
+      id: "4",
+      title: "Anonymous Roses 2",
+      coverUrl: "https://picsum.photos/200/303",
+      description:
+        "You've been receiving anonymous roses every Monday for the past month. You're determined to find out who's behind them.",
+      readingTime: 180,
+      tags: [{ label: "18+", color: "bg-nsfw-light dark:bg-nsfw-dark" }, { label: "Dark" }, { label: "Biker" }],
+      owned: true,
+      progress: 90,
+      started: true,
     },
     {
       id: "4",
@@ -77,15 +85,28 @@ const Page = observer(() => {
       coverUrl: "https://picsum.photos/200/303",
       description:
         "You've been receiving anonymous roses every Monday for the past month. You're determined to find out who's behind them.",
-      readingTime: "3 hrs",
-      tags: [
-        { label: "18+", color: "bg-[#E57373]" },
-        { label: "Dark", color: "bg-[#BA68C8]" },
-        { label: "Biker", color: "bg-[#4DB6AC]" },
-      ],
+      readingTime: 180,
+      tags: [{ label: "18+", color: "bg-nsfw-light dark:bg-nsfw-dark" }, { label: "Dark" }, { label: "Biker" }],
+      owned: true,
+      progress: 100,
+      started: true,
     },
   ];
+  const getFilteredBooks = () => {
+    switch (activeTab) {
+      case "reading":
+        return sampleBooks.filter((book) => book.started && book.progress < 100);
+      case "unread":
+        return sampleBooks.filter((book) => !book.started);
+      case "completed":
+        return sampleBooks.filter((book) => book.started && book.progress === 100);
+      default:
+        return [];
+    }
+  };
 
+  // Replace the existing sampleBooks assignment with:
+  const sampleFilteredBooks = getFilteredBooks();
   const renderEmptyState = () => (
     <View className="flex-1 justify-center items-center p-6">
       <Text className="font-kaisei-bold text-xl text-gray-800 mb-2">Your library is empty</Text>
@@ -106,21 +127,25 @@ const Page = observer(() => {
       description={item.description}
       readingTime={item.readingTime}
       tags={item.tags}
-      isLocked={item.isLocked}
+      owned={item.owned}
+      progress={item.progress}
       onPress={handleBookPress}
-      onUnlock={handleUnlockBook}
+      buyBook={handleUnlockBook}
       credits={item.credits}
+      canBuy={credits >= item.credits}
+      started={item.started}
+      rateStory={() => console.log("Rate story")}
     />
   );
 
   const tabOptions = [
     { id: "reading", label: "In Progress" },
-    { id: "all", label: "Unread" },
+    { id: "unread", label: "Unread" },
     { id: "completed", label: "Completed" },
   ];
 
   return (
-    <SafeAreaView className="flex-1 px-4 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
+    <SafeAreaView className="flex-1  bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
       <StatusBar style="dark" />
 
       <Header
@@ -142,12 +167,12 @@ const Page = observer(() => {
         <View className="flex-1 justify-center items-center">
           <Text className="text-gray-600">Loading...</Text>
         </View>
-      ) : sampleBooks.length === 0 ? (
+      ) : sampleFilteredBooks.length === 0 ? (
         renderEmptyState()
       ) : (
         <FlatList
-          data={sampleBooks}
-          className="flex-1"
+          data={sampleFilteredBooks}
+          className="flex-1 px-6"
           renderItem={renderBook}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}

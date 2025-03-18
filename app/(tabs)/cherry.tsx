@@ -15,7 +15,7 @@ export default function Page() {
     // For now, let's just log a message
     console.log("Paywall screen is shown");
     showPaywall(SUPERWALL_TRIGGERS.ONBOARDING);
-  }, []);
+  });
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />

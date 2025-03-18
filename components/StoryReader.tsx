@@ -6,7 +6,7 @@ import { chapters$ } from "@/stores/bookStore";
 import { books$ } from "@/stores/bookStore";
 import { observer } from "@legendapp/state/react";
 import * as Haptics from "expo-haptics";
-import { userPreferences$ } from "@/stores/userStore";
+import { userStore$ } from "@/stores/userStore";
 
 interface StoryReaderProps {
   bookId: string;
@@ -22,9 +22,9 @@ export const StoryReader = observer(
   ({ bookId, currentChapterIndex, onChapterChange, isOwned, onPurchase }: StoryReaderProps) => {
     // const { showPaywall } = useSuperwall();
     //setup a store to track this later, need to figure out if we're synching this with backend, or not for anon users
-    const [textSize, setTextSize] = useState<number>(userPreferences$.readerSettings.fontSize.get());
+    const [textSize, setTextSize] = useState<number>(userStore$.readerSettings.fontSize.get());
     const [backgroundTexture, setBackgroundTexture] = useState<BackgroundTexture>(
-      userPreferences$.readerSettings.backgroundTexture.get() as BackgroundTexture
+      userStore$.readerSettings.backgroundTexture.get() as BackgroundTexture
     );
     const [showControls, setShowControls] = useState(false);
     const chapters = Object.values(chapters$.get() || {}).filter((val) => val.book_id === bookId);
@@ -61,12 +61,12 @@ export const StoryReader = observer(
 
     const handleTextSizeChange = (size: number) => {
       setTextSize(size);
-      userPreferences$.readerSettings.fontSize.set(size);
+      userStore$.readerSettings.fontSize.set(size);
     };
 
     const handleBackgroundChange = (texture: BackgroundTexture) => {
       setBackgroundTexture(texture);
-      userPreferences$.readerSettings.backgroundTexture.set(texture);
+      userStore$.readerSettings.backgroundTexture.set(texture);
     };
 
     const getBackgroundStyle = () => {

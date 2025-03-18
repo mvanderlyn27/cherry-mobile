@@ -1,38 +1,54 @@
 module.exports = {
-  primary: {
-    DEFAULT: "#0A7EA4",
-    dark: "#1D3D47",
-  },
   background: {
     light: "#FFE9E9",
-    dark: "#1F1A1A",
+    dark: "#542E2F",
   },
-  text: {
-    light: "#B25557",
+  tabs: {
+    light: "#F9CECF",
+    dark: "#EA9092",
+  },
+  tabs_selected: {
+    light: "#EA9092",
     dark: "#FFFFFF",
   },
-  buttonText: {
+  tags: {
+    light: "#CE8C8D",
+    dark: "#B25557",
+  },
+  buttons: {
+    light: "#B25557",
+    dark: "#CE8C8D",
+  },
+  buttons_text: {
     light: "#8F4647",
     dark: "#FFFFFF",
   },
-  unlock: {
+  buttons_2: {
     light: "#EDA37C",
-    dark: "#1F1A1A",
+    dark: "#EDA37C",
   },
-  tag: {
-    light: "#CE8C8D",
-    dark: "#1F1A1A",
+  buttons_2_shadow: {
+    light: "#FFB956",
+    dark: "#FFB956",
   },
-  pink_: {
+  story: {
+    light: "#542E2F",
+    dark: "#FFE9E9",
+  },
+  nsfw: {
     light: "#E96F71",
-    dark: "#1F1A1A",
+    dark: "#E96F71",
   },
-  pink_pale: {
-    light: "#F9CECF",
-    dark: "#1F1A1A",
+  cherry: {
+    light: "#DE4447",
+    dark: "#DE4447",
   },
-  category_selected: {
-    light: "#EA9092",
-    dark: "#1F1A1A",
+  time: {
+    light: "#9879BA",
+    dark: "#9879BA",
+  },
+  tab_bar_border: {
+    light: "#B798A5",
+    dark: "#B798A5",
   },
 };

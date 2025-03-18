@@ -15,14 +15,18 @@ import {
   KaiseiDecol_500Medium,
   KaiseiDecol_700Bold,
 } from "@expo-google-fonts/kaisei-decol";
+import { Heebo_400Regular, Heebo_500Medium, Heebo_700Bold } from "@expo-google-fonts/heebo";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, error] = useFonts({
     KaiseiDecol_400Regular,
     KaiseiDecol_500Medium,
     KaiseiDecol_700Bold,
+    Heebo_400Regular,
+    Heebo_500Medium,
+    Heebo_700Bold,
   });
 
   useEffect(() => {

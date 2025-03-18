@@ -8,11 +8,14 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-     colors,
+      colors,
       fontFamily: {
         'kaisei': ['KaiseiDecol_400Regular'],
         'kaisei-medium': ['KaiseiDecol_500Medium'],
         'kaisei-bold': ['KaiseiDecol_700Bold'],
+        'heebo': ['Heebo_400Regular'],
+        'heebo-medium': ['Heebo_500Medium'],
+        'heebo-bold': ['Heebo_700Bold'],
       },
     },
   },
