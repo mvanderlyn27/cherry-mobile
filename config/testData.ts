@@ -23,7 +23,8 @@ export const categoryData: CategoryData[] = [
         "Starlit Romance",
       ][i],
       cover_url: `https://picsum.photos/200/${300 + i}`,
-      preview_text: "A romantic journey that will capture your heart...",
+      preview_text:
+        "On the night of turning 18, you were sold by your parents to the most powerful werewolf family in the city. You are forced to mate with the alpha of the group—Lukas, who’s known for murdering his brides...",
       price: 25 + Math.floor(Math.random() * 20),
       reading_time: 60 + Math.floor(Math.random() * 60),
       created_at: new Date().toISOString(),

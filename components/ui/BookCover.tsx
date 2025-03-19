@@ -6,7 +6,7 @@ import { Icon, Book } from "@/types/app";
 import { formatReadingTime } from "@/utils/time";
 import { LinearGradient } from "expo-linear-gradient";
 
-type BookCoverSize = "large" | "medium" | "small";
+type BookCoverSize = "x-large" | "large" | "medium" | "small";
 
 type Props = {
   book: Book;
@@ -206,6 +206,70 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
       </Pressable>
     );
   };
+  const renderXLargeCover = () => {
+    return (
+      <Pressable onPress={() => onPress?.(book.id)} style={{ width: 230, height: 330 }}>
+        <Image
+          source={book.cover_url}
+          style={{ width: 230, height: 330, borderRadius: 16 }}
+          contentFit="cover"
+          transition={200}
+        />
+
+        {/* Save Button */}
+        <Pressable
+          onPress={() => onSave?.(book.id, !is_saved)}
+          className="absolute top-2 right-4 bg-black/50 rounded-full aspect-square w-14 h-14 items-center justify-center">
+          <IconSymbol name={is_saved ? Icon.saved : Icon.save} size={30} color="white" />
+        </Pressable>
+
+        <View className="absolute top-2 left-4 flex-col gap-2">
+          {book.reading_time && (
+            <View className="bg-time-light dark:bg-time-light rounded-full px-2 py-1 flex-row items-center">
+              <IconSymbol name={Icon.time} size={18} color="white" />
+              <Text className="text-white font-heebo-medium text-lg ml-2">
+                {formatReadingTime(book.reading_time, 100)}
+              </Text>
+            </View>
+          )}
+
+          {is_hot && (
+            <View className="bg-tabs_selected-light dark:bg-tabs_selected-dark rounded-full px-2 py-1 flex-row items-center">
+              <IconSymbol name={Icon.fire} size={18} color="white" />
+              <Text className="text-white text-md font-heebo-medium ml-2">Hot</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Title */}
+        {/* <View className="absolute flex-col bottom-0 left-0 right-0 rounded-b-2xl">
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,0.7)", "rgba(0,0,0,0.8)"]}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              borderBottomLeftRadius: 16,
+              borderBottomRightRadius: 16,
+            }}>
+            <View className="w-full flex flex-row justify-end items-end p-2">
+              {is_adult && (
+                <View className="bg-nsfw-light dark:bg-nsfw-dark rounded-full p-2 py-1">
+                  <Text className="text-white text-xs">18+</Text>
+                </View>
+              )}
+            </View>
+            <View className="w-full pb-4 px-2">
+              <Text className="text-white font-bold text-center text-lg font-kaisei-bold" numberOfLines={2}>
+                {book.title}
+              </Text>
+            </View>
+          </LinearGradient>
+        </View> */}
+      </Pressable>
+    );
+  };
 
   // Use switch to render the appropriate cover based on size
   switch (size) {
@@ -213,6 +277,8 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
       return renderSmallCover();
     case "large":
       return renderLargeCover();
+    case "x-large":
+      return renderXLargeCover();
     case "medium":
     default:
       return renderMediumCover();
