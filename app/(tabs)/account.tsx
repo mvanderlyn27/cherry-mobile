@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Switch, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Icon } from "@/types/app";
@@ -46,8 +45,6 @@ export default function Page() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" />
-
       <View className="px-4 py-4 border-b border-gray-100">
         <Text className="font-kaisei-bold text-2xl text-gray-800">Account</Text>
       </View>

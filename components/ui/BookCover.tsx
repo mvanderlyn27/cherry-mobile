@@ -208,10 +208,10 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
   };
   const renderXLargeCover = () => {
     return (
-      <Pressable onPress={() => onPress?.(book.id)} style={{ width: 230, height: 330 }}>
+      <Pressable onPress={() => onPress?.(book.id)} style={{ width: 250, height: 350 }}>
         <Image
           source={book.cover_url}
-          style={{ width: 230, height: 330, borderRadius: 16 }}
+          style={{ width: 250, height: 350, borderRadius: 16 }}
           contentFit="cover"
           transition={200}
         />
@@ -219,8 +219,8 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
         {/* Save Button */}
         <Pressable
           onPress={() => onSave?.(book.id, !is_saved)}
-          className="absolute top-2 right-4 bg-black/50 rounded-full aspect-square w-14 h-14 items-center justify-center">
-          <IconSymbol name={is_saved ? Icon.saved : Icon.save} size={30} color="white" />
+          className="absolute top-2 right-4 bg-black/50 rounded-full aspect-square w-12 h-12 items-center justify-center">
+          <IconSymbol name={is_saved ? Icon.saved : Icon.save} size={26} color="white" />
         </Pressable>
 
         <View className="absolute top-2 left-4 flex-col gap-2">

@@ -1,6 +1,5 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Header from "@/components/ui/Header";
 import { Icon } from "@/types/app";
@@ -12,7 +11,6 @@ export default function Page() {
 
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
-      <StatusBar style="dark" />
       <Header
         title="BOOK_TITLE"
         leftActions={[{ icon: Icon.menu, onPress: () => console.log("menu") }]}

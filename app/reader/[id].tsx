@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StoryReader } from "@/components/StoryReader";
 import { observer } from "@legendapp/state/react";
@@ -69,7 +68,6 @@ const ReaderScreen = observer(() => {
   if (!chapters || chapters.length === 0) {
     return (
       <SafeAreaView style={styles.errorContainer}>
-        <StatusBar style="auto" />
         <View>
           <Text>No chapters found for this book.</Text>
           <TouchableOpacity onPress={() => router.back()}>
@@ -82,7 +80,6 @@ const ReaderScreen = observer(() => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="auto" />
       <StoryReader
         bookId={id}
         currentChapterIndex={currentChapterIndex}

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, FlatList, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { observer, use$ } from "@legendapp/state/react";
 import { books$ } from "@/stores/bookStore";
@@ -113,7 +112,7 @@ const Page = observer(() => {
       <Text className="text-center text-gray-600 mb-6">
         Save books from the Explore tab to add them to your library
       </Text>
-      <TouchableOpacity className="bg-[#E57373] px-6 py-3 rounded-lg" onPress={() => router.push("/")}>
+      <TouchableOpacity className="bg-[#E57373] px-6 py-3 rounded-lg" onPress={() => router.push("/explore")}>
         <Text className="text-white font-medium">Explore Books</Text>
       </TouchableOpacity>
     </View>
@@ -146,8 +145,6 @@ const Page = observer(() => {
 
   return (
     <SafeAreaView className="flex-1  bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
-      <StatusBar style="dark" />
-
       <Header
         title="My Library"
         rightActions={[

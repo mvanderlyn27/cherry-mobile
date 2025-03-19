@@ -2,7 +2,6 @@ import { Href, Tabs, usePathname } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import Header from "@/components/ui/Header";
 import { TabFilter } from "@/components/ui/TabFilter";
@@ -25,7 +24,6 @@ export default function ExploreTabsLayout() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
-      <StatusBar style="dark" />
       <Header title="Explore" rightActions={[{ icon: Icon.search, onPress: () => router.push("/explore/search") }]} />
       <TabFilter options={tabOptions} activeTab={pathname || ""} onTabChange={handleTabChange} />
       <Tabs

@@ -1,24 +1,35 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Dimensions } from "react-native";
+import { LegendList } from "@legendapp/list";
+import { CategoryCard } from "./CategoryCard";
 
-type Props = {
-  onBookPress: (id: string) => void;
+type Category = {
+  id: number;
+  name: string;
+  image_url: string;
 };
 
-export const CategoriesSection: React.FC<Props> = ({ onBookPress }) => {
+type Props = {
+  categories: Category[];
+  onCategoryPress: (category: string) => void;
+};
+
+export const CategoriesSection: React.FC<Props> = ({ categories, onCategoryPress }) => {
+  const screenWidth = Dimensions.get("window").width;
+  const columnWidth = (screenWidth - 48) / 2; // 48 = padding (16) * 2 + gap between columns (16)
+
   return (
-    <ScrollView className="flex-1 px-4">
-      <Text className="text-xl font-bold mb-4">Categories</Text>
-      <View className="flex-row flex-wrap gap-4">
-        {["Romance", "Mystery", "Thriller", "Fantasy"].map((category) => (
-          <TouchableOpacity
-            key={category}
-            className="bg-primary-light dark:bg-primary-dark rounded-xl p-4 w-[45%]"
-          >
-            <Text className="text-white font-bold">{category}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </ScrollView>
+    <View className="flex-1 px-4">
+      <LegendList
+        data={categories}
+        numColumns={2}
+        estimatedItemSize={120}
+        renderItem={({ item }) => (
+          <View style={{ width: columnWidth, padding: 4 }}>
+            <CategoryCard name={item.name} imageUrl={item.image_url} onPress={() => onCategoryPress(item.name)} />
+          </View>
+        )}
+      />
+    </View>
   );
 };

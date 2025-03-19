@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { SUPERWALL_TRIGGERS } from "@/config/superwall";
 import { PaywallButton } from "@/components/PaywallButton";
 import { superwallService } from "@/services/superwall";
@@ -18,7 +17,6 @@ export default function Page() {
   });
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" />
       <PaywallButton />
     </SafeAreaView>
   );

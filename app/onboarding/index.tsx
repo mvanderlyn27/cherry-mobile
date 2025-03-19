@@ -2,7 +2,6 @@ import { Text, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function WelcomeScreen() {
@@ -14,7 +13,6 @@ export default function WelcomeScreen() {
 
   return (
     <View>
-      <StatusBar style="auto" />
       <SafeAreaView>
         <View>
           <View>
