@@ -121,7 +121,7 @@ const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, o
   // Only allow press on the center item
   const handlePress = () => {
     // If this is the center item (value close to 0), allow the press
-    if (Math.abs(animationValue.value) < 0.1) {
+    if (Math.abs(animationValue.value) < 0.05) {
       onPress(book.id);
     }
   };

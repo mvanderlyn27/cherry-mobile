@@ -19,10 +19,16 @@ export const TabFilter: React.FC<TabFilterProps> = ({ options, activeTab, onTabC
       {options.map((option) => (
         <TouchableOpacity
           key={option.id}
-          className={`flex-1 mx-2 py-3 rounded-full ${activeTab === option.id ? "bg-[#E57373]" : "bg-[#FFCDD2]"}`}
+          className={`flex-1 mx-2 py-3 rounded-full ${
+            activeTab === option.id
+              ? "bg-tabs_selected-light dark:bg-tabs_selected-dark"
+              : "bg-tabs-light dark: bg-tabs-dark]"
+          }`}
           onPress={() => onTabChange(option.id)}>
           <Text
-            className={`text-md font-medium text-center ${activeTab === option.id ? "text-white" : "text-[#B71C1C]"}`}>
+            className={`text-md font-medium text-center ${
+              activeTab === option.id ? "text-white" : "text-buttons-light dark:text-buttons-dark"
+            }`}>
             {option.label}
           </Text>
         </TouchableOpacity>
