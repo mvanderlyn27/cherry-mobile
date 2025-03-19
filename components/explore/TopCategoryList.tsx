@@ -30,6 +30,15 @@ export const TopCategoryList: React.FC<Props> = ({ onBookPress, selectedCategory
             <Text className="text-xl font-kaisei-bold text-buttons_text-light dark:text-buttons_text-dark font-bold">
               {category.name}
             </Text>
+            <View
+              style={{
+                width: screenWidth * 0.5,
+                height: 1.5,
+                backgroundColor: colors["tab_bar_border"][colorScheme || "light"],
+                opacity: 0.2,
+                marginBottom: 4,
+              }}
+            />
           </View>
           <View style={{ position: "relative" }}>
             <LegendList
