@@ -32,9 +32,9 @@ export default function ExplorePage() {
         from={{ opacity: 0, translateX: 20 }}
         animate={{ opacity: 1, translateX: 0 }}
         exit={{ opacity: 0, translateX: -20 }}
-        transition={{ type: "timing", duration: 300 }}
+        transition={{ type: "timing", duration: 500 }}
         key={activeTab}
-        className="flex-1"  // Add this to ensure the section takes up available space
+        className="flex-1" // Add this to ensure the section takes up available space
       >
         {(() => {
           switch (activeTab) {
@@ -53,15 +53,8 @@ export default function ExplorePage() {
   return (
     <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
       <StatusBar style="dark" />
-      <Header
-        title="Explore"
-        rightActions={[{ icon: Icon.search, onPress: () => router.push("/explore/search") }]}
-      />
-      <TabFilter
-        options={tabOptions}
-        activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab as ExploreTab)}
-      />
+      <Header title="Explore" rightActions={[{ icon: Icon.search, onPress: () => router.push("/explore/search") }]} />
+      <TabFilter options={tabOptions} activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab as ExploreTab)} />
       {renderSection()}
     </SafeAreaView>
   );
