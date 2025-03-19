@@ -24,6 +24,7 @@ const TabLayout = observer(() => {
           borderColor: colors["tab_bar_border"][colorScheme || "light"],
           borderTopWidth: 1,
         },
+        animation: "fade",
       }}>
       <Tabs.Screen
         name="account"

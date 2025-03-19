@@ -24,7 +24,7 @@ export default function ExploreTabsLayout() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
       <StatusBar style="dark" />
       <Header title="Explore" rightActions={[{ icon: Icon.search, onPress: () => router.push("/explore/search") }]} />
       <TabFilter options={tabOptions} activeTab={pathname || ""} onTabChange={handleTabChange} />
@@ -32,6 +32,7 @@ export default function ExploreTabsLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: { display: "none" },
+          animation: "shift",
         }}>
         <Tabs.Screen name="index" />
         <Tabs.Screen name="forYou" />

@@ -13,6 +13,7 @@ type TabFilterProps = {
 };
 
 export const TabFilter: React.FC<TabFilterProps> = ({ options, activeTab, onTabChange }) => {
+  console.log("option", options, activeTab);
   return (
     <View className="flex flex-row justify-between px-6 py-4">
       {options.map((option) => (

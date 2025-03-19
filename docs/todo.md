@@ -4,6 +4,8 @@
 - build reader page
 - setup anonymous acount creation
 - setup interaction tracking
+- animations
+   - Can we get animations to play every time you go to a page without re-rendeirng all the images/ fucking performance?
 - setup posthog
     - logging service (posthog)
 - setup ftux
