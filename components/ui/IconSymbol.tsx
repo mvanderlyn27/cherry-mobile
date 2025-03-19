@@ -3,6 +3,7 @@
 import { Icon } from "@/types/app";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from "@expo/vector-icons/Feather";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -29,7 +30,9 @@ export function IconSymbol({
     case "cherry":
       return <MaterialCommunityIcons name="fruit-cherries" size={size} color={color} />;
     case "save":
-      return <MaterialIcons name="bookmark" size={size} color={color} />;
+      return <FontAwesome name="bookmark-o" size={size} color={color} />;
+    case "saved":
+      return <FontAwesome name="bookmark" size={size} color={color} />;
     case "like":
       return <MaterialIcons name="thumb-up" size={size} color={color} />;
     case "explore":
@@ -96,6 +99,8 @@ export function IconSymbol({
       return <Feather name="shield" size={size} color={color} />;
     case "logout":
       return <Feather name="log-out" size={size} color={color} />;
+    case "fire":
+      return <FontAwesome5 name="fire" size={size} color={color} />;
     default:
       return <MaterialIcons name="error" size={size} color={color} />;
   }

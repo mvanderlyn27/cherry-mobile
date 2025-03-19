@@ -1,5 +1,4 @@
 # Todo 
-- build library page
 - build out explore page
 - build account page
 - build reader page
@@ -17,3 +16,4 @@
 
 # Done
 - setup supabase
+- build library page

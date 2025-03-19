@@ -13,22 +13,28 @@ export type Database = {
         Row: {
           book_id: string | null
           chapter_number: number | null
+          deleted: boolean | null
           id: string
           timestamp: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
           chapter_number?: number | null
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
           chapter_number?: number | null
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -59,27 +65,33 @@ export type Database = {
         Row: {
           cover_url: string | null
           created_at: string | null
+          deleted: boolean | null
           id: string
           preview_text: string | null
           price: number
+          reading_time: number | null
           title: string
           updated_at: string | null
         }
         Insert: {
           cover_url?: string | null
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           preview_text?: string | null
           price: number
+          reading_time?: number | null
           title: string
           updated_at?: string | null
         }
         Update: {
           cover_url?: string | null
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           preview_text?: string | null
           price?: number
+          reading_time?: number | null
           title?: string
           updated_at?: string | null
         }
@@ -90,16 +102,22 @@ export type Database = {
           book_id: string
           category_id: string
           created_at: string | null
+          deleted: boolean | null
+          updated_at: string | null
         }
         Insert: {
           book_id: string
           category_id: string
           created_at?: string | null
+          deleted?: boolean | null
+          updated_at?: string | null
         }
         Update: {
           book_id?: string
           category_id?: string
           created_at?: string | null
+          deleted?: boolean | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -122,17 +140,23 @@ export type Database = {
         Row: {
           book_id: string
           created_at: string | null
+          deleted: boolean | null
           tag_id: string
+          updated_at: string | null
         }
         Insert: {
           book_id: string
           created_at?: string | null
+          deleted?: boolean | null
           tag_id: string
+          updated_at?: string | null
         }
         Update: {
           book_id?: string
           created_at?: string | null
+          deleted?: boolean | null
           tag_id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -155,6 +179,7 @@ export type Database = {
         Row: {
           cover_image: string | null
           created_at: string | null
+          deleted: boolean | null
           id: string
           name: string
           popularity_score: number | null
@@ -163,6 +188,7 @@ export type Database = {
         Insert: {
           cover_image?: string | null
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           name: string
           popularity_score?: number | null
@@ -171,6 +197,7 @@ export type Database = {
         Update: {
           cover_image?: string | null
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           name?: string
           popularity_score?: number | null
@@ -183,6 +210,7 @@ export type Database = {
           book_id: string | null
           chapter_number: number
           created_at: string | null
+          deleted: boolean | null
           id: string
           text: string | null
           title: string | null
@@ -193,6 +221,7 @@ export type Database = {
           book_id?: string | null
           chapter_number: number
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           text?: string | null
           title?: string | null
@@ -203,6 +232,7 @@ export type Database = {
           book_id?: string | null
           chapter_number?: number
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           text?: string | null
           title?: string | null
@@ -224,24 +254,30 @@ export type Database = {
           book_id: string | null
           chapter_number: number | null
           comment_text: string
+          deleted: boolean | null
           id: string
           timestamp: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
           chapter_number?: number | null
           comment_text: string
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
           chapter_number?: number | null
           comment_text?: string
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -272,22 +308,28 @@ export type Database = {
         Row: {
           book_id: string | null
           chapter_number: number | null
+          deleted: boolean | null
           id: string
           timestamp: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
           chapter_number?: number | null
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
           chapter_number?: number | null
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -318,22 +360,28 @@ export type Database = {
         Row: {
           book_id: string | null
           chapter_number: number | null
+          deleted: boolean | null
           id: string
           timestamp: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
           chapter_number?: number | null
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
           chapter_number?: number | null
+          deleted?: boolean | null
           id?: string
           timestamp?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -363,38 +411,50 @@ export type Database = {
       tags: {
         Row: {
           created_at: string | null
+          deleted: boolean | null
           id: string
           name: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           name: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          deleted?: boolean | null
           id?: string
           name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       user_purchases: {
         Row: {
           book_id: string | null
+          deleted: boolean | null
           id: string
           purchase_date: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
+          deleted?: boolean | null
           id?: string
           purchase_date?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
+          deleted?: boolean | null
           id?: string
           purchase_date?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -417,20 +477,26 @@ export type Database = {
       user_saved_books: {
         Row: {
           book_id: string | null
+          deleted: boolean | null
           id: string
           save_date: string | null
+          updated_at: string | null
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
+          deleted?: boolean | null
           id?: string
           save_date?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
+          deleted?: boolean | null
           id?: string
           save_date?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [

@@ -9,6 +9,7 @@ export enum Icon {
   "book" = "book",
   "cherry" = "cherry",
   "save" = "save",
+  "saved" = "saved",
   "like" = "like",
   "explore" = "explore",
   "settings" = "settings",
@@ -44,4 +45,5 @@ export enum Icon {
   "document" = "document",
   "shield" = "shield",
   "logout" = "logout",
+  "fire" = "fire",
 }

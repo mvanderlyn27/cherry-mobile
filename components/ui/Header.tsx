@@ -30,19 +30,19 @@ const Header = observer(({ title, leftActions = [], rightActions = [], titleClas
           <View className="flex flex-row">
             {leftActions.map((action, index) => (
               <TouchableOpacity key={index} className="mr-4" onPress={action.onPress}>
-                <IconSymbol name={action.icon} size={24} color="#E57373" />
+                <IconSymbol name={action.icon} size={32} color="#E57373" />
               </TouchableOpacity>
             ))}
           </View>
         )}
 
-        <Text className={`font-kaisei-bold text-2xl text-[#B25959] ${titleClassName}`}>{title}</Text>
+        <Text className={`font-kaisei-bold text-3xl text-[#B25959] ${titleClassName}`}>{title}</Text>
 
         {rightActions.length > 0 && (
           <View className="flex flex-row">
             {rightActions.map((action, index) => (
               <TouchableOpacity key={index} className="ml-4" onPress={action.onPress}>
-                <IconSymbol name={action.icon} size={24} color="#E57373" />
+                <IconSymbol name={action.icon} size={32} color="#E57373" />
               </TouchableOpacity>
             ))}
           </View>
