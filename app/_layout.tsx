@@ -41,8 +41,12 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* <StatusBar style="dark" /> */}
-      <Stack screenOptions={{ headerShown: false }} />
+      <StatusBar style="dark" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="search" options={{ presentation: "modal" }} />
+        <Stack.Screen name="book/[id]" options={{ presentation: "modal" }} />
+      </Stack>
     </GestureHandlerRootView>
   );
 }
