@@ -16,16 +16,10 @@ export default function ExploreTabsLayout() {
     { id: "/explore/forYou", label: "For You" },
     { id: "/explore/categories", label: "Categories" },
   ];
-  console.log("pathname", pathname);
   return (
     <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
       <Header title="Explore" rightActions={[{ icon: Icon.search, onPress: () => router.push("/search") }]} />
-      <TabFilter
-        basePath="/explore"
-        options={tabOptions}
-        activeTab={pathname}
-        onTabChange={(path) => router.replace(path as Href)}
-      />
+      <TabFilter options={tabOptions} activeTab={pathname} onTabChange={(path) => router.replace(path as Href)} />
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -35,6 +29,7 @@ export default function ExploreTabsLayout() {
         <Tabs.Screen name="categories" />
         <Tabs.Screen name="forYou" />
         <Tabs.Screen name="top" />
+        <Tabs.Screen name="index" options={{ href: null }} />
       </Tabs>
     </SafeAreaView>
   );

@@ -25,21 +25,17 @@ export default function LibraryLayout() {
           { icon: Icon.search, onPress: () => console.log("Search") },
         ]}
       />
-      <TabFilter
-        basePath={"/library"}
-        options={tabOptions}
-        activeTab={pathname}
-        onTabChange={(path) => router.replace(path as Href)}
-      />
+      <TabFilter options={tabOptions} activeTab={pathname} onTabChange={(path) => router.replace(path as Href)} />
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarStyle: { display: "none" },
         }}
-        initialRouteName="inProgress">
+        initialRouteName="index">
         <Tabs.Screen name="inProgress" />
         <Tabs.Screen name="unread" />
         <Tabs.Screen name="completed" />
+        <Tabs.Screen name="index" options={{ href: null }} />
       </Tabs>
     </SafeAreaView>
   );
