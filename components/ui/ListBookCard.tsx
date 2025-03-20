@@ -7,6 +7,7 @@ import ActionButton from "./ActionButton";
 import { MotiView } from "moti";
 import { router } from "expo-router";
 import { formatReadingTime } from "@/utils/time";
+import { MotiPressable } from "moti/interactions";
 
 type BookTag = {
   label: string;
@@ -23,7 +24,8 @@ type ListBookCardProps = {
   owned?: boolean;
   progress?: number;
   started?: boolean;
-  onPress: (id: string) => void;
+  onRead: (id: string) => void;
+  onClick: (id: string) => void;
   buyBook?: (id: string) => void;
   rateStory?: (id: string) => void;
   credits?: number;
@@ -40,16 +42,17 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
   owned = false,
   started = false,
   progress = 0,
-  onPress,
+  onRead,
+  onClick,
   buyBook,
   rateStory,
   credits,
   canBuy,
 }) => {
   const finished = progress === 100;
-  
+
   return (
-    <MotiView
+    <MotiPressable
       from={{
         opacity: 0,
         translateX: -20,
@@ -63,7 +66,14 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
         duration: 400,
         delay: 100,
       }}
-      className="flex flex-row mb-4 overflow-hidden py-1">
+      onPress={() => onClick(id)}
+      style={{
+        flex: 1,
+        flexDirection: "row",
+        marginBottom: 16,
+        overflow: "hidden",
+        paddingVertical: 1,
+      }}>
       <MotiView className="relative mr-3">
         <Image
           source={coverUrl}
@@ -125,18 +135,18 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
               case finished:
                 return (
                   <View className="flex flex-row gap-2 items-center justify-center">
-                    <ActionButton mode="review1" credits={credits} onPress={() => onPress(id)} />
+                    <ActionButton mode="review1" credits={credits} onPress={() => onRead(id)} />
                     {rateStory && <ActionButton mode="review2" credits={credits} onPress={() => rateStory(id)} />}
                   </View>
                 );
               case started && !finished:
-                return <ActionButton mode="continue" onPress={() => onPress(id)} />;
+                return <ActionButton mode="continue" onPress={() => onRead(id)} />;
               default:
-                return <ActionButton mode="read" onPress={() => onPress(id)} />;
+                return <ActionButton mode="read" onPress={() => onRead(id)} />;
             }
           })()}
         </View>
       </View>
-    </MotiView>
+    </MotiPressable>
   );
 };

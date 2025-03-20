@@ -3,11 +3,11 @@ import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { ForYouSection } from "@/components/explore/ForYouSection";
 
-const ForYouTab = memo(() => {
+const Page = memo(() => {
   const router = useRouter();
 
   const handleBookPress = (id: string) => {
-    router.push(`/explore/view/${id}`);
+    router.push(`/reader/${id}`);
   };
 
   return (
@@ -17,5 +17,5 @@ const ForYouTab = memo(() => {
   );
 });
 
-ForYouTab.displayName = 'ForYouTab';
-export default ForYouTab;
+Page.displayName = "ForYouTab";
+export default Page;

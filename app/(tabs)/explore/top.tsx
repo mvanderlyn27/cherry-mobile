@@ -3,11 +3,11 @@ import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { TopSection } from "@/components/explore/TopSection";
 
-export default function TopTab() {
+export default function Page() {
   const router = useRouter();
 
   const handleBookPress = (id: string) => {
-    router.push(`/explore/view/${id}`);
+    router.push(`/book/${id}`);
   };
 
   return (

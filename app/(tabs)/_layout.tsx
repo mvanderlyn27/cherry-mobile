@@ -54,6 +54,7 @@ const TabLayout = observer(() => {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name={Icon.cherry} color={color} />,
         }}
       />
+      <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
 });

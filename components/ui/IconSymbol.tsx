@@ -101,6 +101,8 @@ export function IconSymbol({
       return <Feather name="log-out" size={size} color={color} />;
     case "fire":
       return <FontAwesome5 name="fire" size={size} color={color} />;
+    case "eye":
+      return <Feather name="eye" size={size} color={color} />;
     default:
       return <MaterialIcons name="error" size={size} color={color} />;
   }

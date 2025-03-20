@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
 type TabOption = {
@@ -10,10 +10,18 @@ type TabFilterProps = {
   options: TabOption[];
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  basePath: string;
 };
 
-export const TabFilter: React.FC<TabFilterProps> = ({ options, activeTab, onTabChange }) => {
-  console.log("option", options, activeTab);
+export const TabFilter: React.FC<TabFilterProps> = ({ options, activeTab, onTabChange, basePath }) => {
+  const shouldRender = useMemo(() => {
+    return activeTab?.startsWith(basePath);
+  }, [activeTab, basePath]);
+
+  if (!shouldRender) {
+    return null;
+  }
+
   return (
     <View className="flex flex-row justify-between px-6 py-4">
       {options.map((option) => (
@@ -22,7 +30,7 @@ export const TabFilter: React.FC<TabFilterProps> = ({ options, activeTab, onTabC
           className={`flex-1 mx-2 py-3 rounded-full ${
             activeTab === option.id
               ? "bg-tabs_selected-light dark:bg-tabs_selected-dark"
-              : "bg-tabs-light dark: bg-tabs-dark]"
+              : "bg-tabs-light dark:bg-tabs-dark"
           }`}
           onPress={() => onTabChange(option.id)}>
           <Text

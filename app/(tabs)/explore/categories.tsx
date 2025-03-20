@@ -4,11 +4,11 @@ import { useRouter } from "expo-router";
 import { CategoriesSection } from "@/components/explore/CategoriesSection";
 import { categoryData } from "@/config/testData";
 
-const CategoriesTab = memo(() => {
+const Page = memo(() => {
   const router = useRouter();
 
   const handleCategoryPress = (id: string) => {
-    router.push(`/explore/category/${id}`);
+    router.push(`/search?category=${id}`);
   };
   const categories = categoryData.map((category) => ({
     id: Math.random(),
@@ -22,5 +22,5 @@ const CategoriesTab = memo(() => {
   );
 });
 
-CategoriesTab.displayName = "CategoriesTab";
-export default CategoriesTab;
+Page.displayName = "CategoriesTab";
+export default Page;

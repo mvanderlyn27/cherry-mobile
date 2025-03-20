@@ -46,4 +46,5 @@ export enum Icon {
   "shield" = "shield",
   "logout" = "logout",
   "fire" = "fire",
+  "eye" = "eye",
 }

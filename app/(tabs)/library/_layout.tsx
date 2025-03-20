@@ -1,27 +1,32 @@
 import { Href, Tabs, usePathname } from "expo-router";
 import React from "react";
-import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import Header from "@/components/ui/Header";
 import { TabFilter } from "@/components/ui/TabFilter";
 import { Icon } from "@/types/app";
 
-export default function ExploreTabsLayout() {
+export default function LibraryLayout() {
   const router = useRouter();
   const pathname = usePathname();
-
   const tabOptions = [
-    { id: "/explore/top", label: "Top" },
-    { id: "/explore/forYou", label: "For You" },
-    { id: "/explore/categories", label: "Categories" },
+    { id: "/library/inProgress", label: "In Progress" },
+    { id: "/library/unread", label: "Unread" },
+    { id: "/library/completed", label: "Completed" },
   ];
-  console.log("pathname", pathname);
+
   return (
     <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
-      <Header title="Explore" rightActions={[{ icon: Icon.search, onPress: () => router.push("/search") }]} />
+      <Header
+        title="My Library"
+        rightActions={[
+          { icon: Icon.edit, onPress: () => console.log("Edit") },
+          { icon: Icon.sort, onPress: () => console.log("Sort") },
+          { icon: Icon.search, onPress: () => console.log("Search") },
+        ]}
+      />
       <TabFilter
-        basePath="/explore"
+        basePath={"/library"}
         options={tabOptions}
         activeTab={pathname}
         onTabChange={(path) => router.replace(path as Href)}
@@ -31,10 +36,10 @@ export default function ExploreTabsLayout() {
           headerShown: false,
           tabBarStyle: { display: "none" },
         }}
-        initialRouteName="top">
-        <Tabs.Screen name="categories" />
-        <Tabs.Screen name="forYou" />
-        <Tabs.Screen name="top" />
+        initialRouteName="inProgress">
+        <Tabs.Screen name="inProgress" />
+        <Tabs.Screen name="unread" />
+        <Tabs.Screen name="completed" />
       </Tabs>
     </SafeAreaView>
   );

@@ -63,34 +63,46 @@ export type Database = {
       }
       books: {
         Row: {
+          author: string | null
           cover_url: string | null
           created_at: string | null
           deleted: boolean | null
           id: string
+          lang: string | null
+          placeholder: string | null
           preview_text: string | null
           price: number
+          reader_count: number
           reading_time: number | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          author?: string | null
           cover_url?: string | null
           created_at?: string | null
           deleted?: boolean | null
           id?: string
+          lang?: string | null
+          placeholder?: string | null
           preview_text?: string | null
           price: number
+          reader_count?: number
           reading_time?: number | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          author?: string | null
           cover_url?: string | null
           created_at?: string | null
           deleted?: boolean | null
           id?: string
+          lang?: string | null
+          placeholder?: string | null
           preview_text?: string | null
           price?: number
+          reader_count?: number
           reading_time?: number | null
           title?: string
           updated_at?: string | null
