@@ -2,6 +2,8 @@ import React from "react";
 import { View, TextInput, TouchableOpacity } from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Icon } from "@/types/app";
+import { useColorScheme } from "nativewind";
+const colors = require("@/config/colors");
 
 type SearchBarProps = {
   value: string;
@@ -10,18 +12,19 @@ type SearchBarProps = {
 };
 
 export const SearchBar: React.FC<SearchBarProps> = ({ value, onChangeText, onSortPress }) => {
+  const { colorScheme } = useColorScheme();
   return (
-    <View className="flex-row items-center bg-white dark:bg-story-dark rounded-full my-4 px-4 py-2">
-      <IconSymbol name={Icon.search} color="#8F4647" size={20} />
+    <View className="flex-row items-center bg-white dark:bg-story-dark rounded-3xl border-2 border-tags-light dark:boder-tags-dark my-4 px-4 py-5">
+      <IconSymbol name={Icon.search} color={colors["tabs_selected"][colorScheme || "light"]} size={20} />
       <TextInput
         className="flex-1 ml-2 text-buttons_text-light dark:text-white"
-        placeholder="Search books, authors..."
-        placeholderTextColor="#B25557"
+        placeholder="Find your romance..."
+        placeholderTextColor={colors["tags"][colorScheme || "light"]}
         value={value}
         onChangeText={onChangeText}
       />
       <TouchableOpacity onPress={onSortPress}>
-        <IconSymbol name={Icon.sort} color="#8F4647" size={20} />
+        <IconSymbol name={Icon.sort} color={colors["tabs_selected"][colorScheme || "light"]} size={20} />
       </TouchableOpacity>
     </View>
   );

@@ -61,8 +61,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ searchQuery, selec
   };
 
   return (
-    <View className="flex-1 mt-2">
-      <Text className="text-buttons_text-light dark:text-white font-medium mb-2">{filteredBooks.length} Results</Text>
+    <View className="flex-1 mt-4">
+      {/* <Text className="text-buttons_text-light dark:text-white font-medium mb-2">{filteredBooks.length} Results</Text> */}
 
       {filteredBooks.length > 0 ? (
         <LegendList

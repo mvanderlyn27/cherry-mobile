@@ -1,5 +1,7 @@
-import React from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import React, { useMemo } from "react";
+import { View } from "react-native";
+import Animated, { Layout, FadeIn, LinearTransition } from "react-native-reanimated";
+import { Tag } from "../ui/Tag";
 
 type TagSelectorProps = {
   tags: string[];
@@ -8,32 +10,25 @@ type TagSelectorProps = {
 };
 
 export const TagSelector: React.FC<TagSelectorProps> = ({ tags, selectedTags, onTagSelect }) => {
+  const sortedTags = useMemo(() => {
+    return [...tags].sort((a, b) => {
+      const aSelected = selectedTags.includes(a);
+      const bSelected = selectedTags.includes(b);
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      return 0;
+    });
+  }, [tags, selectedTags]);
+
   return (
-    <View className="my-2">
-      <Text className="text-buttons_text-light dark:text-white font-medium mb-2">Categories</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-2">
-        {tags.map((tag) => (
-          <TouchableOpacity
-            key={tag}
-            onPress={() => onTagSelect(tag)}
-            className={`mr-2 px-4 py-2 rounded-full ${
-              selectedTags.includes(tag)
-                ? "bg-buttons-light dark:bg-buttons-dark"
-                : "bg-tags-light dark:bg-tags-dark"
-            }`}
-          >
-            <Text
-              className={`${
-                selectedTags.includes(tag)
-                  ? "text-white"
-                  : "text-buttons_text-light dark:text-white"
-              }`}
-            >
-              {tag}
-            </Text>
-          </TouchableOpacity>
+    <View className="mb-2">
+      <Animated.View className="flex-row flex-wrap">
+        {sortedTags.map((tag) => (
+          <Animated.View key={tag} entering={FadeIn} layout={LinearTransition.springify()}>
+            <Tag tag={tag} selected={selectedTags.includes(tag)} onPress={() => onTagSelect(tag)} />
+          </Animated.View>
         ))}
-      </ScrollView>
+      </Animated.View>
     </View>
   );
 };

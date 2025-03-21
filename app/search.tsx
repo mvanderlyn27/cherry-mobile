@@ -3,12 +3,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Header from "@/components/ui/Header";
 import { Icon } from "@/types/app";
-import { View, Text } from "react-native";
+import { View, Text, Easing } from "react-native";
 import { SearchBar } from "@/components/search/SearchBar";
 import { categoryData } from "@/config/testData";
 import { SearchResults } from "@/components/search/SearchResults";
 import { SortOptions } from "@/components/search/SortOptions";
 import { TagSelector } from "@/components/search/TagSelector";
+import Animated, { FadeIn, FadeOut, Layout, LinearTransition } from "react-native-reanimated";
 
 // Define sort types
 type SortType = "topRated" | "mostViewed" | "newest";
@@ -53,20 +54,43 @@ export default function Page() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
-      <Header title="Search" rightActions={[{ icon: Icon.close, onPress: () => router.back() }]} />
+      <View
+        className="bg-background-light dark:bg-background-dark"
+        style={{
+          shadowColor: "#000",
+          shadowOpacity: 0.5,
+          shadowRadius: 5,
+        }}>
+        <Header
+          bottomBorder={false}
+          title="Search"
+          rightActions={[{ icon: Icon.close, onPress: () => router.back() }]}
+        />
+        <View className="px-4">
+          <SearchBar value={searchQuery} onChangeText={handleSearch} onSortPress={toggleSortOptions} />
+
+          <Animated.View layout={LinearTransition.springify()}>
+            {showSortOptions && (
+              <Animated.View
+                entering={FadeIn.duration(400)}
+                exiting={FadeOut.duration(150)}
+                layout={LinearTransition.springify()}>
+                <SortOptions selectedSort={sortBy} onSortSelect={handleSortSelect} />
+              </Animated.View>
+            )}
+            {!showSortOptions && (
+              <Animated.View
+                entering={FadeIn.duration(400)}
+                exiting={FadeOut.duration(150)}
+                layout={LinearTransition.springify()}>
+                <TagSelector tags={allTags} selectedTags={selectedTags} onTagSelect={handleTagSelect} />
+              </Animated.View>
+            )}
+          </Animated.View>
+        </View>
+      </View>
 
       <View className="flex-1 px-4">
-        {/* Search bar with sort toggle */}
-        <SearchBar value={searchQuery} onChangeText={handleSearch} onSortPress={toggleSortOptions} />
-
-        {/* Conditional rendering of tags or sort options */}
-        {showSortOptions ? (
-          <SortOptions selectedSort={sortBy} onSortSelect={handleSortSelect} />
-        ) : (
-          <TagSelector tags={allTags} selectedTags={selectedTags} onTagSelect={handleTagSelect} />
-        )}
-
-        {/* Search results */}
         <SearchResults searchQuery={searchQuery} selectedTags={selectedTags} sortBy={sortBy} />
       </View>
     </SafeAreaView>

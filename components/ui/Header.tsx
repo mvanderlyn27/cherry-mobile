@@ -16,17 +16,20 @@ type HeaderProps = {
   leftActions?: HeaderAction[];
   rightActions?: HeaderAction[];
   titleClassName?: string;
+  bottomBorder?: boolean;
 };
 const Header = observer(
-  ({ title, subTitle, leftActions = [], rightActions = [], titleClassName = "" }: HeaderProps) => {
+  ({ title, subTitle, bottomBorder = true, leftActions = [], rightActions = [], titleClassName = "" }: HeaderProps) => {
     const colorScheme = useColorScheme();
     return (
       <View
-        style={{
-          borderBottomWidth: 0.5,
-          borderBottomColor: colors["tab_bar_border"][colorScheme || "light"],
-          opacity: 20,
-        }}>
+        style={
+          bottomBorder && {
+            borderBottomWidth: 0.5,
+            borderBottomColor: colors["tab_bar_border"][colorScheme || "light"],
+            opacity: 20,
+          }
+        }>
         <View className="flex flex-row items-center justify-between  px-6 py-3  ">
           {leftActions.length > 0 && (
             <View className="flex flex-row">

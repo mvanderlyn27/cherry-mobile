@@ -5,7 +5,7 @@ import { TopCategoryList } from "./TopCategoryList";
 import { categoryData } from "@/config/testData";
 
 type Props = {
-  onBookPress: (id: string) => void;
+  onBookPress: (id: string, categoryName: string) => void;
 };
 
 export const TopSection: React.FC<Props> = ({ onBookPress }) => {

@@ -14,7 +14,7 @@ type CategoryData = {
 };
 
 type Props = {
-  onBookPress: (category: string) => void;
+  onBookPress: (category: string, categoryName: string) => void;
   selectedCategory?: string;
 };
 
@@ -51,7 +51,14 @@ export const TopCategoryList: React.FC<Props> = ({ onBookPress, selectedCategory
               recycleItems
               renderItem={({ item }) => (
                 <View className="mx-1">
-                  <BookCover book={item} size={"small"} onPress={() => onBookPress(item.id)} />
+                  <BookCover
+                    book={item}
+                    size={"small"}
+                    onPress={() => {
+                      onBookPress(item.id, category.name);
+                      console.log("test");
+                    }}
+                  />
                 </View>
               )}
             />

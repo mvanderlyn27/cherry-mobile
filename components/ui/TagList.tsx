@@ -1,25 +1,17 @@
 import React from "react";
-import { View, Text } from "react-native";
-
-type Tag = {
-  label: string;
-};
+import { View } from "react-native";
+import { Tag } from "./Tag";
+import { Tag as TagData } from "@/types/app";
 
 type TagListProps = {
-  tags: Tag[];
+  tags: TagData[];
 };
 
 export const TagList: React.FC<TagListProps> = ({ tags }) => {
   return (
-    <View className=" flex-row flex-wrap gap-2">
+    <View className="flex-row flex-wrap gap-2">
       {tags.map((tag, idx) => (
-        <View
-          key={idx}
-          className={`${
-            tag.label === "18+" ? "bg-nsfw-light dark:bg-nsfw-dark" : "bg-tags-light dark:bg-tags-dark"
-          } rounded-full px-5 py-2`}>
-          <Text className="text-white text-md">{tag.label}</Text>
-        </View>
+        <Tag key={idx} tag={tag} />
       ))}
     </View>
   );

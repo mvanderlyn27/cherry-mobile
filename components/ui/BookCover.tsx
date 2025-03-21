@@ -11,7 +11,7 @@ type BookCoverSize = "x-large" | "large" | "medium" | "small";
 type Props = {
   book: Book;
   size?: BookCoverSize;
-  onPress?: (id: string) => void;
+  onPress?: () => void;
   onSave?: (id: string, saved: boolean) => void;
 };
 
@@ -24,7 +24,9 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
   const renderSmallCover = () => {
     return (
       <Pressable
-        onPress={() => onPress?.(book.id)}
+        onPress={() => {
+          onPress?.();
+        }}
         className="relative flex-col flex"
         style={{ width: 100, height: 180 }} // Fixed total height
       >
@@ -79,7 +81,7 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
 
   const renderMediumCover = () => {
     return (
-      <Pressable onPress={() => onPress?.(book.id)} style={{ width: 192, height: 256 }}>
+      <Pressable onPress={() => onPress?.()} style={{ width: 192, height: 256 }}>
         <Image
           source={book.cover_url}
           style={{ width: 192, height: 256, borderRadius: 16 }}
@@ -144,7 +146,12 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
 
   const renderLargeCover = () => {
     return (
-      <Pressable onPress={() => onPress?.(book.id)} style={{ width: 200, height: 285 }}>
+      <Pressable
+        onPress={() => {
+          onPress?.();
+          console.log("test2");
+        }}
+        style={{ width: 200, height: 285 }}>
         <Image
           source={book.cover_url}
           style={{ width: 200, height: 285, borderRadius: 16 }}
@@ -208,7 +215,12 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
   };
   const renderXLargeCover = () => {
     return (
-      <Pressable onPress={() => onPress?.(book.id)} style={{ width: 250, height: 350 }}>
+      <Pressable
+        onPress={() => {
+          onPress?.();
+          console.log("click");
+        }}
+        style={{ width: 250, height: 350 }}>
         <Image
           source={book.cover_url}
           style={{ width: 250, height: 350, borderRadius: 16 }}

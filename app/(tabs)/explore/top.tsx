@@ -6,8 +6,9 @@ import { TopSection } from "@/components/explore/TopSection";
 export default function Page() {
   const router = useRouter();
 
-  const handleBookPress = (id: string) => {
-    router.push(`/book/${id}`);
+  const handleBookPress = (bookId: string, categoryName: string) => {
+    console.log("test click");
+    router.push(`/book/${bookId}?categoryId=${categoryName}`);
   };
 
   return (

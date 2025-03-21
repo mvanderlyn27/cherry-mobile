@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BookCover } from "../ui/BookCover";
-import { Book } from "@/types/app";
+import { Book, Tag } from "@/types/app";
 import { TagList } from "../ui/TagList";
 
 type BookCardProps = {
@@ -11,7 +11,7 @@ type BookCardProps = {
 };
 
 export const BookCard: React.FC<BookCardProps> = ({ book, onPress, onSave }) => {
-  const tags = [{ label: "18+" }, { label: "tag1" }];
+  const tags = [{ name: "18+" }, { name: "tag1" }] as Tag[];
   return (
     <View className="bg-buttons-light/10 dark:bg-button-dark/20 rounded-3xl overflow-hidden shadow-lg flex-1 flex flex-col p-8">
       <View className="flex-1 items-center">

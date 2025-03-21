@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
-import { Book } from "@/types/app";
+import { Book, Tag } from "@/types/app";
 import { formatReadingTime } from "@/utils/time";
 import { IconSymbol } from "./IconSymbol";
 import { Icon } from "@/types/app";
@@ -9,15 +9,11 @@ import ActionButton from "./ActionButton";
 import { MotiView } from "moti";
 import { router } from "expo-router";
 import { MotiPressable } from "moti/interactions";
-
-type BookTag = {
-  label: string;
-  color?: string;
-};
+import { TagList } from "./TagList";
 
 type ListBookCardProps = {
   book: Book;
-  tags?: BookTag[];
+  tags?: Tag[];
   owned?: boolean;
   progress?: number;
   started?: boolean;
@@ -65,7 +61,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
         flexDirection: "row",
         marginBottom: 16,
         overflow: "hidden",
-        paddingVertical: 1,
+        paddingVertical: 6,
       }}>
       <MotiView className="relative mr-3">
         <Image
@@ -104,15 +100,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
       <View className="flex-1">
         <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-1">{book.title}</Text>
 
-        <View className="flex flex-row flex-wrap mb-2">
-          {tags.map((tag, index) => (
-            <View
-              key={index}
-              className={`rounded-full px-2 py-1 mr-1 mb-1 ${tag.color || "bg-tags-light dark:bg-tags-dark"}`}>
-              <Text className="text-white text-xs">{tag.label}</Text>
-            </View>
-          ))}
-        </View>
+        <TagList tags={tags} />
 
         <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
           {book.preview_text}

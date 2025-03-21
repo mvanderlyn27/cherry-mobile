@@ -10,27 +10,42 @@ export default function Page() {
   const { id, categoryId } = useLocalSearchParams();
   const router = useRouter();
 
-  // Find the current book and related books
-  const currentBook = categoryData.flatMap((cat) => cat.books).find((book) => book.id === id);
-  const relatedBooks = categoryId ? categoryData.find((cat) => cat.name === categoryId)?.books : undefined;
+  // Get all relevant books (current book + related books if available)
+  const allBooks = React.useMemo(() => {
+    const currentBook = categoryData.flatMap((cat) => cat.books).find((book) => book.id === id);
+    if (!currentBook) return [];
 
-  if (!currentBook) return null;
+    if (categoryId) {
+      const categoryBooks = categoryData.find((cat) => cat.name === categoryId)?.books || [];
+      // Ensure current book is first if it's in the category
+      const filteredBooks = categoryBooks.filter(book => book.id !== currentBook.id);
+      return [currentBook, ...filteredBooks];
+    }
 
-  const handleReadNow = () => {
+    return [currentBook];
+  }, [id, categoryId]);
+
+  if (allBooks.length === 0) return null;
+
+  const handleReadNow = (bookId: string) => {
     router.dismiss();
-    router.push(`/reader/${currentBook.id}`);
+    router.push(`/reader/${bookId}`);
   };
 
   return (
     <View className="h-full bg-background-light dark:bg-background-dark">
       <Header
-        title={currentBook.title}
-        subTitle={currentBook.author || undefined}
+        title={allBooks[0].title}
+        subTitle={allBooks[0].author || undefined}
         leftActions={[{ icon: Icon.menu, onPress: () => console.log("menu") }]}
         rightActions={[{ icon: Icon.close, onPress: () => router.back() }]}
       />
 
-      <BookPage book={currentBook} relatedBooks={relatedBooks} onReadNow={handleReadNow} />
+      <BookPage 
+        books={allBooks} 
+        initialBookId={id as string} 
+        onReadNow={handleReadNow} 
+      />
     </View>
   );
 }

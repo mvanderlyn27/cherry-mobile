@@ -20,9 +20,9 @@ export default function LibraryLayout() {
       <Header
         title="My Library"
         rightActions={[
-          { icon: Icon.edit, onPress: () => console.log("Edit") },
-          { icon: Icon.sort, onPress: () => console.log("Sort") },
-          { icon: Icon.search, onPress: () => console.log("Search") },
+          // { icon: Icon.edit, onPress: () => console.log("Edit") },
+          // { icon: Icon.sort, onPress: () => console.log("Sort") },
+          { icon: Icon.search, onPress: () => router.navigate("/search?tags=library") },
         ]}
       />
       <TabFilter options={tabOptions} activeTab={pathname} onTabChange={(path) => router.replace(path as Href)} />

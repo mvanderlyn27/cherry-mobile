@@ -9,6 +9,7 @@ const colors = require("@/config/colors");
 
 type Props = {
   books: Book[];
+  initialIndex: number;
   onBookPress: (id: string) => void;
   onBookSave?: (id: string) => void;
 };
@@ -32,7 +33,7 @@ const customParallaxLayout = ({ size }: { size: number }) => {
   };
 };
 
-export const BookPageCarousel: React.FC<Props> = ({ books, onBookPress, onBookSave }) => {
+export const BookPageCarousel: React.FC<Props> = ({ books, initialIndex, onBookPress, onBookSave }) => {
   const { colorScheme } = useColorScheme();
   const width = Dimensions.get("window").width;
   const PAGE_WIDTH = width * 0.7;
@@ -40,12 +41,12 @@ export const BookPageCarousel: React.FC<Props> = ({ books, onBookPress, onBookSa
   const progress = useSharedValue<number>(0);
   const carouselRef = useRef<ICarouselInstance>(null);
 
-  const onPressPagination = (index: number) => {
-    carouselRef.current?.scrollTo({
-      count: index - progress.value,
-      animated: true,
-    });
-  };
+  // Initialize carousel to correct index
+  React.useEffect(() => {
+    if (carouselRef.current && initialIndex > 0) {
+      carouselRef.current.scrollTo({ index: initialIndex, animated: false });
+    }
+  }, [initialIndex]);
 
   return (
     <View className="flex flex-col gap-2">
@@ -56,11 +57,15 @@ export const BookPageCarousel: React.FC<Props> = ({ books, onBookPress, onBookSa
           width={PAGE_WIDTH}
           height={PAGE_HEIGHT}
           data={books}
+          defaultIndex={initialIndex}
           scrollAnimationDuration={800}
           autoPlay={false}
           pagingEnabled={true}
           snapEnabled={true}
           onProgressChange={progress}
+          onSnapToItem={(index) => {
+            onBookPress(books[index].id);
+          }}
           style={{
             width: width,
             height: PAGE_HEIGHT,
@@ -72,13 +77,12 @@ export const BookPageCarousel: React.FC<Props> = ({ books, onBookPress, onBookSa
             <CustomBookCard
               book={item}
               animationValue={animationValue}
-              onPress={onBookPress || (() => console.log("Save", item.id))}
+              onPress={onBookPress}
               onSave={onBookSave || (() => console.log("Save", item.id))}
             />
           )}
         />
 
-        {/* Updated Pagination */}
         <Pagination.Basic
           progress={progress}
           data={books}
@@ -93,7 +97,12 @@ export const BookPageCarousel: React.FC<Props> = ({ books, onBookPress, onBookSa
             borderRadius: 20,
           }}
           containerStyle={{ gap: 10, marginBottom: 10 }}
-          onPress={onPressPagination}
+          onPress={(index) => {
+            carouselRef.current?.scrollTo({
+              count: index - progress.value,
+              animated: true,
+            });
+          }}
         />
       </View>
     </View>

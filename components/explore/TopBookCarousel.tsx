@@ -9,7 +9,7 @@ const colors = require("@/config/colors");
 
 type Props = {
   books: Book[];
-  onBookPress: (id: string) => void;
+  onBookPress: (id: string, categoryName: string) => void;
   onBookSave?: (id: string) => void;
 };
 
@@ -33,6 +33,7 @@ const customParallaxLayout = ({ size }: { size: number }) => {
 };
 
 export const TopBookCarousel: React.FC<Props> = ({ books, onBookPress, onBookSave }) => {
+  //id of the category (tag) test for now
   const { colorScheme } = useColorScheme();
   const width = Dimensions.get("window").width;
   const PAGE_WIDTH = width * 0.7;
@@ -68,11 +69,12 @@ export const TopBookCarousel: React.FC<Props> = ({ books, onBookPress, onBookSav
             alignItems: "center",
           }}
           customAnimation={customParallaxLayout({ size: PAGE_WIDTH })}
+          // Fix the onPress handler in renderItem
           renderItem={({ item, index, animationValue }) => (
             <CustomBookCard
               book={item}
               animationValue={animationValue}
-              onPress={onBookPress || (() => console.log("Save", item.id))}
+              onPress={() => onBookPress(item.id, "Romance")} // Fixed: was passing a function that returns undefined
               onSave={onBookSave || (() => console.log("Save", item.id))}
             />
           )}
@@ -103,12 +105,14 @@ export const TopBookCarousel: React.FC<Props> = ({ books, onBookPress, onBookSav
 interface CustomBookCardProps {
   book: Book & { isHot?: boolean; isSaved?: boolean };
   animationValue: Animated.SharedValue<number>;
-  onPress: (id: string) => void;
+  onPress: (id: string, categoryName: string) => void;
   onSave: (id: string) => void;
 }
 
 // In the CustomBookCard component
 const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, onPress, onSave }) => {
+  const bookCategoryName = "Romance";
+
   const cardStyle = useAnimatedStyle(() => {
     "worklet";
     const opacity = interpolate(animationValue.value, [-0.2, -0.05, 0, 0.05, 0.2], [0.8, 0.9, 1, 0.9, 0.8]);
@@ -122,7 +126,7 @@ const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, o
   const handlePress = () => {
     // If this is the center item (value close to 0), allow the press
     if (Math.abs(animationValue.value) < 0.05) {
-      onPress(book.id);
+      onPress(book.id, bookCategoryName);
     }
   };
 

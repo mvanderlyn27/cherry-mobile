@@ -22,18 +22,9 @@ export const SortOptions: React.FC<SortOptionsProps> = ({ selectedSort, onSortSe
             key={option.id}
             onPress={() => onSortSelect(option.id as SortType)}
             className={`flex-1 mx-1 py-3 rounded-full ${
-              selectedSort === option.id
-                ? "bg-buttons-light dark:bg-buttons-dark"
-                : "bg-tags-light dark:bg-tags-dark"
-            }`}
-          >
-            <Text
-              className={`text-center ${
-                selectedSort === option.id
-                  ? "text-white"
-                  : "text-buttons_text-light dark:text-white"
-              }`}
-            >
+              selectedSort === option.id ? "bg-buttons-light dark:bg-buttons-dark" : "bg-tags-light dark:bg-tags-dark"
+            }`}>
+            <Text className={`text-center ${selectedSort === option.id ? "text-white" : "text-white dark:text-white"}`}>
               {option.label}
             </Text>
           </TouchableOpacity>
