@@ -1,12 +1,13 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
+import { Book } from "@/types/app";
+import { formatReadingTime } from "@/utils/time";
 import { IconSymbol } from "./IconSymbol";
 import { Icon } from "@/types/app";
 import ActionButton from "./ActionButton";
 import { MotiView } from "moti";
 import { router } from "expo-router";
-import { formatReadingTime } from "@/utils/time";
 import { MotiPressable } from "moti/interactions";
 
 type BookTag = {
@@ -15,12 +16,8 @@ type BookTag = {
 };
 
 type ListBookCardProps = {
-  id: string;
-  title: string;
-  coverUrl: string;
-  description: string;
-  readingTime?: string;
-  tags: BookTag[];
+  book: Book;
+  tags?: BookTag[];
   owned?: boolean;
   progress?: number;
   started?: boolean;
@@ -33,12 +30,8 @@ type ListBookCardProps = {
 };
 
 export const ListBookCard: React.FC<ListBookCardProps> = ({
-  id,
-  title,
-  coverUrl,
-  description,
-  readingTime,
-  tags,
+  book,
+  tags = [],
   owned = false,
   started = false,
   progress = 0,
@@ -66,7 +59,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
         duration: 400,
         delay: 100,
       }}
-      onPress={() => onClick(id)}
+      onPress={() => onClick(book.id)}
       style={{
         flex: 1,
         flexDirection: "row",
@@ -76,7 +69,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
       }}>
       <MotiView className="relative mr-3">
         <Image
-          source={coverUrl}
+          source={book.cover_url}
           contentFit="cover"
           transition={200}
           style={{
@@ -85,10 +78,10 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
             borderRadius: 24, // equivalent to rounded-3xl
           }}
         />
-        {readingTime && (
+        {book.reading_time && (
           <View className="absolute top-4 left-4 bg-time-light dark:bg-time-dark rounded-full px-2 py-1 flex flex-row items-center">
             <IconSymbol name={Icon.time} size={14} color="white" />
-            <Text className="text-white text-xs ml-1">{formatReadingTime(Number(readingTime), progress)}</Text>
+            <Text className="text-white text-xs ml-1">{formatReadingTime(book.reading_time, progress)}</Text>
           </View>
         )}
         {!owned && (
@@ -109,7 +102,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
       </MotiView>
 
       <View className="flex-1">
-        <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-1">{title}</Text>
+        <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-1">{book.title}</Text>
 
         <View className="flex flex-row flex-wrap mb-2">
           {tags.map((tag, index) => (
@@ -122,7 +115,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
         </View>
 
         <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
-          {description}
+          {book.preview_text}
         </Text>
 
         <View className="flex-col flex flex-1 justify-end px-4 ">
@@ -131,18 +124,18 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
               case !owned && !canBuy:
                 return <ActionButton mode="buy" credits={credits} onPress={() => router.push("/(tabs)/cherry")} />;
               case !owned && canBuy && buyBook !== undefined:
-                return <ActionButton mode="unlock" credits={credits} onPress={() => buyBook(id)} />;
+                return <ActionButton mode="unlock" credits={credits} onPress={() => buyBook(book.id)} />;
               case finished:
                 return (
                   <View className="flex flex-row gap-2 items-center justify-center">
-                    <ActionButton mode="review1" credits={credits} onPress={() => onRead(id)} />
-                    {rateStory && <ActionButton mode="review2" credits={credits} onPress={() => rateStory(id)} />}
+                    <ActionButton mode="review1" credits={credits} onPress={() => onRead(book.id)} />
+                    {rateStory && <ActionButton mode="review2" credits={credits} onPress={() => rateStory(book.id)} />}
                   </View>
                 );
               case started && !finished:
-                return <ActionButton mode="continue" onPress={() => onRead(id)} />;
+                return <ActionButton mode="continue" onPress={() => onRead(book.id)} />;
               default:
-                return <ActionButton mode="read" onPress={() => onRead(id)} />;
+                return <ActionButton mode="read" onPress={() => onRead(book.id)} />;
             }
           })()}
         </View>

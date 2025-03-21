@@ -4,13 +4,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Icon } from "@/types/app";
+import Header from "@/components/ui/Header";
 import { useColorScheme } from "nativewind";
+const colors = require("@/config/colors");
 
 // Mock user data - replace with your actual auth logic
 const mockUser: null | { name: string; email: string } = null; // Set to null to show logged out state
 
 export default function Page() {
-  const { setColorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
@@ -32,31 +34,38 @@ export default function Page() {
 
   const renderSettingItem = (icon: Icon, title: string, onPress?: () => void, rightElement?: React.ReactNode) => (
     <TouchableOpacity
-      className="flex-row items-center py-4 px-4 border-b border-gray-100"
+      className="flex-row items-center py-4 px-4 border-b border-tab_bar_border-light dark:border-tab_bar_border-dark"
       onPress={onPress}
       disabled={!onPress}>
       <View className="w-8 h-8 rounded-full bg-pink-100 items-center justify-center mr-3">
-        <IconSymbol name={icon} size={18} color="#E57373" />
+        <IconSymbol name={icon} size={18} color={colors["buttons"][colorScheme || "light"]} />
       </View>
       <Text className="flex-1 text-gray-800 font-medium">{title}</Text>
-      {rightElement || (onPress && <IconSymbol name={Icon["right-arrow"]} size={18} color="#999" />)}
+      {rightElement ||
+        (onPress && (
+          <IconSymbol name={Icon["right-arrow"]} size={18} color={colors["tab_bar_border"][colorScheme || "light"]} />
+        ))}
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="px-4 py-4 border-b border-gray-100">
-        <Text className="font-kaisei-bold text-2xl text-gray-800">Account</Text>
-      </View>
+    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+      <Header title="Account" />
 
       <ScrollView>
         {!mockUser ? (
           // Logged out state
           <View className="mb-6">
-            <View className="bg-pink-50 mx-4 my-4 p-4 rounded-xl">
-              <Text className="font-kaisei-medium text-lg text-gray-800 mb-2">Create an account</Text>
-              <Text className="text-gray-600 mb-4">Sign up to sync your library and purchases across devices</Text>
-              <TouchableOpacity className="bg-[#E57373] py-3 rounded-lg items-center" onPress={handleCreateAccount}>
+            <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl">
+              <Text className="font-kaisei-medium text-lg text-story-light dark:text-story-dark mb-2">
+                Create an account
+              </Text>
+              <Text className="text-story-light dark:text-story-dark mb-4">
+                Sign up to sync your library and purchases across devices
+              </Text>
+              <TouchableOpacity
+                className="bg-buttons-light dark:bg-buttons-dark py-3 rounded-lg items-center"
+                onPress={handleCreateAccount}>
                 <Text className="text-white font-medium">Create Account</Text>
               </TouchableOpacity>
             </View>
@@ -66,14 +75,14 @@ export default function Page() {
         ) : (
           // Logged in state
           <View className="mb-6">
-            <View className="flex-row items-center p-4 border-b border-gray-100">
+            <View className="flex-row items-center p-4 border-b border-tab_bar_border-light dark:border-tab_bar_border-dark">
               <Image
                 source={{ uri: "https://randomuser.me/api/portraits/women/44.jpg" }}
                 className="w-16 h-16 rounded-full mr-4"
               />
               <View>
                 <Text className="font-kaisei-medium text-lg">{mockUser.name}</Text>
-                <Text className="text-gray-500">{mockUser.email}</Text>
+                <Text className="text-story-light dark:text-story-dark ">{mockUser.email}</Text>
               </View>
             </View>
 
@@ -86,7 +95,9 @@ export default function Page() {
         )}
 
         <View className="mb-6">
-          <Text className="px-4 py-2 text-sm font-medium text-gray-500 uppercase">Preferences</Text>
+          <Text className="px-4 py-2 text-sm font-medium text-story-light dark:text-story-dark  uppercase">
+            Preferences
+          </Text>
 
           {renderSettingItem(
             Icon.moon,
@@ -119,7 +130,9 @@ export default function Page() {
         </View>
 
         <View className="mb-6">
-          <Text className="px-4 py-2 text-sm font-medium text-gray-500 uppercase">Support</Text>
+          <Text className="px-4 py-2 text-sm font-medium text-story-light dark:text-story-dark  uppercase">
+            Support
+          </Text>
 
           {renderSettingItem(Icon.question, "Help & Support", () => console.log("Help"))}
 
@@ -129,7 +142,7 @@ export default function Page() {
         </View>
 
         <View className="items-center py-6">
-          <Text className="text-gray-400 text-sm">Version 1.0.0</Text>
+          <Text className="text-tab_bar_border-light dark:text-tab_bar_border-dark text-sm">Version 1.0.0</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

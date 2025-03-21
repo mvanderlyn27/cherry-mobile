@@ -22,7 +22,7 @@ export default function Page() {
   };
 
   return (
-    <View className="flex-1 bg-background-light dark:bg-background-dark">
+    <View className="h-full bg-background-light dark:bg-background-dark">
       <Header
         title={currentBook.title}
         subTitle={currentBook.author || undefined}

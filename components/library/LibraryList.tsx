@@ -1,8 +1,7 @@
 import React from "react";
-import { FlatList, View } from "react-native";
+import { View } from "react-native";
 import { ListBookCard } from "../ui/ListBookCard";
 import { Book } from "@/types/app";
-import { formatReadingTime } from "@/utils/time";
 import { LegendList } from "@legendapp/list";
 
 type LibraryListProps = {
@@ -23,17 +22,12 @@ export const LibraryList = ({ books, onBookPress, onBookRead, onUnlockBook, cred
       renderItem={({ item }) => (
         <View className="px-4">
           <ListBookCard
-            id={item.id}
-            title={item.title}
-            coverUrl={item.cover_url || ""}
-            description={item.preview_text || ""}
-            readingTime={formatReadingTime(item.reading_time || 0, 100) || ""}
-            tags={[]}
+            book={item}
             owned={true}
             progress={0}
-            onClick={() => onBookPress(item.id)}
-            onRead={() => onBookRead(item.id)}
-            buyBook={() => onUnlockBook(item.id)}
+            onClick={onBookPress}
+            onRead={onBookRead}
+            buyBook={onUnlockBook}
             credits={item.price}
             canBuy={credits >= (item.price || 0)}
             started={false}
