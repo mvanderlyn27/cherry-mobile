@@ -6,13 +6,16 @@ import { ForYouSection } from "@/components/explore/ForYouSection";
 const Page = memo(() => {
   const router = useRouter();
 
-  const handleBookPress = (id: string) => {
+  const handleBookRead = (id: string) => {
     router.push(`/reader/${id}`);
+  };
+  const handleMoreInfo = (id: string) => {
+    router.push(`/book/${id}`);
   };
 
   return (
     <View className="flex-1">
-      <ForYouSection onBookPress={handleBookPress} />
+      <ForYouSection onRead={handleBookRead} onMoreInfo={handleMoreInfo} />
     </View>
   );
 });

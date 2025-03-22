@@ -9,13 +9,14 @@ import { useColorScheme } from "nativewind";
 const colors = require("@/config/colors");
 
 type Props = {
-  onBookPress: (id: string) => void;
+  onRead: (id: string) => void;
+  onMoreInfo: (id: string) => void;
 };
 
 // Sample data - replace with your actual data
 const recommendedBooks = categoryData[0].books.slice(0, 5);
 
-export const ForYouSection: React.FC<Props> = ({ onBookPress }) => {
+export const ForYouSection: React.FC<Props> = ({ onRead, onMoreInfo }) => {
   const { colorScheme } = useColorScheme();
   const width = Dimensions.get("window").width;
   const height = Dimensions.get("window").height;
@@ -30,7 +31,8 @@ export const ForYouSection: React.FC<Props> = ({ onBookPress }) => {
     return (
       <BookCard
         book={item}
-        onPress={onBookPress}
+        onRead={onRead}
+        onMoreInfo={onMoreInfo}
         onSave={(id, saved) => console.log(`Book ${id} ${saved ? "saved" : "unsaved"}`)}
       />
     );

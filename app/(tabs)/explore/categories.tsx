@@ -8,7 +8,7 @@ const Page = memo(() => {
   const router = useRouter();
 
   const handleCategoryPress = (id: string) => {
-    router.push(`/search?category=${id}`);
+    router.push(`/modals/search?category=${id}`);
   };
   const categories = categoryData.map((category) => ({
     id: Math.random(),

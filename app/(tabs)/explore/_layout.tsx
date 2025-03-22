@@ -18,7 +18,7 @@ export default function ExploreTabsLayout() {
   ];
   return (
     <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
-      <Header title="Explore" rightActions={[{ icon: Icon.search, onPress: () => router.push("/search") }]} />
+      <Header title="Explore" rightActions={[{ icon: Icon.search, onPress: () => router.push("/modals/search") }]} />
       <TabFilter options={tabOptions} activeTab={pathname} onTabChange={(path) => router.replace(path as Href)} />
       <Tabs
         screenOptions={{

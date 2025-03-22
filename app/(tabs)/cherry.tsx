@@ -1,23 +1,39 @@
-import React, { useEffect } from "react";
-import { View, Text } from "react-native";
+import React from "react";
+import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SUPERWALL_TRIGGERS } from "@/config/superwall";
-import { PaywallButton } from "@/components/PaywallButton";
-import { superwallService } from "@/services/superwall";
-import { useSuperwall } from "@/hooks/useSuperwall";
+import { SubscriptionCard } from "@/components/cherry/SubscriptionCard";
+import { PurchaseCard } from "@/components/cherry/PurchaseCard";
+import { StreakCard } from "@/components/cherry/StreakCard";
+import { WatchAdsCard } from "@/components/cherry/WatchAdsCard";
+import Header from "@/components/ui/Header";
+import { Icon } from "@/types/app";
+import { useRouter } from "expo-router";
 
-export default function Page() {
-  // This screen will immediately show the paywall
-  const { showPaywall } = useSuperwall();
-  useEffect(() => {
-    // You can add any logic here to handle the paywall, such as showing a modal or redirecting to the paywall screen
-    // For now, let's just log a message
-    console.log("Paywall screen is shown");
-    showPaywall(SUPERWALL_TRIGGERS.ONBOARDING);
-  });
+export default function Page({ modalMode }: { modalMode?: boolean }) {
+  const router = useRouter();
+  const handleSubscribe = () => {
+    // TODO: handle subscribe
+    console.log("handle subsscribe");
+  };
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <PaywallButton />
+    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
+      <Header
+        title={"Cherries"}
+        rightActions={
+          modalMode
+            ? [
+                { icon: Icon.question, onPress: () => router.navigate("/modals/cherryInfo") },
+                { icon: Icon.close, onPress: () => router.back() },
+              ]
+            : [{ icon: Icon.question, onPress: () => router.navigate("/modals/cherryInfo") }]
+        }
+      />
+      <ScrollView className="flex-1 px-4">
+        <SubscriptionCard handleSubscribe={handleSubscribe} />
+        <PurchaseCard />
+        <StreakCard />
+        <WatchAdsCard />
+      </ScrollView>
     </SafeAreaView>
   );
 }
