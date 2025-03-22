@@ -42,8 +42,8 @@ const Page = observer(() => {
       ) : (
         <LibraryList
           books={readingBooks}
-          onBookPress={(id) => router.push(`/book/${id}`)}
-          onBookRead={(id) => router.push(`/reader/${id}`)}
+          onBookPress={(id) => router.navigate(`/book/${id}`)}
+          onBookRead={(id) => router.navigate(`/reader/${id}`)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
           credits={credits}
         />

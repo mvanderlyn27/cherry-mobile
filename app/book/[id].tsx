@@ -28,7 +28,6 @@ export default function Page() {
   if (allBooks.length === 0) return null;
 
   const handleReadNow = (bookId: string) => {
-    router.dismiss();
     router.push(`/reader/${bookId}`);
   };
   return (

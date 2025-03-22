@@ -57,7 +57,10 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ searchQuery, selec
 
   // Handle book selection
   const handleBookPress = (bookId: string, categoryName: string) => {
-    router.push(`/book/${bookId}?categoryId=${categoryName}`);
+    router.navigate(`/book/${bookId}?categoryId=${categoryName}`);
+  };
+  const handleBookRead = (bookId: string) => {
+    router.navigate(`/reader/${bookId}`);
   };
 
   return (
@@ -72,7 +75,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ searchQuery, selec
           renderItem={({ item }) => (
             <ListBookCard
               book={item as Book}
-              onRead={() => console.log("read book" + item.id)}
+              onRead={() => handleBookRead(item.id)}
               onClick={() => handleBookPress(item.id, item.category)}
             />
           )}
