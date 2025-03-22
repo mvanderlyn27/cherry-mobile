@@ -47,6 +47,7 @@ export default function RootLayout() {
         <Stack.Screen name="reader" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen name="search" options={{ presentation: "modal" }} />
         <Stack.Screen name="book/[id]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="modals/cherry" options={{ presentation: "modal" }} />
       </Stack>
     </GestureHandlerRootView>
   );

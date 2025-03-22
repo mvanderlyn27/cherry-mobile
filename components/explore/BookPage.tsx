@@ -27,6 +27,7 @@ import Animated, {
   SlideInLeft,
 } from "react-native-reanimated";
 import ActionButton from "../ui/ActionButton";
+import { useRouter } from "expo-router";
 const colors = require("@/config/colors");
 
 type BookPageProps = {
@@ -36,9 +37,24 @@ type BookPageProps = {
 };
 
 export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onReadNow }) => {
+  const router = useRouter();
   const { colorScheme } = useColorScheme();
   const [currentBookIndex, setCurrentBookIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const handleBuyBook = async (bookId: string) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+      console.log("Book purchased:", bookId);
+    } catch (error) {
+      console.error("Failed to purchase book:", error);
+    } finally {
+      setIsLoading(false);
+      onReadNow(bookId);
+    }
+  };
   // Find initial book index
   useEffect(() => {
     const index = books.findIndex((b) => b.id === initialBookId);
@@ -136,9 +152,14 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
       <View className="flex flex-col gap-2 px-4 py-4 mx-4 mb-6 bg-background-light dark:bg-background-dark">
         <ActionButton mode="read" onPress={() => onReadNow(currentBook.id)} />
         {!isUnlocked && canBuy ? (
-          <ActionButton mode="unlock" credits={300} onPress={() => onReadNow(currentBook.id)} />
+          <ActionButton
+            mode="unlock"
+            credits={300}
+            onPress={() => handleBuyBook(currentBook.id)}
+            isLoading={isLoading}
+          />
         ) : (
-          <ActionButton mode="buy" credits={300} onPress={() => onReadNow(currentBook.id)} />
+          <ActionButton mode="buy" credits={300} onPress={() => router.push("/modals/cherry")} />
         )}
       </View>
     </SafeAreaView>

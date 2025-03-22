@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, Text, View } from "react-native";
+import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native";
 import { IconSymbol } from "./IconSymbol";
 import { Icon } from "@/types/app";
 import { useColorScheme } from "nativewind";
@@ -12,9 +12,10 @@ type ActionButtonProps = {
   onPress: () => void;
   label?: string;
   credits?: number;
+  isLoading?: boolean;
 };
 
-const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
+const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: ActionButtonProps) => {
   const { colorScheme } = useColorScheme();
 
   const getButtonClasses = () => {
@@ -179,15 +180,20 @@ const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
   return (
     <TouchableOpacity
       style={[getShadowStyle(), getBorderStyle()]}
-      className={`${buttonClasses}   rounded-full px-4 py-3 flex flex-row items-center justify-center`}
-      onPress={onPress}>
-      {icon && <IconSymbol name={icon} size={18} color={getIconColor()} />}
-
-      {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
-        <Text className={`font-heebo-medium ml-1 ${textClasses}`}>{credits}</Text>
+      className={`${buttonClasses} rounded-full px-4 py-3 flex flex-row items-center justify-center`}
+      onPress={onPress}
+      disabled={isLoading}>
+      {isLoading ? (
+        <ActivityIndicator size="small" color={getTextClasses().includes("text-white") ? "#fff" : "#000"} />
+      ) : (
+        <>
+          {icon && <IconSymbol name={icon} size={18} color={getIconColor()} />}
+          {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
+            <Text className={`font-heebo-medium ml-1 ${textClasses}`}>{credits}</Text>
+          )}
+          <Text className={`font-heebo-medium ml-2 ${textClasses}`}>{buttonLabel}</Text>
+        </>
       )}
-
-      <Text className={`font-heebo-medium ml-2 ${textClasses}`}>{buttonLabel}</Text>
     </TouchableOpacity>
   );
 };
