@@ -11,9 +11,10 @@ type ActionButtonProps = {
   mode: ActionButtonMode;
   onPress: () => void;
   label?: string;
+  credits?: number;
 };
 
-const ActionButton = ({ mode, onPress, label }: ActionButtonProps) => {
+const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
   const { colorScheme } = useColorScheme();
 
   const getButtonClasses = () => {
@@ -75,7 +76,7 @@ const ActionButton = ({ mode, onPress, label }: ActionButtonProps) => {
       case "unlock":
         return "| Unlock";
       case "buy":
-        return "";
+        return "| Get More Cherries";
       case "review1":
         return "Read Story";
       case "review2":
@@ -182,9 +183,9 @@ const ActionButton = ({ mode, onPress, label }: ActionButtonProps) => {
       onPress={onPress}>
       {icon && <IconSymbol name={icon} size={18} color={getIconColor()} />}
 
-      {/* {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
+      {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
         <Text className={`font-heebo-medium ml-1 ${textClasses}`}>{credits}</Text>
-      )} */}
+      )}
 
       <Text className={`font-heebo-medium ml-2 ${textClasses}`}>{buttonLabel}</Text>
     </TouchableOpacity>

@@ -57,7 +57,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
         duration: 400,
         delay: 100,
       }}
-      // onPress={() => onClick(book.id)}
+      onPress={() => onClick(book.id)}
       style={{
         flex: 1,
         flexDirection: "row",

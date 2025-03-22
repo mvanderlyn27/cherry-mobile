@@ -26,6 +26,7 @@ import Animated, {
   FlipOutEasyX,
   SlideInLeft,
 } from "react-native-reanimated";
+import ActionButton from "../ui/ActionButton";
 const colors = require("@/config/colors");
 
 type BookPageProps = {
@@ -47,6 +48,8 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
   }, [initialBookId, books]);
 
   const currentBook = books[currentBookIndex];
+  const isUnlocked = true;
+  const canBuy = false;
   console.log("current book", currentBook);
   const tags = [{ name: "Romance" }, { name: "Drama" }, { name: "Fiction" }] as Tag[];
 
@@ -130,12 +133,13 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
       </View>
 
       {/* Fixed Read Now Button */}
-      <View className="px-4 py-4 mx-4 mb-6 bg-background-light dark:bg-background-dark">
-        <TouchableOpacity
-          className="bg-buttons-light dark:bg-buttons-dark rounded-full py-4 border-2 border-white"
-          onPress={() => onReadNow(currentBook.id)}>
-          <Text className="text-center text-white font-bold text-lg">Read Now</Text>
-        </TouchableOpacity>
+      <View className="flex flex-col gap-2 px-4 py-4 mx-4 mb-6 bg-background-light dark:bg-background-dark">
+        <ActionButton mode="read" onPress={() => onReadNow(currentBook.id)} />
+        {!isUnlocked && canBuy ? (
+          <ActionButton mode="unlock" credits={300} onPress={() => onReadNow(currentBook.id)} />
+        ) : (
+          <ActionButton mode="buy" credits={300} onPress={() => onReadNow(currentBook.id)} />
+        )}
       </View>
     </SafeAreaView>
   );
