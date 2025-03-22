@@ -7,7 +7,7 @@ export default function Page() {
   const router = useRouter();
 
   const handleBookPress = (bookId: string, categoryName: string) => {
-    router.push(`/book/${bookId}?categoryId=${categoryName}`);
+    router.push(`/modals/book/${bookId}?categoryId=${categoryName}`);
   };
 
   return (

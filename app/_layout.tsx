@@ -43,12 +43,12 @@ export default function RootLayout() {
     <GestureHandlerRootView className="flex-1 bg-background-light dark:bg-background-dark">
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="/modals/reader" options={{ presentation: "fullScreenModal" }} />
-        <Stack.Screen name="/modals/search" options={{ presentation: "modal" }} />
-        <Stack.Screen name="/modals/book/[id]" options={{ presentation: "modal" }} />
-        <Stack.Screen name="/modals/cherry" options={{ presentation: "modal" }} />
-        <Stack.Screen name="/modals/cherryInfo" options={{ presentation: "fullScreenModal" }} />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="modals/search" options={{ presentation: "modal" }} />
+        <Stack.Screen name="book/[id]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="modals/cherry" options={{ presentation: "modal" }} />
+        <Stack.Screen name="reader" options={{ presentation: "fullScreenModal" }} />
+        <Stack.Screen name="modals/cherryInfo" options={{ presentation: "modal" }} />
       </Stack>
     </GestureHandlerRootView>
   );

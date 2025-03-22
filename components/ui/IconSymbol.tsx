@@ -63,6 +63,20 @@ export function IconSymbol({
       return <MaterialIcons name="file-download" size={size} color={color} />;
     case "lock":
       return <Feather name="lock" size={size} color={color} />;
+    case "help":
+      return <Feather name="help-circle" size={size} color={color} />;
+    case "trash":
+      return <Feather name="trash-2" size={size} color={color} />;
+    case "warning":
+      return <Feather name="alert-circle" size={size} color={color} />;
+    case "mail":
+      return <Feather name="mail" size={size} color={color} />;
+    case "globe":
+      return <Feather name="globe" size={size} color={color} />;
+    case "checkmark":
+      return <Feather name="check-circle" size={size} color={color} />;
+    case "info":
+      return <Feather name="info" size={size} color={color} />;
     case "sun":
       return <Feather name="sun" size={size} color={color} />;
     case "moon":

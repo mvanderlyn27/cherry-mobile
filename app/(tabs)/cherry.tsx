@@ -16,7 +16,9 @@ export default function Page({ modalMode }: { modalMode?: boolean }) {
     console.log("handle subsscribe");
   };
   return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark" edges={["top", "left", "right"]}>
+    <SafeAreaView
+      className="flex-1 bg-background-light dark:bg-background-dark"
+      edges={modalMode ? ["top", "left", "right", "bottom"] : ["top", "left", "right"]}>
       <Header
         title={"Cherries"}
         rightActions={

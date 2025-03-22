@@ -5,6 +5,7 @@ export type Chapter = Database["public"]["Tables"]["chapters"]["Row"];
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 
+// Add these to your existing Icon enum
 export enum Icon {
   "book" = "book",
   "cherry" = "cherry",
@@ -24,7 +25,6 @@ export enum Icon {
   "close" = "close",
   "share" = "share",
   "download" = "download",
-  "lock" = "lock",
   "lock_fill" = "lock_fill",
   "sun" = "sun",
   "moon" = "moon",
@@ -48,4 +48,12 @@ export enum Icon {
   "fire" = "fire",
   "eye" = "eye",
   "tv" = "tv",
+  "info" = "info",
+  "help" = "help",
+  "lock" = "lock",
+  "trash" = "trash",
+  "warning" = "warning",
+  "mail" = "mail",
+  "globe" = "globe",
+  "checkmark" = "checkmark",
 }

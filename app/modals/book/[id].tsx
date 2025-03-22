@@ -28,7 +28,7 @@ export default function Page() {
   if (allBooks.length === 0) return null;
 
   const handleReadNow = (bookId: string) => {
-    router.push(`/reader/${bookId}`);
+    router.push(`/modals/reader/${bookId}`);
   };
   return (
     <View className="h-full bg-background-light dark:bg-background-dark">

@@ -110,7 +110,7 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
             <IconSymbol name={Icon.eye} color={colors["buttons_text"][colorScheme || "light"]} />
             <View className="overflow-hidden">
               <Animated.Text
-                entering={FlipInEasyX.duration(300).delay(300)}
+                entering={FadeIn.duration(300).delay(300)}
                 // exiting={FlipOutEasyX.duration(300)}
                 key={currentBook.id}
                 className="text-sm mt-1 text-buttons_text-light dark:text-buttons_text-dark">
@@ -129,7 +129,7 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
           <Animated.Text
             className="text-text-light dark:text-text-dark opacity-80"
             key={currentBook.id}
-            entering={FadeInDown.duration(300)}
+            entering={FadeIn.duration(300)}
             // exiting={FadeInDown.duration(300)}
           >
             <Text className="text-lg font-bold mb-2 text-story-light dark:text-story-dark">Summary: </Text>
@@ -141,7 +141,7 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
         <Animated.View
           className="py-2 mb-4"
           key={currentBook.id}
-          entering={SlideInLeft.duration(300)
+          entering={FadeIn.duration(300)
             .delay(100)
             .withInitialValues({ transform: [{ translateX: -20 }] })}>
           <TagList tags={tags} />

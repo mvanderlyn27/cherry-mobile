@@ -57,10 +57,10 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ searchQuery, selec
 
   // Handle book selection
   const handleBookPress = (bookId: string, categoryName: string) => {
-    router.navigate(`/book/${bookId}?categoryId=${categoryName}`);
+    router.navigate(`/modals/book/${bookId}?categoryId=${categoryName}`);
   };
   const handleBookRead = (bookId: string) => {
-    router.navigate(`/reader/${bookId}`);
+    router.navigate(`/modals/reader/${bookId}`);
   };
 
   return (

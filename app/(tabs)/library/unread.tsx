@@ -25,8 +25,8 @@ const UnreadPage = observer(() => {
       ) : (
         <LibraryList
           books={unreadBooks}
-          onBookPress={(id) => router.push(`/book/${id}`)}
-          onBookRead={(id) => router.push(`/reader/${id}`)}
+          onBookPress={(id) => router.push(`/modals/book/${id}`)}
+          onBookRead={(id) => router.push(`/modals/reader/${id}`)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
           credits={credits}
         />

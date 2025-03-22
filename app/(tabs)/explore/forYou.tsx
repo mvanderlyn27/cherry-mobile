@@ -7,10 +7,10 @@ const Page = memo(() => {
   const router = useRouter();
 
   const handleBookRead = (id: string) => {
-    router.push(`/reader/${id}`);
+    router.push(`/modals/reader/${id}`);
   };
   const handleMoreInfo = (id: string) => {
-    router.push(`/book/${id}`);
+    router.push(`/modals/book/${id}`);
   };
 
   return (
