@@ -1,9 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native";
 import { IconSymbol } from "./IconSymbol";
 import { Icon } from "@/types/app";
 import { useColorScheme } from "nativewind";
 import { LinearGradient } from "expo-linear-gradient";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSequence,
+  Easing,
+  interpolateColor,
+} from "react-native-reanimated";
 const colors = require("@/config/colors");
 
 // Update the ActionButtonMode type to include the new mode
@@ -21,6 +30,55 @@ type ActionButtonProps = {
 
 const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size = "medium" }: ActionButtonProps) => {
   const { colorScheme } = useColorScheme();
+
+  // Animation values
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.95);
+  const progress = useSharedValue(0);
+
+  // Setup the loading animation
+  useEffect(() => {
+    if (isLoading) {
+      // Fade in and scale up animation
+      opacity.value = withTiming(0.7, { duration: 300, easing: Easing.inOut(Easing.ease) });
+      scale.value = withTiming(1, { duration: 300, easing: Easing.inOut(Easing.ease) });
+
+      // Start the pulsing animation
+      progress.value = withRepeat(
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        -1, // Infinite repeat
+        true // Reverse
+      );
+    } else {
+      // Fade out and scale down animation
+      opacity.value = withTiming(0, { duration: 300, easing: Easing.inOut(Easing.ease) });
+      scale.value = withTiming(0.95, { duration: 300, easing: Easing.inOut(Easing.ease) });
+    }
+  }, [isLoading]);
+
+  // Create animated styles
+  const loadingOverlayStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      [colors.story[colorScheme || "light"] + "99", colors.story[colorScheme || "light"] + "66"]
+    );
+
+    return {
+      opacity: opacity.value,
+      transform: [{ scale: scale.value }],
+      backgroundColor,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: 999,
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 10,
+    };
+  });
 
   const getButtonClasses = () => {
     switch (mode) {
@@ -85,8 +143,7 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size =
       case "unlock":
         return "| Unlock";
       case "buy":
-      case "buyGradient":
-        return "| Get More Cherries";
+        return "| Unlock Full Story";
       case "review1":
         return "Read Story";
       case "review2":
@@ -176,6 +233,7 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size =
   const getIconColor = () => {
     switch (mode) {
       case "buy":
+        return colors.cherry[colorScheme || "light"];
       case "unlock":
       case "read":
         return "#FFFFFF";
@@ -254,16 +312,26 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size =
           shadowRadius: 8,
           elevation: 0,
         }}>
-        <TouchableOpacity className="rounded-full overflow-hidden border-[1.5px] border-white" onPress={onPress}>
+        <TouchableOpacity
+          className="rounded-full overflow-hidden border-[1.5px] border-white"
+          onPress={onPress}
+          disabled={isLoading}>
           <LinearGradient colors={["#DA6CFF", "#7E98FF"]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}>
-            <View className="flex flex-row justify-center items-center p-4">
+            <View className="flex flex-row justify-center items-center p-4 relative">
               {icon && <IconSymbol name={icon} size={iconSize} color={getIconColor()} />}
               {credits !== undefined && (
                 <Text className={`text-center font-heebo-medium ml-1 mr-1 ${textClasses} ${fontSizeClass}`}>
                   {credits}
                 </Text>
               )}
-              <Text className={`text-center font-heebo-medium  ${textClasses} ${fontSizeClass}`}>{buttonLabel}</Text>
+              <Text className={`text-center font-heebo-medium ${textClasses} ${fontSizeClass}`}>{buttonLabel}</Text>
+
+              {/* Loading overlay */}
+              {isLoading && (
+                <Animated.View style={loadingOverlayStyle}>
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                </Animated.View>
+              )}
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -274,21 +342,18 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size =
   // Regular button rendering for other modes
   return (
     <TouchableOpacity
-      style={[getShadowStyle(), getBorderStyle()]}
-      className={`${buttonClasses} rounded-full ${paddingClasses} flex flex-row items-center justify-center`}
+      style={!isLoading && [getShadowStyle(), getBorderStyle()]}
+      className={`${buttonClasses} rounded-full ${paddingClasses} flex flex-row items-center justify-center relative`}
       onPress={onPress}
       disabled={isLoading}>
-      {isLoading ? (
-        <ActivityIndicator size="small" color={getTextClasses().includes("text-white") ? "#fff" : "#000"} />
-      ) : (
-        <>
-          {icon && <IconSymbol name={icon} size={iconSize} color={getIconColor()} />}
-          {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
-            <Text className={`text-center font-heebo-medium ml-1 mr-1 ${textClasses} ${fontSizeClass}`}>{credits}</Text>
-          )}
-          <Text className={`text-center font-heebo-medium  ${textClasses} ${fontSizeClass}`}>{buttonLabel}</Text>
-        </>
+      {icon && <IconSymbol name={icon} size={iconSize} color={getIconColor()} />}
+      {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
+        <Text className={`text-center font-heebo-medium ml-1 mr-1 ${textClasses} ${fontSizeClass}`}>{credits}</Text>
       )}
+      <Text className={`text-center font-heebo-medium ${textClasses} ${fontSizeClass}`}>{buttonLabel}</Text>
+
+      {/* Loading overlay */}
+      {isLoading && <Animated.View style={loadingOverlayStyle}></Animated.View>}
     </TouchableOpacity>
   );
 };

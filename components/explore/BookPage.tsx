@@ -64,8 +64,8 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
   }, [initialBookId, books]);
 
   const currentBook = books[currentBookIndex];
-  const isUnlocked = true;
-  const canBuy = false;
+  const isUnlocked = false;
+  const canBuy = true;
   console.log("current book", currentBook);
   const tags = [{ name: "Romance" }, { name: "Drama" }, { name: "Fiction" }] as Tag[];
 
@@ -151,20 +151,25 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
       {/* Fixed Read Now Button */}
       <View className="flex flex-col gap-2 px-4 py-4 mx-4 mb-6 bg-background-light dark:bg-background-dark">
         <ActionButton mode="read" size="large" onPress={() => onReadNow(currentBook.id)} />
-        {!isUnlocked && canBuy ? (
-          <ActionButton
-            mode="unlock"
-            credits={currentBook.price}
-            onPress={() => handleBuyBook(currentBook.id)}
-            isLoading={isLoading}
-          />
+        {!isUnlocked ? (
+          canBuy ? (
+            <ActionButton
+              mode="buy"
+              size="large"
+              credits={currentBook.price}
+              onPress={() => handleBuyBook(currentBook.id)}
+              isLoading={isLoading}
+            />
+          ) : (
+            <ActionButton
+              mode="buyGradient"
+              size="large"
+              credits={currentBook.price}
+              onPress={() => router.push("/modals/cherry")}
+            />
+          )
         ) : (
-          <ActionButton
-            mode="buyGradient"
-            size="large"
-            credits={currentBook.price}
-            onPress={() => router.push("/modals/cherry")}
-          />
+          <></>
         )}
       </View>
     </SafeAreaView>
