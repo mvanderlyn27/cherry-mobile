@@ -150,16 +150,21 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
 
       {/* Fixed Read Now Button */}
       <View className="flex flex-col gap-2 px-4 py-4 mx-4 mb-6 bg-background-light dark:bg-background-dark">
-        <ActionButton mode="read" onPress={() => onReadNow(currentBook.id)} />
+        <ActionButton mode="read" size="large" onPress={() => onReadNow(currentBook.id)} />
         {!isUnlocked && canBuy ? (
           <ActionButton
             mode="unlock"
-            credits={300}
+            credits={currentBook.price}
             onPress={() => handleBuyBook(currentBook.id)}
             isLoading={isLoading}
           />
         ) : (
-          <ActionButton mode="buy" credits={300} onPress={() => router.push("/modals/cherry")} />
+          <ActionButton
+            mode="buyGradient"
+            size="large"
+            credits={currentBook.price}
+            onPress={() => router.push("/modals/cherry")}
+          />
         )}
       </View>
     </SafeAreaView>

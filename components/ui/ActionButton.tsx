@@ -3,9 +3,12 @@ import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native";
 import { IconSymbol } from "./IconSymbol";
 import { Icon } from "@/types/app";
 import { useColorScheme } from "nativewind";
+import { LinearGradient } from "expo-linear-gradient";
 const colors = require("@/config/colors");
 
-type ActionButtonMode = "read" | "unlock" | "info" | "buy" | "review1" | "review2" | "continue";
+// Update the ActionButtonMode type to include the new mode
+type ActionButtonMode = "read" | "unlock" | "info" | "buy" | "buyGradient" | "review1" | "review2" | "continue";
+type ActionButtonSize = "small" | "medium" | "large";
 
 type ActionButtonProps = {
   mode: ActionButtonMode;
@@ -13,9 +16,10 @@ type ActionButtonProps = {
   label?: string;
   credits?: number;
   isLoading?: boolean;
+  size?: ActionButtonSize;
 };
 
-const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: ActionButtonProps) => {
+const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size = "medium" }: ActionButtonProps) => {
   const { colorScheme } = useColorScheme();
 
   const getButtonClasses = () => {
@@ -54,6 +58,8 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: Acti
         return "text-white";
       case "info":
         return "text-buttons_text-light dark:buttons_text-text-dark";
+      case "buyGradient":
+        return "text-white";
       default:
         return "text-story-light dark:text-story-dark";
     }
@@ -64,6 +70,8 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: Acti
       case "unlock":
         return Icon.cherry;
       case "buy":
+        return Icon.cherry;
+      case "buyGradient":
         return Icon.cherry;
       default:
         return null;
@@ -77,6 +85,7 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: Acti
       case "unlock":
         return "| Unlock";
       case "buy":
+      case "buyGradient":
         return "| Get More Cherries";
       case "review1":
         return "Read Story";
@@ -107,26 +116,70 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: Acti
     switch (mode) {
       case "unlock":
         return "border border-white";
-
       case "buy":
         return "border border-cherry-light dark:border-cherry-dark";
+      case "buyGradient":
+        return "border border-white dark:border-white";
       default:
         return "";
     }
   };
+  // Get padding based on size
+  const getPaddingClasses = () => {
+    switch (size) {
+      case "small":
+        return "px-3 py-2";
+      case "large":
+        return "px-6 py-4";
+      case "medium":
+      default:
+        return "px-4 py-3";
+    }
+  };
+
+  // Get font size based on size
+  const getFontSizeClass = () => {
+    switch (size) {
+      case "small":
+        return "text-md";
+      case "large":
+        return "text-xl";
+      case "medium":
+      default:
+        return "text-lg";
+    }
+  };
+
+  // Get icon size based on button size
+  const getIconSize = () => {
+    switch (size) {
+      case "small":
+        return 14;
+      case "large":
+        return 22;
+      case "medium":
+      default:
+        return 18;
+    }
+  };
+
   const icon = getIcon();
   const buttonLabel = label || getDefaultLabel();
   const buttonClasses = getButtonClasses();
   const textClasses = getTextClasses();
   const borderClasses = getBorderClasses();
   const shadowClasses = getShadowClasses();
+  const paddingClasses = getPaddingClasses();
+  const fontSizeClass = getFontSizeClass();
+  const iconSize = getIconSize();
 
   const getIconColor = () => {
     switch (mode) {
       case "buy":
-        return colors.cherry[colorScheme || "light"];
       case "unlock":
       case "read":
+        return "#FFFFFF";
+      case "buyGradient":
         return "#FFFFFF";
       case "info":
         return colors.buttons_text[colorScheme || "light"];
@@ -154,6 +207,14 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: Acti
           shadowRadius: 5,
           elevation: 5,
         };
+      case "buyGradient":
+        return {
+          shadowColor: "#DA6CFF",
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.5,
+          shadowRadius: 5,
+          elevation: 5,
+        };
       default:
         return {};
     }
@@ -172,26 +233,60 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false }: Acti
           borderWidth: 1,
           borderColor: colors.cherry[colorScheme || "light"],
         };
+      case "buyGradient":
+        return {
+          borderWidth: 1,
+          borderColor: "white",
+        };
       default:
         return {};
     }
   };
 
+  // Render the button with gradient if mode is buyGradient
+  if (mode === "buyGradient") {
+    return (
+      <View
+        style={{
+          shadowColor: "#DA6CFF",
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.8,
+          shadowRadius: 8,
+          elevation: 0,
+        }}>
+        <TouchableOpacity className="rounded-full overflow-hidden border-[1.5px] border-white" onPress={onPress}>
+          <LinearGradient colors={["#DA6CFF", "#7E98FF"]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}>
+            <View className="flex flex-row justify-center items-center p-4">
+              {icon && <IconSymbol name={icon} size={iconSize} color={getIconColor()} />}
+              {credits !== undefined && (
+                <Text className={`text-center font-heebo-medium ml-1 mr-1 ${textClasses} ${fontSizeClass}`}>
+                  {credits}
+                </Text>
+              )}
+              <Text className={`text-center font-heebo-medium  ${textClasses} ${fontSizeClass}`}>{buttonLabel}</Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // Regular button rendering for other modes
   return (
     <TouchableOpacity
       style={[getShadowStyle(), getBorderStyle()]}
-      className={`${buttonClasses} rounded-full px-4 py-3 flex flex-row items-center justify-center`}
+      className={`${buttonClasses} rounded-full ${paddingClasses} flex flex-row items-center justify-center`}
       onPress={onPress}
       disabled={isLoading}>
       {isLoading ? (
         <ActivityIndicator size="small" color={getTextClasses().includes("text-white") ? "#fff" : "#000"} />
       ) : (
         <>
-          {icon && <IconSymbol name={icon} size={18} color={getIconColor()} />}
+          {icon && <IconSymbol name={icon} size={iconSize} color={getIconColor()} />}
           {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
-            <Text className={`font-heebo-medium ml-1 ${textClasses}`}>{credits}</Text>
+            <Text className={`text-center font-heebo-medium ml-1 mr-1 ${textClasses} ${fontSizeClass}`}>{credits}</Text>
           )}
-          <Text className={`font-heebo-medium ml-2 ${textClasses}`}>{buttonLabel}</Text>
+          <Text className={`text-center font-heebo-medium  ${textClasses} ${fontSizeClass}`}>{buttonLabel}</Text>
         </>
       )}
     </TouchableOpacity>
