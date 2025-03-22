@@ -18,7 +18,7 @@ export default function Page() {
     if (categoryId) {
       const categoryBooks = categoryData.find((cat) => cat.name === categoryId)?.books || [];
       // Ensure current book is first if it's in the category
-      const filteredBooks = categoryBooks.filter(book => book.id !== currentBook.id);
+      const filteredBooks = categoryBooks.filter((book) => book.id !== currentBook.id);
       return [currentBook, ...filteredBooks];
     }
 
@@ -31,7 +31,6 @@ export default function Page() {
     router.dismiss();
     router.push(`/reader/${bookId}`);
   };
-
   return (
     <View className="h-full bg-background-light dark:bg-background-dark">
       <Header
@@ -41,11 +40,7 @@ export default function Page() {
         rightActions={[{ icon: Icon.close, onPress: () => router.back() }]}
       />
 
-      <BookPage 
-        books={allBooks} 
-        initialBookId={id as string} 
-        onReadNow={handleReadNow} 
-      />
+      <BookPage books={allBooks} initialBookId={id as string} onReadNow={handleReadNow} />
     </View>
   );
 }

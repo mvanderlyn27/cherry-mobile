@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { View, Dimensions } from "react-native";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
-import Animated, { interpolate, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { interpolate, SharedTransition, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { BookCover } from "../ui/BookCover";
 import { Book } from "@/types/app";
 import { useColorScheme } from "nativewind";
@@ -148,7 +148,8 @@ const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, o
           shadowColor: "#fff",
         },
         cardStyle,
-      ]}>
+      ]}
+      sharedTransitionTag={book.id}>
       <BookCover book={book} size="large" onPress={handlePress} onSave={onSave} />
     </Animated.View>
   );

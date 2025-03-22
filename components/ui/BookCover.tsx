@@ -149,7 +149,6 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
       <Pressable
         onPress={() => {
           onPress?.();
-          console.log("test2");
         }}
         style={{ width: 200, height: 285 }}>
         <Image
@@ -218,7 +217,6 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
       <Pressable
         onPress={() => {
           onPress?.();
-          console.log("click");
         }}
         style={{ width: 250, height: 350 }}>
         <Image

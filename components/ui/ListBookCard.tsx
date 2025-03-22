@@ -10,6 +10,8 @@ import { MotiView } from "moti";
 import { router } from "expo-router";
 import { MotiPressable } from "moti/interactions";
 import { TagList } from "./TagList";
+import { useColorScheme } from "nativewind";
+const colors = require("@/config/colors");
 
 type ListBookCardProps = {
   book: Book;
@@ -39,7 +41,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
   canBuy,
 }) => {
   const finished = progress === 100;
-
+  const { colorScheme } = useColorScheme();
   return (
     <MotiPressable
       from={{
@@ -55,13 +57,22 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
         duration: 400,
         delay: 100,
       }}
-      onPress={() => onClick(book.id)}
+      // onPress={() => onClick(book.id)}
       style={{
         flex: 1,
         flexDirection: "row",
-        marginBottom: 16,
+        // backgroundColor: colors["tabs"][colorScheme || "light"],
         overflow: "hidden",
-        paddingVertical: 6,
+        // padding: 10,
+        marginVertical: 10,
+        // borderRadius: 20,
+        // shadowRadius: 24,
+        // shadowOpacity: 0.2,
+
+        // shadowOffset: {
+        //   width: 0,
+        //   height: 0,
+        // },
       }}>
       <MotiView className="relative mr-3">
         <Image
@@ -109,21 +120,27 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
         <View className="flex-col flex flex-1 justify-end px-4 ">
           {(() => {
             switch (true) {
-              case !owned && !canBuy:
-                return <ActionButton mode="buy" credits={credits} onPress={() => router.push("/(tabs)/cherry")} />;
-              case !owned && canBuy && buyBook !== undefined:
-                return <ActionButton mode="unlock" credits={credits} onPress={() => buyBook(book.id)} />;
               case finished:
                 return (
                   <View className="flex flex-row gap-2 items-center justify-center">
-                    <ActionButton mode="review1" credits={credits} onPress={() => onRead(book.id)} />
-                    {rateStory && <ActionButton mode="review2" credits={credits} onPress={() => rateStory(book.id)} />}
+                    <ActionButton mode="info" onPress={() => onClick(book.id)} />
+                    <ActionButton mode="review2" onPress={() => rateStory?.(book.id)} />
                   </View>
                 );
               case started && !finished:
-                return <ActionButton mode="continue" onPress={() => onRead(book.id)} />;
+                return (
+                  <View className="flex flex-row gap-2 items-center justify-center">
+                    <ActionButton mode="info" onPress={() => onClick(book.id)} />
+                    <ActionButton mode="continue" onPress={() => onRead(book.id)} />
+                  </View>
+                );
               default:
-                return <ActionButton mode="read" onPress={() => onRead(book.id)} />;
+                return (
+                  <View className="flex flex-row gap-2 items-center justify-center">
+                    <ActionButton mode="info" onPress={() => onClick(book.id)} />
+                    <ActionButton mode="read" onPress={() => onRead(book.id)} />
+                  </View>
+                );
             }
           })()}
         </View>

@@ -7,7 +7,6 @@ export default function Page() {
   const router = useRouter();
 
   const handleBookPress = (bookId: string, categoryName: string) => {
-    console.log("test click");
     router.push(`/book/${bookId}?categoryId=${categoryName}`);
   };
 

@@ -24,13 +24,12 @@ export const LibraryList = ({ books, onBookPress, onBookRead, onUnlockBook, cred
           <ListBookCard
             book={item}
             owned={true}
-            progress={0}
+            progress={100}
             onClick={onBookPress}
             onRead={onBookRead}
             buyBook={onUnlockBook}
-            credits={item.price}
             canBuy={credits >= (item.price || 0)}
-            started={false}
+            started={true}
           />
         </View>
       )}

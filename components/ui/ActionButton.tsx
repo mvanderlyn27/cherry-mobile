@@ -5,16 +5,15 @@ import { Icon } from "@/types/app";
 import { useColorScheme } from "nativewind";
 const colors = require("@/config/colors");
 
-type ActionButtonMode = "read" | "unlock" | "buy" | "review1" | "review2" | "continue";
+type ActionButtonMode = "read" | "unlock" | "info" | "buy" | "review1" | "review2" | "continue";
 
 type ActionButtonProps = {
   mode: ActionButtonMode;
   onPress: () => void;
-  credits?: number;
   label?: string;
 };
 
-const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
+const ActionButton = ({ mode, onPress, label }: ActionButtonProps) => {
   const { colorScheme } = useColorScheme();
 
   const getButtonClasses = () => {
@@ -25,12 +24,14 @@ const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
         return "bg-buttons_2-light dark:bg-buttons_2-dark";
       case "buy":
         return "bg-white dark:bg-white";
+      case "info":
+        return "bg-white dark:bg-buttons-dark";
       case "review1":
         return "bg-white dark:white";
       case "review2":
-        return "bg-white dark:white";
+        return "bg-buttons-light dark:bg-buttons-dark";
       case "continue":
-        return "bg-white dark:white";
+        return "bg-buttons-light dark:bg-buttons-dark";
       default:
         return "bg-buttons-light dark:bg-buttons-dark";
     }
@@ -39,16 +40,18 @@ const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
   const getTextClasses = () => {
     switch (mode) {
       case "continue":
-        return "text-buttons_text-light dark:buttons_text-text-dark";
+        return "text-white";
       case "review1":
         return "text-buttons_text-light dark:buttons_text-text-dark";
       case "review2":
-        return "text-buttons_text-light dark:buttons_text-text-dark";
+        return "text-white";
       case "buy":
         return "text-cherry-light dark:text-cherry-dark";
       case "unlock":
       case "read":
         return "text-white";
+      case "info":
+        return "text-buttons_text-light dark:buttons_text-text-dark";
       default:
         return "text-story-light dark:text-story-dark";
     }
@@ -70,15 +73,17 @@ const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
       case "read":
         return "Read Now";
       case "unlock":
-        return "| Unlock Full Story";
+        return "| Unlock";
       case "buy":
-        return "| Get Cherries";
+        return "";
       case "review1":
         return "Read Story";
       case "review2":
         return "Rate Now";
       case "continue":
-        return "Continue Reading";
+        return "Continue";
+      case "info":
+        return "More Info";
       default:
         return "Read Now";
     }
@@ -121,6 +126,8 @@ const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
       case "unlock":
       case "read":
         return "#FFFFFF";
+      case "info":
+        return colors.buttons_text[colorScheme || "light"];
       default:
         return colors.story[colorScheme || "light"];
     }
@@ -171,11 +178,13 @@ const ActionButton = ({ mode, onPress, credits, label }: ActionButtonProps) => {
   return (
     <TouchableOpacity
       style={[getShadowStyle(), getBorderStyle()]}
-      className={`${buttonClasses} rounded-full px-4 py-3 flex flex-row items-center justify-center`}
+      className={`${buttonClasses}   rounded-full px-4 py-3 flex flex-row items-center justify-center`}
       onPress={onPress}>
       {icon && <IconSymbol name={icon} size={18} color={getIconColor()} />}
 
-      {credits !== undefined && <Text className={`font-heebo-medium ml-1 ${textClasses}`}>{credits}</Text>}
+      {/* {credits !== undefined && mode !== "read" && mode !== "info" && mode !== "continue" && (
+        <Text className={`font-heebo-medium ml-1 ${textClasses}`}>{credits}</Text>
+      )} */}
 
       <Text className={`font-heebo-medium ml-2 ${textClasses}`}>{buttonLabel}</Text>
     </TouchableOpacity>

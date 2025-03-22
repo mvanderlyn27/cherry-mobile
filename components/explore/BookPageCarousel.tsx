@@ -58,7 +58,7 @@ export const BookPageCarousel: React.FC<Props> = ({ books, initialIndex, onBookP
           height={PAGE_HEIGHT}
           data={books}
           defaultIndex={initialIndex}
-          scrollAnimationDuration={800}
+          scrollAnimationDuration={300}
           autoPlay={false}
           pagingEnabled={true}
           snapEnabled={true}
@@ -153,7 +153,8 @@ const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, o
           shadowColor: "#fff",
         },
         cardStyle,
-      ]}>
+      ]}
+      sharedTransitionTag={book.id}>
       <BookCover book={book} size="large" onPress={handlePress} onSave={onSave} />
     </Animated.View>
   );

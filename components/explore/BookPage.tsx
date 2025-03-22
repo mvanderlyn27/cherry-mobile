@@ -24,6 +24,7 @@ import Animated, {
   FlipInEasyY,
   FadeInDown,
   FlipOutEasyX,
+  SlideInLeft,
 } from "react-native-reanimated";
 const colors = require("@/config/colors");
 
@@ -46,6 +47,7 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
   }, [initialBookId, books]);
 
   const currentBook = books[currentBookIndex];
+  console.log("current book", currentBook);
   const tags = [{ name: "Romance" }, { name: "Drama" }, { name: "Fiction" }] as Tag[];
 
   const handleBookChange = (bookId: string) => {
@@ -117,9 +119,14 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
         </View>
 
         {/* Tags Section */}
-        <View className="py-2 mb-4">
+        <Animated.View
+          className="py-2 mb-4"
+          key={currentBook.id}
+          entering={SlideInLeft.duration(300)
+            .delay(100)
+            .withInitialValues({ transform: [{ translateX: -20 }] })}>
           <TagList tags={tags} />
-        </View>
+        </Animated.View>
       </View>
 
       {/* Fixed Read Now Button */}
