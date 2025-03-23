@@ -32,6 +32,10 @@ export default function Page() {
     // Logic to log user out
     console.log("Logout");
   };
+  const handleDelete = () => {
+    // Logic to log user out
+    console.log("Delete");
+  };
 
   const renderSettingItem = (icon: Icon, title: string, onPress?: () => void, rightElement?: React.ReactNode) => (
     <TouchableOpacity
@@ -89,6 +93,7 @@ export default function Page() {
           {renderSettingItem(Icon.diamond, "My Purchases", () => console.log("View purchases"))}
 
           {renderSettingItem(Icon.logout, "Logout", handleLogout)}
+          {renderSettingItem(Icon.close, "Delete", handleDelete)}
         </View>
       )}
 

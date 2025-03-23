@@ -7,6 +7,7 @@ import { books$ } from "@/stores/bookStore";
 import { observer } from "@legendapp/state/react";
 import * as Haptics from "expo-haptics";
 import { userStore$ } from "@/stores/userStore";
+import { Chapter, Icon } from "@/types/app";
 
 interface StoryReaderProps {
   bookId: string;
@@ -27,9 +28,26 @@ export const StoryReader = observer(
       userStore$.readerSettings.backgroundTexture.get() as BackgroundTexture
     );
     const [showControls, setShowControls] = useState(false);
-    const chapters = Object.values(chapters$.get() || {}).filter((val) => val.book_id === bookId);
+    // const chapters = Object.values(chapters$.get() || {}).filter((val) => val?.book_id === bookId);
+    const chapters: Chapter[] = [];
 
-    const currentChapter = chapters[currentChapterIndex];
+    if (!chapters || chapters.length === 0) {
+      return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text>Loading chapters...</Text>
+        </View>
+      );
+    }
+
+    const currentChapter = chapters[currentChapterIndex] || chapters[0];
+
+    if (!currentChapter) {
+      return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text>Chapter not found</Text>
+        </View>
+      );
+    }
     const { width } = Dimensions.get("window");
 
     const handlePurchase = () => {
@@ -111,14 +129,14 @@ export const StoryReader = observer(
     const renderChapterNavigation = () => (
       <View>
         <TouchableOpacity onPress={handlePreviousChapter} disabled={currentChapterIndex === 0}>
-          <IconSymbol name="chevron.left" size={24} color={currentChapterIndex === 0 ? "#ccc" : "#666"} />
+          <IconSymbol name={Icon["left-arrow"]} size={24} color={currentChapterIndex === 0 ? "#ccc" : "#666"} />
         </TouchableOpacity>
         <Text>
           Chapter {currentChapter.chapter_number} of {chapters.length}
         </Text>
         <TouchableOpacity onPress={handleNextChapter} disabled={currentChapterIndex === chapters.length - 1}>
           <IconSymbol
-            name="chevron.right"
+            name={Icon["right-arrow"]}
             size={24}
             color={currentChapterIndex === chapters.length - 1 ? "#ccc" : "#666"}
           />
@@ -131,7 +149,7 @@ export const StoryReader = observer(
       return (
         <View>
           <View>
-            <IconSymbol name="lock.fill" size={48} color="#888" />
+            <IconSymbol name={Icon["lock_fill"]} size={48} color="#888" />
             <Text>Chapter Locked</Text>
             <Text>Purchase this book to continue reading this chapter and unlock all content.</Text>
             <TouchableOpacity onPress={handlePurchase}>

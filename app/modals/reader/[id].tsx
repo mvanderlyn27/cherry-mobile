@@ -8,6 +8,7 @@ import { observer } from "@legendapp/state/react";
 import { SUPERWALL_TRIGGERS } from "@/config/superwall";
 import { chapters$ } from "@/stores/bookStore";
 import { syncState } from "@legendapp/state";
+import { Chapter } from "@/types/app";
 
 const ReaderScreen = observer(() => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,9 +19,12 @@ const ReaderScreen = observer(() => {
 
   // const userId = userSelectors.userId.get();
   // const isBookOwned = bookSelectors.isBookOwned(id).get();
-  const chapters = Object.values(chapters$ || {}).filter((val) => val.bookId === id);
-  const isLoading = syncState(chapters$).isGetting;
-  console.log("getting: ", isLoading.get(), "chapters: ", chapters);
+  // const chapters = Object.values(chapters$ || {}).filter((val) => val.bookId === id);
+  const chapters: Chapter[] = [];
+  const isLoading = false;
+  // const isLoading = syncState(chapters$).isGetting;
+  console.log("getting: ", isLoading, "chapters: ", chapters);
+  // console.log("getting: ", isLoading.get(), "chapters: ", chapters);
   // const bookProgress = bookSelectors.bookProgress(id).get();
 
   // useEffect(() => {
@@ -57,7 +61,8 @@ const ReaderScreen = observer(() => {
     // showPaywall(SUPERWALL_TRIGGERS.FEATURE_UNLOCK);
   };
 
-  if (isLoading.get()) {
+  // if (isLoading.get()) {
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0A7EA4" />

@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { ListBookCard } from "../ui/ListBookCard";
 import { Book } from "@/types/app";
 import { LegendList } from "@legendapp/list";
@@ -12,7 +12,11 @@ type LibraryListProps = {
   credits: number;
 };
 
-export const LibraryList = ({ books, onBookPress, onBookRead, onUnlockBook, credits }: LibraryListProps) => {
+export const LibraryList = ({ books = [], onBookPress, onBookRead, onUnlockBook, credits }: LibraryListProps) => {
+  if (!books || books.length === 0) {
+    return <Text>No Data</Text>;
+  }
+
   return (
     <LegendList
       data={books}
@@ -28,12 +32,12 @@ export const LibraryList = ({ books, onBookPress, onBookRead, onUnlockBook, cred
             onClick={onBookPress}
             onRead={onBookRead}
             buyBook={onUnlockBook}
-            canBuy={credits >= (item.price || 0)}
+            canBuy={credits >= (item?.price || 0)}
             started={false}
           />
         </View>
       )}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item?.id || Math.random().toString()}
       showsVerticalScrollIndicator={false}
     />
   );

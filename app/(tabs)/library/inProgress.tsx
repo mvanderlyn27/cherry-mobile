@@ -17,8 +17,9 @@ import { useMemo } from "react";
 
 const Page = observer(() => {
   const router = useRouter();
-  const isLoading = syncState(books$).isGetting;
-  const credits = use$(userStore$.credits.get());
+  // const isLoading = syncState(books$).isGetting;
+  const isLoading = false;
+  const credits = 300;
 
   const allBooks = useMemo(() => categoryData.flatMap((category) => category.books), []);
 
@@ -33,7 +34,8 @@ const Page = observer(() => {
 
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
-      {isLoading.get() ? (
+      {/* {isLoading.get() ? ( */}
+      {isLoading ? (
         <View className="flex-1 justify-center items-center">
           <Text className="text-gray-600">Loading...</Text>
         </View>
