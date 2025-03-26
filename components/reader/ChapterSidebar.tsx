@@ -50,7 +50,7 @@ export const ChapterSidebar = ({
           <View className=" flex-row justify-between items-center py-4 px-6 border-b border-tab_bar_border-light dark:border-tab_bar_border-dark">
             <Text className="font-kaisei-medium text-xl font-bold text-gray-900 dark:text-white">Summary</Text>
           </View>
-          <ScrollView className="flex-1">
+          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
             {chapters.map((chapter, index) => (
               <TouchableOpacity
                 key={chapter.id}

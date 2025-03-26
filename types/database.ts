@@ -9,177 +9,90 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      bookmarks: {
+      book_progress: {
         Row: {
           book_id: string | null
-          chapter_number: number | null
-          deleted: boolean | null
+          created_at: string
+          current_chapter_id: string | null
           id: string
-          timestamp: string | null
-          updated_at: string | null
+          status: Database["public"]["Enums"]["book_status"] | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
-          chapter_number?: number | null
-          deleted?: boolean | null
+          created_at?: string
+          current_chapter_id?: string | null
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["book_status"] | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
-          chapter_number?: number | null
-          deleted?: boolean | null
+          created_at?: string
+          current_chapter_id?: string | null
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["book_status"] | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "bookmarks_book_id_fkey"
+            foreignKeyName: "book_progress_book_id_fkey"
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bookmarks_user_id_fkey"
+            foreignKeyName: "book_progress_current_chapter_id_fkey"
+            columns: ["current_chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_progress_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_chapter"
-            columns: ["book_id", "chapter_number"]
-            isOneToOne: false
-            referencedRelation: "chapters"
-            referencedColumns: ["book_id", "chapter_number"]
-          },
         ]
       }
-      books: {
+      book_tags: {
         Row: {
-          author: string | null
-          cover_url: string | null
-          created_at: string | null
-          deleted: boolean | null
+          book_id: string | null
+          created_at: string
           id: string
-          lang: string | null
-          placeholder: string | null
-          preview_text: string | null
-          price: number
-          reader_count: number
-          reading_time: number | null
-          title: string
-          updated_at: string | null
+          tag_id: string | null
+          updated_at: string
         }
         Insert: {
-          author?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          deleted?: boolean | null
+          book_id?: string | null
+          created_at?: string
           id?: string
-          lang?: string | null
-          placeholder?: string | null
-          preview_text?: string | null
-          price: number
-          reader_count?: number
-          reading_time?: number | null
-          title: string
-          updated_at?: string | null
+          tag_id?: string | null
+          updated_at?: string
         }
         Update: {
-          author?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          deleted?: boolean | null
+          book_id?: string | null
+          created_at?: string
           id?: string
-          lang?: string | null
-          placeholder?: string | null
-          preview_text?: string | null
-          price?: number
-          reader_count?: number
-          reading_time?: number | null
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      books_categories: {
-        Row: {
-          book_id: string
-          category_id: string
-          created_at: string | null
-          deleted: boolean | null
-          updated_at: string | null
-        }
-        Insert: {
-          book_id: string
-          category_id: string
-          created_at?: string | null
-          deleted?: boolean | null
-          updated_at?: string | null
-        }
-        Update: {
-          book_id?: string
-          category_id?: string
-          created_at?: string | null
-          deleted?: boolean | null
-          updated_at?: string | null
+          tag_id?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "books_categories_book_id_fkey"
+            foreignKeyName: "book_tags_book_id_fkey"
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "books_categories_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      books_tags: {
-        Row: {
-          book_id: string
-          created_at: string | null
-          deleted: boolean | null
-          tag_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          book_id: string
-          created_at?: string | null
-          deleted?: boolean | null
-          tag_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          book_id?: string
-          created_at?: string | null
-          deleted?: boolean | null
-          tag_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "books_tags_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "books"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "books_tags_tag_id_fkey"
+            foreignKeyName: "book_tags_tag_id_fkey"
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "tags"
@@ -187,69 +100,126 @@ export type Database = {
           },
         ]
       }
-      categories: {
+      books: {
         Row: {
-          cover_image: string | null
-          created_at: string | null
-          deleted: boolean | null
+          author: string
+          chapter_count: number | null
+          cover_placeholder: string | null
+          cover_url: string | null
+          created_at: string
+          description: string | null
           id: string
-          name: string
-          popularity_score: number | null
-          updated_at: string | null
+          price: number
+          reader_count: number | null
+          reading_time: number | null
+          title: string
+          updated_at: string
         }
         Insert: {
-          cover_image?: string | null
-          created_at?: string | null
-          deleted?: boolean | null
+          author: string
+          chapter_count?: number | null
+          cover_placeholder?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
           id?: string
-          name: string
-          popularity_score?: number | null
-          updated_at?: string | null
+          price: number
+          reader_count?: number | null
+          reading_time?: number | null
+          title: string
+          updated_at?: string
         }
         Update: {
-          cover_image?: string | null
-          created_at?: string | null
-          deleted?: boolean | null
+          author?: string
+          chapter_count?: number | null
+          cover_placeholder?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
           id?: string
-          name?: string
-          popularity_score?: number | null
-          updated_at?: string | null
+          price?: number
+          reader_count?: number | null
+          reading_time?: number | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
+      }
+      chapter_progress: {
+        Row: {
+          chapter_id: string | null
+          created_at: string
+          id: string
+          status: Database["public"]["Enums"]["chapter_status"] | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          chapter_id?: string | null
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["chapter_status"] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          chapter_id?: string | null
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["chapter_status"] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_progress_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chapter_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chapters: {
         Row: {
           book_id: string | null
           chapter_number: number
-          created_at: string | null
-          deleted: boolean | null
+          content_url: string | null
+          created_at: string
           id: string
-          text: string | null
-          title: string | null
-          updated_at: string | null
-          word_count: number | null
+          price: number
+          title: string
+          updated_at: string
+          word_count: number
         }
         Insert: {
           book_id?: string | null
           chapter_number: number
-          created_at?: string | null
-          deleted?: boolean | null
+          content_url?: string | null
+          created_at?: string
           id?: string
-          text?: string | null
-          title?: string | null
-          updated_at?: string | null
-          word_count?: number | null
+          price: number
+          title: string
+          updated_at?: string
+          word_count?: number
         }
         Update: {
           book_id?: string | null
           chapter_number?: number
-          created_at?: string | null
-          deleted?: boolean | null
+          content_url?: string | null
+          created_at?: string
           id?: string
-          text?: string | null
-          title?: string | null
-          updated_at?: string | null
-          word_count?: number | null
+          price?: number
+          title?: string
+          updated_at?: string
+          word_count?: number
         }
         Relationships: [
           {
@@ -261,35 +231,80 @@ export type Database = {
           },
         ]
       }
+      cherry_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          new_balance: number
+          previous_balance: number
+          transaction_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          new_balance: number
+          previous_balance: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          new_balance?: number
+          previous_balance?: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cherry_ledger_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cherry_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           book_id: string | null
-          chapter_number: number | null
-          comment_text: string
-          deleted: boolean | null
+          chapter_id: string | null
+          content: string
+          created_at: string
           id: string
-          timestamp: string | null
-          updated_at: string | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
-          chapter_number?: number | null
-          comment_text: string
-          deleted?: boolean | null
+          chapter_id?: string | null
+          content: string
+          created_at?: string
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
-          chapter_number?: number | null
-          comment_text?: string
-          deleted?: boolean | null
+          chapter_id?: string | null
+          content?: string
+          created_at?: string
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: [
@@ -301,118 +316,189 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "comments_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "comments_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_chapter"
-            columns: ["book_id", "chapter_number"]
-            isOneToOne: false
-            referencedRelation: "chapters"
-            referencedColumns: ["book_id", "chapter_number"]
-          },
         ]
       }
-      dislikes: {
+      interactions: {
         Row: {
           book_id: string | null
-          chapter_number: number | null
-          deleted: boolean | null
+          chapter_id: string | null
+          created_at: string
           id: string
-          timestamp: string | null
-          updated_at: string | null
+          type: Database["public"]["Enums"]["interaction_type"]
+          updated_at: string
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
-          chapter_number?: number | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          type: Database["public"]["Enums"]["interaction_type"]
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
-          chapter_number?: number | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          type?: Database["public"]["Enums"]["interaction_type"]
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "dislikes_book_id_fkey"
+            foreignKeyName: "interactions_book_id_fkey"
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "dislikes_user_id_fkey"
+            foreignKeyName: "interactions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_chapter"
-            columns: ["book_id", "chapter_number"]
-            isOneToOne: false
-            referencedRelation: "chapters"
-            referencedColumns: ["book_id", "chapter_number"]
-          },
         ]
       }
-      likes: {
+      liked_chapters: {
         Row: {
           book_id: string | null
-          chapter_number: number | null
-          deleted: boolean | null
+          chapter_id: string | null
+          created_at: string
           id: string
-          timestamp: string | null
-          updated_at: string | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
-          chapter_number?: number | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
-          chapter_number?: number | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
           id?: string
-          timestamp?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "fk_chapter"
-            columns: ["book_id", "chapter_number"]
-            isOneToOne: false
-            referencedRelation: "chapters"
-            referencedColumns: ["book_id", "chapter_number"]
-          },
-          {
-            foreignKeyName: "likes_book_id_fkey"
+            foreignKeyName: "liked_chapters_book_id_fkey"
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "likes_user_id_fkey"
+            foreignKeyName: "liked_chapters_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liked_chapters_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          profile_placeholder: string | null
+          profile_url: string | null
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          profile_placeholder?: string | null
+          profile_url?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          profile_placeholder?: string | null
+          profile_url?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_books: {
+        Row: {
+          book_id: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          book_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          book_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_books_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_books_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -422,63 +508,82 @@ export type Database = {
       }
       tags: {
         Row: {
-          created_at: string | null
-          deleted: boolean | null
+          created_at: string
           id: string
           name: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          deleted?: boolean | null
+          created_at?: string
           id?: string
           name: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          deleted?: boolean | null
+          created_at?: string
           id?: string
           name?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
-      user_purchases: {
+      transactions: {
         Row: {
           book_id: string | null
-          deleted: boolean | null
+          chapter_id: string | null
+          created_at: string
+          credits: number
           id: string
-          purchase_date: string | null
-          updated_at: string | null
+          payment_intent_id: string | null
+          price: number
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
+          credits: number
           id?: string
-          purchase_date?: string | null
-          updated_at?: string | null
+          payment_intent_id?: string | null
+          price: number
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
+          credits?: number
           id?: string
-          purchase_date?: string | null
-          updated_at?: string | null
+          payment_intent_id?: string | null
+          price?: number
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "user_purchases_book_id_fkey"
+            foreignKeyName: "transactions_book_id_fkey"
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_purchases_user_id_fkey"
+            foreignKeyName: "transactions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -486,83 +591,108 @@ export type Database = {
           },
         ]
       }
-      user_saved_books: {
+      user_unlocks: {
         Row: {
           book_id: string | null
-          deleted: boolean | null
+          chapter_id: string | null
+          created_at: string
           id: string
-          save_date: string | null
-          updated_at: string | null
+          is_full_book: boolean | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
           book_id?: string | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
           id?: string
-          save_date?: string | null
-          updated_at?: string | null
+          is_full_book?: boolean | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
           book_id?: string | null
-          deleted?: boolean | null
+          chapter_id?: string | null
+          created_at?: string
           id?: string
-          save_date?: string | null
-          updated_at?: string | null
+          is_full_book?: boolean | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "user_saved_books_book_id_fkey"
+            foreignKeyName: "user_unlocks_book_id_fkey"
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_saved_books_user_id_fkey"
+            foreignKeyName: "user_unlocks_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_unlocks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          credits: number | null
+          dark_mode: boolean | null
+          font_size: number | null
+          id: string
+          premium_user: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number | null
+          dark_mode?: boolean | null
+          font_size?: number | null
+          id: string
+          premium_user?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number | null
+          dark_mode?: boolean | null
+          font_size?: number | null
+          id?: string
+          premium_user?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
-      users: {
-        Row: {
-          created_at: string | null
-          credits_balance: number | null
-          email: string | null
-          id: string | null
-          reading_progress: Json | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          credits_balance?: number | null
-          email?: string | null
-          id?: string | null
-          reading_progress?: Json | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          credits_balance?: number | null
-          email?: string | null
-          id?: string | null
-          reading_progress?: Json | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      book_status: "finished" | "reading" | "unread"
+      chapter_status: "reading" | "unread" | "completed"
+      interaction_type:
+        | "share"
+        | "like"
+        | "read"
+        | "purchase"
+        | "open"
+        | "save"
+        | "comment"
+      transaction_status: "completed" | "failed" | "pending" | "refund"
+      transaction_type: "purchase" | "unlock" | "refund"
     }
     CompositeTypes: {
       [_ in never]: never

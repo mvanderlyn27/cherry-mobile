@@ -1,11 +1,59 @@
 import { Database } from "./database";
 
+// Base types from database
 export type Book = Database["public"]["Tables"]["books"]["Row"];
 export type Chapter = Database["public"]["Tables"]["chapters"]["Row"];
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
-export type Category = Database["public"]["Tables"]["categories"]["Row"];
+export type BookTag = Database["public"]["Tables"]["book_tags"]["Row"];
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type User = Database["public"]["Tables"]["users"]["Row"];
+export type BookProgress = Database["public"]["Tables"]["book_progress"]["Row"];
+export type ChapterProgress = Database["public"]["Tables"]["chapter_progress"]["Row"];
+export type Comment = Database["public"]["Tables"]["comments"]["Row"];
+export type ChapterLike = Database["public"]["Tables"]["liked_chapters"]["Row"];
 
-// Add these to your existing Icon enum
+// Enums
+export enum ChapterStatus {
+  READING = "reading",
+  UNREAD = "unread",
+  COMPLETED = "completed",
+}
+
+export enum BookStatus {
+  FINISHED = "finished",
+  READING = "reading",
+  UNREAD = "unread",
+}
+
+// Extended types for frontend use
+export interface ExtendedChapter extends Chapter {
+  content: string;
+  is_locked: boolean;
+  progress?: ChapterProgress;
+  comments?: Comment[];
+  likes_count?: number;
+  is_liked?: boolean;
+  is_bookmarked?: boolean;
+}
+
+export interface ExtendedBook extends Book {
+  tags: Tag[];
+  chapters: ExtendedChapter[];
+  progress?: BookProgress;
+  current_chapter?: ExtendedChapter;
+  is_saved?: boolean;
+  comments_count?: number;
+  likes_count?: number;
+  user_progress?: number; // Percentage of completed chapters
+  is_purchased?: boolean;
+}
+
+export interface UserProfile extends Profile {
+  user: User;
+  saved_books?: ExtendedBook[];
+  reading_history?: ExtendedBook[];
+}
+
 export enum Icon {
   "book" = "book",
   "cherry" = "cherry",
@@ -59,10 +107,4 @@ export enum Icon {
   "error" = "error",
   "comment" = "comment",
   "bookmark" = "bookmark",
-}
-
-export interface ExtendedChapter extends Chapter {
-  content: string;
-  is_locked: boolean;
-  is_saved?: boolean;
 }

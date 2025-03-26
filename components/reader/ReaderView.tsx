@@ -37,6 +37,7 @@ export const ReaderView = ({
       <View className="flex-1">
         <Animated.ScrollView
           onScroll={onScroll}
+          showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
           contentContainerStyle={{
             paddingVertical: 20,
