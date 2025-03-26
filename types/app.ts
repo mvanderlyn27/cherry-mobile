@@ -60,3 +60,9 @@ export enum Icon {
   "comment" = "comment",
   "bookmark" = "bookmark",
 }
+
+export interface ExtendedChapter extends Chapter {
+  content: string;
+  is_locked: boolean;
+  is_saved?: boolean;
+}

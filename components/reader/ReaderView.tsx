@@ -43,7 +43,7 @@ export const ReaderView = ({
             paddingHorizontal,
           }}>
           <Text
-            style={{ fontSize: fontSize }}
+            style={{ fontSize: fontSize, lineHeight: fontSize * 2 }}
             className="leading-7 font-kaisei-medium text-story-light dark:text-gray-200">
             {chapter.content}
           </Text>

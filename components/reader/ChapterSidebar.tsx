@@ -1,89 +1,83 @@
-import React, { useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Animated } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Chapter, Icon } from "@/types/app";
+import { Chapter, ExtendedChapter, Icon } from "@/types/app";
 import { useColorScheme } from "nativewind";
 import * as Haptics from "expo-haptics";
+import { Drawer } from "react-native-drawer-layout";
 
 type ChapterSidebarProps = {
-  chapters: Chapter[];
+  chapters: ExtendedChapter[];
   currentChapterIndex: number;
   onChapterSelect: (index: number) => void;
   onClose: () => void;
+  isOpen: boolean;
+  children: React.ReactNode;
 };
 
-export const ChapterSidebar = ({ chapters, currentChapterIndex, onChapterSelect, onClose }: ChapterSidebarProps) => {
+export const ChapterSidebar = ({
+  chapters,
+  currentChapterIndex,
+  onChapterSelect,
+  onClose,
+  isOpen,
+  children,
+}: ChapterSidebarProps) => {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
-  const slideAnim = useRef(new Animated.Value(-300)).current;
-  
-  useEffect(() => {
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  const handleClose = () => {
-    Animated.timing(slideAnim, {
-      toValue: -300,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      onClose();
-    });
-  };
+  //   const drawerRef = React.useRef<Drawer>(null);
 
   const handleSelect = (index: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onChapterSelect(index);
+    // onClose();
   };
-  
-  //pull this from db see if user owns this chapter
-  const userOwnsChapter = true;
-  
+
+  const insets = useSafeAreaInsets();
   return (
-    <View className="absolute inset-0 z-20">
-      <TouchableOpacity 
-        className="absolute inset-0 bg-black/50" 
-        activeOpacity={1} 
-        onPress={handleClose} 
-      />
-      <Animated.View 
-        className="absolute top-0 left-0 bottom-0 w-3/4 max-w-[300px] bg-white dark:bg-gray-900"
-        style={{ transform: [{ translateX: slideAnim }] }}
-      >
-        <SafeAreaView edges={["top"]} className="flex-1">
-          <View className="flex-row justify-between items-center p-4 border-b border-gray-200 dark:border-gray-800">
-            <Text className="text-xl font-bold text-gray-900 dark:text-white">Chapters</Text>
-            <TouchableOpacity onPress={handleClose}>
-              <IconSymbol name={Icon.close} size={24} color={isDark ? "#fff" : "#000"} />
-            </TouchableOpacity>
+    <Drawer
+      open={isOpen}
+      onOpen={() => {}}
+      onClose={onClose}
+      drawerPosition="left"
+      drawerType="slide"
+      drawerStyle={{}}
+      renderDrawerContent={() => (
+        <View
+          className="flex flex-col flex-1 bg-background-light dark:bg-background-dark"
+          style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+          <View className=" flex-row justify-between items-center py-4 px-6 border-b border-tab_bar_border-light dark:border-tab_bar_border-dark">
+            <Text className="font-kaisei-medium text-xl font-bold text-gray-900 dark:text-white">Summary</Text>
           </View>
           <ScrollView className="flex-1">
             {chapters.map((chapter, index) => (
               <TouchableOpacity
                 key={chapter.id}
-                className={`p-4 flex-row justify-between items-center border-b border-gray-100 dark:border-gray-800 ${
-                  currentChapterIndex === index ? "bg-blue-50 dark:bg-blue-900/30" : ""
+                className={`py-4 px-6 flex-row justify-between items-center border-b border-tab_bar_border-light dark:border-tab_bar_border-dark ${
+                  currentChapterIndex === index ? "bg-tabs-light dark:bg-tabs-dark" : ""
                 }`}
                 onPress={() => handleSelect(index)}>
-                <Text
-                  className={`flex-1 ${
-                    currentChapterIndex === index
-                      ? "font-bold text-blue-600 dark:text-blue-400"
-                      : "text-gray-800 dark:text-gray-200"
-                  } ${!userOwnsChapter ? "text-gray-400 dark:text-gray-500" : ""}`}>
-                  Chapter {chapter.chapter_number}: {chapter.title}
-                </Text>
-                {!userOwnsChapter && <IconSymbol name={Icon.lock} size={18} color={isDark ? "#aaa" : "#666"} />}
+                <View className="flex flex-col">
+                  <Text
+                    className={`font-kaisei-medium text-xl flex-1 ${
+                      currentChapterIndex === index
+                        ? "font-bold text-story-light dark:text-story-dark"
+                        : "text-gray-800 dark:text-gray-200"
+                    } ${chapter.is_locked ? "text-gray-400 dark:text-gray-500" : ""}`}>
+                    Chapter {chapter.chapter_number}
+                  </Text>
+                  <Text className="font-kaisei-medium text-tags-light dark:text-tags-dark font-thin text-sm ">
+                    {chapter.title}
+                  </Text>
+                </View>
+                {chapter.is_locked && <IconSymbol name={Icon.lock} size={18} color={isDark ? "#aaa" : "#666"} />}
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </SafeAreaView>
-      </Animated.View>
-    </View>
+        </View>
+      )}>
+      {children}
+    </Drawer>
   );
 };

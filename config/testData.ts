@@ -1,4 +1,4 @@
-import { Book, Chapter } from "@/types/app";
+import { Book, Chapter, ExtendedChapter } from "@/types/app";
 
 export type CategoryData = {
   name: string;
@@ -22,8 +22,18 @@ export const categoryData: CategoryData[] = [
         "Spring Awakening",
         "Starlit Romance",
       ][i],
-      author: ["Jane Doe", "John Smith", "Emily Rose", "Michael Chen", "Sarah Wilson", 
-               "David Lee", "Anna Brown", "James Wright", "Lisa Park", "Robert Kim"][i],
+      author: [
+        "Jane Doe",
+        "John Smith",
+        "Emily Rose",
+        "Michael Chen",
+        "Sarah Wilson",
+        "David Lee",
+        "Anna Brown",
+        "James Wright",
+        "Lisa Park",
+        "Robert Kim",
+      ][i],
       lang: "en",
       placeholder: null,
       cover_url: `https://picsum.photos/200/${300 + i}`,
@@ -53,8 +63,18 @@ export const categoryData: CategoryData[] = [
         "Final Evidence",
         "Mystery Manor",
       ][i],
-      author: ["Agatha Chen", "Sherlock Brown", "Nancy Drew", "Arthur Blake", "Patricia Wells",
-               "Raymond Black", "Mary Holmes", "Richard Castle", "Jessica Fletcher", "Hercule White"][i],
+      author: [
+        "Agatha Chen",
+        "Sherlock Brown",
+        "Nancy Drew",
+        "Arthur Blake",
+        "Patricia Wells",
+        "Raymond Black",
+        "Mary Holmes",
+        "Richard Castle",
+        "Jessica Fletcher",
+        "Hercule White",
+      ][i],
       lang: "en",
       placeholder: null,
       cover_url: `https://picsum.photos/200/${310 + i}`,
@@ -83,8 +103,18 @@ export const categoryData: CategoryData[] = [
         "The Last Sorcerer",
         "Portal to Dreams",
       ][i],
-      author: ["J.R. Blackwood", "Merlin Grey", "Luna Silverstar", "Drake Fireforge", "Aria Nightshade",
-               "Storm Ravenclaw", "Sage Moonweaver", "Crystal Starling", "Phoenix Wright", "River Shadowmend"][i],
+      author: [
+        "J.R. Blackwood",
+        "Merlin Grey",
+        "Luna Silverstar",
+        "Drake Fireforge",
+        "Aria Nightshade",
+        "Storm Ravenclaw",
+        "Sage Moonweaver",
+        "Crystal Starling",
+        "Phoenix Wright",
+        "River Shadowmend",
+      ][i],
       lang: "en",
       placeholder: null,
       cover_url: `https://picsum.photos/200/${320 + i}`,
@@ -113,8 +143,18 @@ export const categoryData: CategoryData[] = [
         "Digital Horizon",
         "Galaxy's End",
       ][i],
-      author: ["Isaac Clarke", "Nova Sterling", "Orion Wells", "Tesla Knight", "Cosmos Jones",
-               "Aurora Blake", "Vector Prime", "Nebula Smith", "Quantum Wright", "Galaxy Rose"][i],
+      author: [
+        "Isaac Clarke",
+        "Nova Sterling",
+        "Orion Wells",
+        "Tesla Knight",
+        "Cosmos Jones",
+        "Aurora Blake",
+        "Vector Prime",
+        "Nebula Smith",
+        "Quantum Wright",
+        "Galaxy Rose",
+      ][i],
       lang: "en",
       placeholder: null,
       cover_url: `https://picsum.photos/200/${330 + i}`,
@@ -143,8 +183,18 @@ export const categoryData: CategoryData[] = [
         "Ghost Stories",
         "The Possession",
       ][i],
-      author: ["Edgar Blackwood", "Stephen Night", "Raven Crow", "Mary Shelley", "Howard Phillips",
-               "Crimson King", "Blair Woods", "Salem Wright", "Dante Shadow", "Victor Graves"][i],
+      author: [
+        "Edgar Blackwood",
+        "Stephen Night",
+        "Raven Crow",
+        "Mary Shelley",
+        "Howard Phillips",
+        "Crimson King",
+        "Blair Woods",
+        "Salem Wright",
+        "Dante Shadow",
+        "Victor Graves",
+      ][i],
       lang: "en",
       placeholder: null,
       cover_url: `https://picsum.photos/200/${340 + i}`,
@@ -217,7 +267,7 @@ For now, let us rest, as I did that night in the ancient temple, with the weight
 `;
 
 // Sample chapters for the reader
-export const sampleChapters: (Chapter & { content: string; is_locked: boolean })[] = [
+export const sampleChapters: ExtendedChapter[] = [
   {
     id: "1",
     title: "The Beginning",
@@ -229,7 +279,7 @@ export const sampleChapters: (Chapter & { content: string; is_locked: boolean })
     deleted: false,
     text: null,
     word_count: 1200,
-    content: sampleChapterContent
+    content: sampleChapterContent,
   },
   {
     id: "2",
@@ -242,7 +292,7 @@ export const sampleChapters: (Chapter & { content: string; is_locked: boolean })
     deleted: false,
     text: null,
     word_count: 1100,
-    content: ""
+    content: "",
   },
   {
     id: "3",
@@ -255,7 +305,7 @@ export const sampleChapters: (Chapter & { content: string; is_locked: boolean })
     deleted: false,
     text: null,
     word_count: 1300,
-    content: ""
+    content: "",
   },
   {
     id: "4",
@@ -268,6 +318,6 @@ export const sampleChapters: (Chapter & { content: string; is_locked: boolean })
     deleted: false,
     text: null,
     word_count: 1400,
-    content: ""
-  }
+    content: "",
+  },
 ];

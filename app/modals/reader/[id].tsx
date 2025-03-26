@@ -172,71 +172,66 @@ const ReaderScreen = observer(() => {
   }
 
   // Add font size state
-    const [fontSize, setFontSize] = useState(18);
+  const [fontSize, setFontSize] = useState(18);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View
-        style={{ flex: 1, flexDirection: "column", overflow: "hidden" }}
-        className="bg-background-light dark:bg-background-dark">
-        {/* Header */}
-        <Animated.View
-          style={[
-            {
-              width: "100%",
-              height: 120, // Initial fixed height
-              paddingTop: insets.top,
-            },
-            headerAnimatedStyle,
-          ]}>
-          <ReaderHeader
-            title={book.title}
-            chapter={currentChapter}
-            onMenuPress={() => setShowChapterList(true)}
-            onClosePress={() => router.back()}
-          />
-        </Animated.View>
+      <ChapterSidebar
+        chapters={chapters}
+        currentChapterIndex={currentChapterIndex}
+        onChapterSelect={handleChapterSelect}
+        isOpen={showChapterList}
+        onClose={() => setShowChapterList(false)}>
+        <View
+          style={{ flex: 1, flexDirection: "column", overflow: "hidden" }}
+          className="bg-background-light dark:bg-background-dark">
+          {/* Header */}
+          <Animated.View
+            style={[
+              {
+                width: "100%",
+                height: 120, // Initial fixed height
+                paddingTop: insets.top,
+              },
+              headerAnimatedStyle,
+            ]}>
+            <ReaderHeader
+              title={book.title}
+              chapter={currentChapter}
+              onMenuPress={() => setShowChapterList(true)}
+              onClosePress={() => router.back()}
+            />
+          </Animated.View>
 
-        {/* Main content */}
-        <Animated.View style={[{ flex: 1, paddingHorizontal: 20 }, contentAnimatedStyle]}>
-          <ReaderView 
-            chapter={currentChapter} 
-            onScroll={scrollHandler} 
-            onPress={handleContentPress}
-            fontSize={fontSize} 
-          />
-        </Animated.View>
+          {/* Main content */}
+          <Animated.View style={[{ flex: 1, paddingHorizontal: 20 }, contentAnimatedStyle]}>
+            <ReaderView
+              chapter={currentChapter}
+              onScroll={scrollHandler}
+              onPress={handleContentPress}
+              fontSize={fontSize}
+            />
+          </Animated.View>
 
-        {/* Footer */}
-        <Animated.View
-          style={[
-            {
-              width: "100%",
-              paddingBottom: insets.bottom,
-              height: 80, // Initial fixed height
-            },
-            footerAnimatedStyle,
-          ]}>
-          <ReaderBottomBar onSettingsPress={() => setShowSettings(true)} />
-        </Animated.View>
-      </View>
+          {/* Footer */}
+          <Animated.View
+            style={[
+              {
+                width: "100%",
+                paddingBottom: insets.bottom,
+                height: 80, // Initial fixed height
+              },
+              footerAnimatedStyle,
+            ]}>
+            <ReaderBottomBar onSettingsPress={() => setShowSettings(true)} />
+          </Animated.View>
+        </View>
+      </ChapterSidebar>
 
       {/* Modals */}
-      {showChapterList && (
-        <ChapterSidebar
-          chapters={chapters}
-          currentChapterIndex={currentChapterIndex}
-          onChapterSelect={handleChapterSelect}
-          onClose={() => setShowChapterList(false)}
-        />
-      )}
 
       {showSettings && (
-        <SettingsSheet 
-          onClose={() => setShowSettings(false)} 
-          fontSize={fontSize}
-          onFontSizeChange={setFontSize}
-        />
+        <SettingsSheet onClose={() => setShowSettings(false)} fontSize={fontSize} onFontSizeChange={setFontSize} />
       )}
 
       {showPurchaseModal && chapterToUnlock !== null && (
