@@ -16,7 +16,7 @@ export type Transaction = {
   date: Date;
   credits: number;
   amount: number;
-  type: 'purchase' | 'spent' | 'refund' | 'bonus';
+  type: "purchase" | "spent" | "refund" | "bonus";
   description: string;
 };
 
@@ -31,29 +31,29 @@ export const userCredits$ = observable({
 // Available credit packages
 export const creditPackages: CreditPackage[] = [
   {
-    id: 'basic',
-    name: 'Basic',
+    id: "basic",
+    name: "Basic",
     credits: 50,
     price: 4.99,
   },
   {
-    id: 'popular',
-    name: 'Popular',
+    id: "popular",
+    name: "Popular",
     credits: 125,
     price: 9.99,
     discount: 15,
     featured: true,
   },
   {
-    id: 'premium',
-    name: 'Premium',
+    id: "premium",
+    name: "Premium",
     credits: 300,
     price: 19.99,
     discount: 25,
   },
   {
-    id: 'ultimate',
-    name: 'Ultimate',
+    id: "ultimate",
+    name: "Ultimate",
     credits: 700,
     price: 39.99,
     discount: 30,
@@ -65,35 +65,34 @@ export const fetchUserCredits = async (userId: string): Promise<void> => {
   try {
     userCredits$.loading.set(true);
     userCredits$.error.set(null);
-    
+
     // TODO: Replace with actual API call
     // Simulating API response
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Mock data
     userCredits$.balance.set(75);
     userCredits$.transactions.set([
       {
-        id: '1',
+        id: "1",
         date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
         credits: 100,
         amount: 9.99,
-        type: 'purchase',
-        description: 'Purchased 100 credits',
+        type: "purchase",
+        description: "Purchased 100 credits",
       },
       {
-        id: '2',
+        id: "2",
         date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
         credits: -25,
         amount: 0,
-        type: 'spent',
+        type: "spent",
         description: 'Unlocked "The Secret Promise"',
       },
     ]);
-    
   } catch (error) {
-    userCredits$.error.set('Failed to fetch credit balance');
-    console.error('Error fetching credits:', error);
+    userCredits$.error.set("Failed to fetch credit balance");
+    console.error("Error fetching credits:", error);
   } finally {
     userCredits$.loading.set(false);
   }
@@ -104,33 +103,33 @@ export const purchaseCredits = async (packageId: string, paymentMethod: string):
   try {
     userCredits$.loading.set(true);
     userCredits$.error.set(null);
-    
-    const selectedPackage = creditPackages.find(pkg => pkg.id === packageId);
+
+    const selectedPackage = creditPackages.find((pkg) => pkg.id === packageId);
     if (!selectedPackage) {
-      throw new Error('Invalid package selected');
+      throw new Error("Invalid package selected");
     }
-    
+
     // TODO: Implement actual payment processing
     // Simulating payment processing
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     // Update balance after successful purchase
     const newTransaction: Transaction = {
       id: Date.now().toString(),
       date: new Date(),
       credits: selectedPackage.credits,
       amount: selectedPackage.price,
-      type: 'purchase',
+      type: "purchase",
       description: `Purchased ${selectedPackage.name} package`,
     };
-    
-    userCredits$.balance.set(prev => prev + selectedPackage.credits);
-    userCredits$.transactions.set(prev => [newTransaction, ...prev]);
-    
+
+    userCredits$.balance.set((prev) => prev + selectedPackage.credits);
+    userCredits$.transactions.set((prev) => [newTransaction, ...prev]);
+
     return true;
   } catch (error) {
-    userCredits$.error.set('Failed to complete purchase');
-    console.error('Error purchasing credits:', error);
+    userCredits$.error.set("Failed to complete purchase");
+    console.error("Error purchasing credits:", error);
     return false;
   } finally {
     userCredits$.loading.set(false);
@@ -140,33 +139,34 @@ export const purchaseCredits = async (packageId: string, paymentMethod: string):
 // Spend credits (for unlocking content)
 export const spendCredits = async (amount: number, itemId: string, itemName: string): Promise<boolean> => {
   try {
-    if (userCredits$.balance.get() < amount) {
-      userCredits$.error.set('Insufficient credits');
+    const currentBalance = userCredits$.balance.peek();
+    if (currentBalance < amount) {
+      userCredits$.error.set("Insufficient credits");
       return false;
     }
-    
+
     userCredits$.loading.set(true);
-    
+
     // TODO: Implement actual API call to record the transaction
     // Simulating API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     const newTransaction: Transaction = {
       id: Date.now().toString(),
       date: new Date(),
       credits: -amount,
       amount: 0,
-      type: 'spent',
+      type: "spent",
       description: `Unlocked "${itemName}"`,
     };
-    
-    userCredits$.balance.set(prev => prev - amount);
-    userCredits$.transactions.set(prev => [newTransaction, ...prev]);
-    
+
+    userCredits$.balance.set((prev) => prev - amount);
+    userCredits$.transactions.set((prev) => [newTransaction, ...prev]);
+
     return true;
   } catch (error) {
-    userCredits$.error.set('Failed to process transaction');
-    console.error('Error spending credits:', error);
+    userCredits$.error.set("Failed to process transaction");
+    console.error("Error spending credits:", error);
     return false;
   } finally {
     userCredits$.loading.set(false);

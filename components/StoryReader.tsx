@@ -4,7 +4,7 @@ import { IconSymbol } from "./ui/IconSymbol";
 import { SUPERWALL_TRIGGERS } from "@/config/superwall";
 import { chapters$ } from "@/stores/bookStore";
 import { books$ } from "@/stores/bookStore";
-import { observer } from "@legendapp/state/react";
+import { observer, use$ } from "@legendapp/state/react";
 import * as Haptics from "expo-haptics";
 import { userStore$ } from "@/stores/userStore";
 import { Chapter, Icon } from "@/types/app";
@@ -23,10 +23,8 @@ export const StoryReader = observer(
   ({ bookId, currentChapterIndex, onChapterChange, isOwned, onPurchase }: StoryReaderProps) => {
     // const { showPaywall } = useSuperwall();
     //setup a store to track this later, need to figure out if we're synching this with backend, or not for anon users
-    const [textSize, setTextSize] = useState<number>(userStore$.readerSettings.fontSize.get());
-    const [backgroundTexture, setBackgroundTexture] = useState<BackgroundTexture>(
-      userStore$.readerSettings.backgroundTexture.get() as BackgroundTexture
-    );
+    const textSize = use$(userStore$.readerSettings.fontSize);
+    const backgroundTexture = use$(userStore$.readerSettings.backgroundTexture);
     const [showControls, setShowControls] = useState(false);
     // const chapters = Object.values(chapters$.get() || {}).filter((val) => val?.book_id === bookId);
     const chapters: Chapter[] = [];
@@ -78,12 +76,10 @@ export const StoryReader = observer(
     };
 
     const handleTextSizeChange = (size: number) => {
-      setTextSize(size);
       userStore$.readerSettings.fontSize.set(size);
     };
 
     const handleBackgroundChange = (texture: BackgroundTexture) => {
-      setBackgroundTexture(texture);
       userStore$.readerSettings.backgroundTexture.set(texture);
     };
 
@@ -100,13 +96,13 @@ export const StoryReader = observer(
 
     const renderTextControls = () => (
       <View>
-        <TouchableOpacity className="text-[16px]" onPress={() => setTextSize(16)}>
+        <TouchableOpacity className="text-[16px]" onPress={() => handleTextSizeChange(16)}>
           <Text>A</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="text-[32px]" onPress={() => setTextSize(32)}>
+        <TouchableOpacity className="text-[32px]" onPress={() => handleTextSizeChange(32)}>
           <Text>A</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="text-[48px]" onPress={() => setTextSize(48)}>
+        <TouchableOpacity className="text-[48px]" onPress={() => handleTextSizeChange(48)}>
           <Text>A</Text>
         </TouchableOpacity>
       </View>
@@ -114,13 +110,13 @@ export const StoryReader = observer(
 
     const renderBackgroundControls = () => (
       <View>
-        <TouchableOpacity onPress={() => setBackgroundTexture("none")}>
+        <TouchableOpacity onPress={() => handleBackgroundChange("none")}>
           <View />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setBackgroundTexture("paper")}>
+        <TouchableOpacity onPress={() => handleBackgroundChange("paper")}>
           <View />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setBackgroundTexture("sepia")}>
+        <TouchableOpacity onPress={() => handleBackgroundChange("sepia")}>
           <View />
         </TouchableOpacity>
       </View>

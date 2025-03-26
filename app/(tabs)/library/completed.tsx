@@ -7,24 +7,22 @@ import { categoryData } from "@/config/testData";
 import { userBookStatus } from "@/config/userTestData";
 import { LibraryEmptyState } from "@/components/library/LibraryEmptyState";
 import { LibraryList } from "@/components/library/LibraryList";
+import { books$ } from "@/stores/bookStore";
 
 const CompletedPage = observer(() => {
   const router = useRouter();
-  const credits = use$(userStore$.credits.get());
-
-  const allBooks = categoryData.flatMap((category) => category.books);
-  const completedBooks = allBooks.filter((book) => {
-    const status = userBookStatus.find((s) => s.bookId === book.id);
-    return status?.started && status.progress === 100;
-  });
+  const credits = use$(userStore$.credits);
+  //need logic to get this, will be finished owned books
+  const finishedBooks = ["992280da-51ca-4a52-8f9f-ed6f90f168c1"];
+  const books = use$(() => Object.values(books$.get() || {}).filter((book) => finishedBooks.includes(book.id)));
 
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
-      {completedBooks.length === 0 ? (
+      {books.length === 0 ? (
         <LibraryEmptyState />
       ) : (
         <LibraryList
-          books={completedBooks}
+          books={books}
           onBookPress={(id) => router.push(`/modals/book/${id}`)}
           onBookRead={(id) => router.push(`/modals/reader/${id}`)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}

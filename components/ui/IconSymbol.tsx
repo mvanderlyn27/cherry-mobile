@@ -119,6 +119,12 @@ export function IconSymbol({
       return <Feather name="eye" size={size} color={color} />;
     case "tv":
       return <Feather name="tv" size={size} color={color} />;
+    case "error":
+      return <MaterialIcons name="error" size={size} color={color} />;
+    case "comment":
+      return <MaterialIcons name="comment" size={size} color={color} />;
+    case "bookmark":
+      return <MaterialIcons name="bookmark" size={size} color={color} />;
     default:
       return <MaterialIcons name="error" size={size} color={color} />;
   }

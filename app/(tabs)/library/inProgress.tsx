@@ -18,19 +18,28 @@ import { useMemo } from "react";
 const Page = observer(() => {
   const router = useRouter();
   // const isLoading = syncState(books$).isGetting;
+  const readingBooks: string[] = ["17286a5a-fee4-4292-944b-b54686c16418"];
+
+  const books = use$(() => Object.values(books$.get() || {}).filter((book) => readingBooks.includes(book.id)));
+  console.log("books", books);
+  const credits = use$(userStore$.credits);
+
+  if (!credits) {
+    return null;
+  }
+  console.log("userId", credits);
   const isLoading = false;
-  const credits = 300;
 
-  const allBooks = useMemo(() => categoryData.flatMap((category) => category.books), []);
+  // const allBooks = useMemo(() => categoryData.flatMap((category) => category.books), []);
 
-  const readingBooks = useMemo(
-    () =>
-      allBooks.filter((book) => {
-        const status = userBookStatus.find((s) => s.bookId === book.id);
-        return status?.started && status.progress < 100;
-      }),
-    [allBooks]
-  );
+  // const readingBooks = useMemo(
+  //   () =>
+  //     allBooks.filter((book) => {
+  //       const status = userBookStatus.find((s) => s.bookId === book.id);
+  //       return status?.started && status.progress < 100;
+  //     }),
+  //   [allBooks]
+  // );
 
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
@@ -43,7 +52,7 @@ const Page = observer(() => {
         <LibraryEmptyState />
       ) : (
         <LibraryList
-          books={readingBooks}
+          books={books}
           onBookPress={(id) => router.navigate(`/modals/book/${id}`)}
           onBookRead={(id) => router.navigate(`/modals/reader/${id}`)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}

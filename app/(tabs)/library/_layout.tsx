@@ -33,7 +33,7 @@ export default function LibraryLayout() {
             headerShown: false,
             tabBarStyle: { display: "none" },
           }}
-          initialRouteName="inProgress">
+          initialRouteName="index">
           <Tabs.Screen name="inProgress" />
           <Tabs.Screen name="unread" />
           <Tabs.Screen name="completed" />

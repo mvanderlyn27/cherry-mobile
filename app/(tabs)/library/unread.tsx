@@ -7,24 +7,22 @@ import { categoryData } from "@/config/testData";
 import { userBookStatus } from "@/config/userTestData";
 import { LibraryEmptyState } from "@/components/library/LibraryEmptyState";
 import { LibraryList } from "@/components/library/LibraryList";
+import { books$ } from "@/stores/bookStore";
 
 const UnreadPage = observer(() => {
   const router = useRouter();
   const credits = use$(userStore$.credits.get());
-
-  const allBooks = categoryData.flatMap((category) => category.books);
-  const unreadBooks = allBooks.filter((book) => {
-    const status = userBookStatus.find((s) => s.bookId === book.id);
-    return !status?.started;
-  });
+  //need logic to get this, will be unread owned books, and saved books
+  const unReadBooks = ["454fc1f6-6f7d-4d9e-8788-b9524c9a9332"];
+  const books = use$(() => Object.values(books$.get() || {}).filter((book) => unReadBooks.includes(book.id)));
 
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
-      {unreadBooks.length === 0 ? (
+      {books.length === 0 ? (
         <LibraryEmptyState />
       ) : (
         <LibraryList
-          books={unreadBooks}
+          books={books}
           onBookPress={(id) => router.push(`/modals/book/${id}`)}
           onBookRead={(id) => router.push(`/modals/reader/${id}`)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}

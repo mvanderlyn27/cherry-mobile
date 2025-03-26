@@ -56,4 +56,7 @@ export enum Icon {
   "mail" = "mail",
   "globe" = "globe",
   "checkmark" = "checkmark",
+  "error" = "error",
+  "comment" = "comment",
+  "bookmark" = "bookmark",
 }

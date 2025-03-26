@@ -5,16 +5,19 @@ import Header from "@/components/ui/Header";
 import { Icon } from "@/types/app";
 import { categoryData } from "@/config/testData";
 import { BookPage } from "@/components/explore/BookPage";
+import { books$ } from "@/stores/bookStore";
+import { use$ } from "@legendapp/state/react";
 
 export default function Page() {
   const { id, categoryId } = useLocalSearchParams();
   const router = useRouter();
 
   // Get all relevant books (current book + related books if available)
+  const currentBook = use$(() => Object.values(books$.get()).find((book) => book.id === id));
   const allBooks = React.useMemo(() => {
-    const currentBook = categoryData.flatMap((cat) => cat.books).find((book) => book.id === id);
     if (!currentBook) return [];
 
+    //get these all from the db instead of here lol
     if (categoryId) {
       const categoryBooks = categoryData.find((cat) => cat.name === categoryId)?.books || [];
       // Ensure current book is first if it's in the category

@@ -1,118 +1,254 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState, useRef } from "react";
+import { View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { StoryReader } from "@/components/StoryReader";
 import { observer } from "@legendapp/state/react";
-// import { useSuperwall } from "@/hooks/useSuperwall";
-import { SUPERWALL_TRIGGERS } from "@/config/superwall";
-import { chapters$ } from "@/stores/bookStore";
-import { syncState } from "@legendapp/state";
-import { Chapter } from "@/types/app";
+import { ReaderView } from "@/components/reader/ReaderView";
+import { ReaderHeader } from "@/components/reader/ReaderHeader";
+import { ReaderBottomBar } from "@/components/reader/ReaderBottomBar";
+import { ChapterSidebar } from "@/components/reader/ChapterSidebar";
+import { SettingsSheet } from "@/components/reader/SettingsSheet";
+import { PurchaseModal } from "@/components/reader/PurchaseModal";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { ErrorScreen } from "@/components/ui/ErrorScreen";
+import { sampleChapters } from "@/config/testData";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+  Extrapolate,
+  useAnimatedScrollHandler,
+  runOnJS,
+} from "react-native-reanimated";
 
 const ReaderScreen = observer(() => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
-  // const { showPaywall } = useSuperwall();
 
+  // Animation values
+  const scrollY = useSharedValue(0);
+  const lastScrollY = useSharedValue(0);
+  const [uiVisible, setUiVisible] = useState(true);
+
+  // Threshold for UI visibility (how many pixels to scroll before UI starts fading)
+  const SCROLL_THRESHOLD = 20;
+
+  // State
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
+  const [showChapterList, setShowChapterList] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [chapterToUnlock, setChapterToUnlock] = useState<number | null>(null);
 
-  // const userId = userSelectors.userId.get();
-  // const isBookOwned = bookSelectors.isBookOwned(id).get();
-  // const chapters = Object.values(chapters$ || {}).filter((val) => val.bookId === id);
-  const chapters: Chapter[] = [];
-  const isLoading = false;
-  // const isLoading = syncState(chapters$).isGetting;
-  console.log("getting: ", isLoading, "chapters: ", chapters);
-  // console.log("getting: ", isLoading.get(), "chapters: ", chapters);
-  // const bookProgress = bookSelectors.bookProgress(id).get();
+  // Use sample chapters from testData
+  const [chapters] = useState(sampleChapters);
+  const [book] = useState({ title: "Dragon's Quest", author: "J.R. Blackwood" });
+  const [credits] = useState(100);
+  const [isLoading] = useState(false);
 
-  // useEffect(() => {
-  //   const loadData = async () => {
-  //     setIsLoading(true);
-  //     try {
-  //       // Fetch book chapters
-  //       await bookActions.fetchChapters(id);
+  // Scroll handler to track scroll position
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      const currentScrollY = event.contentOffset.y;
+      const scrollDelta = currentScrollY - lastScrollY.value;
 
-  //       // If there's saved progress, restore it
-  //       if (bookProgress) {
-  //         setCurrentChapterIndex(bookProgress.chapterId);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error loading reader data:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
+      // Use smaller increments for smoother transitions
+      const animationRate = 0.15; // Reduced for smoother animation
 
-  //   loadData();
-  // }, [id]);
+      // Only update when scrolling down and past threshold
+      if (scrollDelta > 0 && currentScrollY > SCROLL_THRESHOLD) {
+        // Use withTiming for smoother transitions
+        scrollY.value = withTiming(Math.min(scrollY.value + scrollDelta * animationRate, 1), { duration: 150 });
 
-  const handleChapterChange = (index: number) => {
-    setCurrentChapterIndex(index);
+        if (scrollY.value > 0.9 && uiVisible) {
+          runOnJS(setUiVisible)(false);
+        }
+      } else if (scrollDelta < 0) {
+        // Scrolling up - gradually restore UI with smooth animation
+        scrollY.value = withTiming(Math.max(scrollY.value + scrollDelta * animationRate, 0), { duration: 150 });
 
-    // Save reading progress
-    // if (userId) {
-    // bookActions.updateReadingProgress(userId, id, index, 0);
-    // }
+        if (scrollY.value < 0.1 && !uiVisible) {
+          runOnJS(setUiVisible)(true);
+        }
+      }
+
+      lastScrollY.value = currentScrollY;
+    },
+  });
+
+  // Animated styles for header
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollY.value, [0, 1], [1, 0], Extrapolate.CLAMP);
+    const translateY = interpolate(scrollY.value, [0, 1], [0, -130], Extrapolate.CLAMP);
+    const height = interpolate(scrollY.value, [0, 1], [130, 0], Extrapolate.CLAMP);
+    const paddingTop = interpolate(scrollY.value, [0, 1], [insets.top, 0], Extrapolate.CLAMP);
+
+    return {
+      opacity,
+      paddingTop,
+      height,
+      transform: [{ translateY }],
+      overflow: "hidden",
+    };
+  });
+
+  // Animated styles for footer
+  const footerAnimatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollY.value, [0, 1], [1, 0], Extrapolate.CLAMP);
+    const translateY = interpolate(scrollY.value, [0, 1], [0, 80], Extrapolate.CLAMP);
+    const height = interpolate(scrollY.value, [0, 1], [80, 0], Extrapolate.CLAMP);
+    const paddingBottom = interpolate(scrollY.value, [0, 1], [insets.bottom, 0], Extrapolate.CLAMP);
+
+    return {
+      opacity,
+      height,
+      paddingBottom,
+      transform: [{ translateY }],
+      overflow: "hidden",
+    };
+  });
+
+  // Animated styles for content
+  const contentAnimatedStyle = useAnimatedStyle(() => {
+    const scale = interpolate(scrollY.value, [0, 1], [1, 1.02], Extrapolate.CLAMP);
+    const translateY = interpolate(scrollY.value, [0, 1], [0, -10], Extrapolate.CLAMP);
+
+    return {
+      transform: [{ scale }, { translateY }],
+      flex: 1,
+    };
+  });
+
+  // Handle tap on reading area
+  const handleContentPress = () => {
+    // Restore UI on tap with smoother animation
+    scrollY.value = withTiming(0, { duration: 300 });
+    setUiVisible(true);
   };
 
-  const handlePurchase = () => {
-    // showPaywall(SUPERWALL_TRIGGERS.FEATURE_UNLOCK);
+  // Get current chapter
+  const currentChapter = chapters[currentChapterIndex] || chapters[0];
+
+  // Handle chapter selection
+  const handleChapterSelect = (index: number) => {
+    if (chapters[index].is_locked) {
+      setChapterToUnlock(index);
+      setShowPurchaseModal(true);
+    } else {
+      setCurrentChapterIndex(index);
+      setShowChapterList(false);
+    }
   };
 
-  // if (isLoading.get()) {
+  // Handle chapter purchase
+  const handlePurchaseChapter = () => {
+    if (chapterToUnlock === null) return;
+
+    // Check if user has enough credits
+    if (credits >= 50) {
+      // Assuming 50 credits per chapter
+      // Update chapter to unlocked
+      chapters[chapterToUnlock].is_locked = false;
+
+      // Navigate to the chapter
+      setCurrentChapterIndex(chapterToUnlock);
+      setShowPurchaseModal(false);
+      setShowChapterList(false);
+    } else {
+      // Not enough credits, show cherry modal
+      router.push("/modals/cherry");
+    }
+  };
+
   if (isLoading) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0A7EA4" />
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (!chapters || chapters.length === 0) {
-    return (
-      <SafeAreaView style={styles.errorContainer}>
-        <View>
-          <Text>No chapters found for this book.</Text>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text>Go Back</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
+    return <ErrorScreen message="No chapters found for this book." onBack={() => router.back()} />;
   }
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <StoryReader
-        bookId={id}
-        currentChapterIndex={currentChapterIndex}
-        onChapterChange={handleChapterChange}
-        // isOwned={isBookOwned}
-        isOwned={false}
-        onPurchase={handlePurchase}
-      />
-    </SafeAreaView>
-  );
-});
+  // Add font size state
+    const [fontSize, setFontSize] = useState(18);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 16,
-  },
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View
+        style={{ flex: 1, flexDirection: "column", overflow: "hidden" }}
+        className="bg-background-light dark:bg-background-dark">
+        {/* Header */}
+        <Animated.View
+          style={[
+            {
+              width: "100%",
+              height: 120, // Initial fixed height
+              paddingTop: insets.top,
+            },
+            headerAnimatedStyle,
+          ]}>
+          <ReaderHeader
+            title={book.title}
+            chapter={currentChapter}
+            onMenuPress={() => setShowChapterList(true)}
+            onClosePress={() => router.back()}
+          />
+        </Animated.View>
+
+        {/* Main content */}
+        <Animated.View style={[{ flex: 1, paddingHorizontal: 20 }, contentAnimatedStyle]}>
+          <ReaderView 
+            chapter={currentChapter} 
+            onScroll={scrollHandler} 
+            onPress={handleContentPress}
+            fontSize={fontSize} 
+          />
+        </Animated.View>
+
+        {/* Footer */}
+        <Animated.View
+          style={[
+            {
+              width: "100%",
+              paddingBottom: insets.bottom,
+              height: 80, // Initial fixed height
+            },
+            footerAnimatedStyle,
+          ]}>
+          <ReaderBottomBar onSettingsPress={() => setShowSettings(true)} />
+        </Animated.View>
+      </View>
+
+      {/* Modals */}
+      {showChapterList && (
+        <ChapterSidebar
+          chapters={chapters}
+          currentChapterIndex={currentChapterIndex}
+          onChapterSelect={handleChapterSelect}
+          onClose={() => setShowChapterList(false)}
+        />
+      )}
+
+      {showSettings && (
+        <SettingsSheet 
+          onClose={() => setShowSettings(false)} 
+          fontSize={fontSize}
+          onFontSizeChange={setFontSize}
+        />
+      )}
+
+      {showPurchaseModal && chapterToUnlock !== null && (
+        <PurchaseModal
+          chapter={chapters[chapterToUnlock]}
+          credits={credits}
+          onPurchase={handlePurchaseChapter}
+          onClose={() => setShowPurchaseModal(false)}
+        />
+      )}
+    </GestureHandlerRootView>
+  );
 });
 
 export default ReaderScreen;

@@ -25,7 +25,7 @@ export default function ExploreTabsLayout() {
           headerShown: false,
           tabBarStyle: { display: "none" },
         }}
-        initialRouteName="top">
+        initialRouteName="index">
         <Tabs.Screen name="categories" />
         <Tabs.Screen name="forYou" />
         <Tabs.Screen name="top" />
