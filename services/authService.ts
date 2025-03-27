@@ -23,7 +23,7 @@ export class AuthService {
         const authState = user.app_metadata?.provider === "anonymous" ? "anonymous" : "authenticated";
 
         console.log(`[AuthService] User already signed in as ${authState}`);
-        authStore$.assign({ isLoading: false, authState });
+        authStore$.assign({ userId: user.id, isLoading: false, authState });
         return;
       }
 
@@ -43,9 +43,10 @@ export class AuthService {
       const { data, error } = await supabase.auth.signInAnonymously();
 
       if (error) throw error;
+      if (!data.user) throw new Error("No user returned");
 
       console.log("[AuthService] Anonymous user created");
-      authStore$.assign({ isLoading: false, authState: "anonymous" });
+      authStore$.assign({ userId: data.user.id, isLoading: false, authState: "anonymous" });
     } catch (error) {
       LoggingService.handleError(error, { service: "AuthService", method: "createAnonymousUser" });
       authStore$.assign({ isLoading: false, authState: "unauthenticated" });
@@ -90,27 +91,39 @@ export class AuthService {
         const { error } = await supabase.from(table).update({ user_id: authenticatedId }).eq("user_id", anonymousId);
 
         if (error) {
-          LoggingService.handleError(error, { 
-            service: "AuthService", 
-            method: "linkAccounts", 
-            table,
-            anonymousId,
-            authenticatedId
-          }, false); // Don't show toast for individual table errors
+          LoggingService.handleError(
+            error,
+            {
+              service: "AuthService",
+              method: "linkAccounts",
+              table,
+              anonymousId,
+              authenticatedId,
+            },
+            false
+          ); // Don't show toast for individual table errors
         }
       }
 
       // Transfer credits if applicable
-      const { data: anonymousUser, error: fetchError } = await supabase.from("users").select("credits").eq("id", anonymousId).single();
-      
+      const { data: anonymousUser, error: fetchError } = await supabase
+        .from("users")
+        .select("credits")
+        .eq("id", anonymousId)
+        .single();
+
       if (fetchError) {
         throw fetchError;
       }
 
       if (anonymousUser?.credits) {
         // Get current authenticated user credits
-        const { data: authUser, error: authUserError } = await supabase.from("users").select("credits").eq("id", authenticatedId).single();
-        
+        const { data: authUser, error: authUserError } = await supabase
+          .from("users")
+          .select("credits")
+          .eq("id", authenticatedId)
+          .single();
+
         if (authUserError) {
           throw authUserError;
         }
@@ -118,8 +131,11 @@ export class AuthService {
         const newCredits = (authUser?.credits || 0) + anonymousUser.credits;
 
         // Update authenticated user credits
-        const { error: updateError } = await supabase.from("users").update({ credits: newCredits }).eq("id", authenticatedId);
-        
+        const { error: updateError } = await supabase
+          .from("users")
+          .update({ credits: newCredits })
+          .eq("id", authenticatedId);
+
         if (updateError) {
           throw updateError;
         }
@@ -127,11 +143,11 @@ export class AuthService {
 
       console.log("[AuthService] Account linking completed");
     } catch (error) {
-      LoggingService.handleError(error, { 
-        service: "AuthService", 
-        method: "linkAccounts", 
-        anonymousId, 
-        authenticatedId 
+      LoggingService.handleError(error, {
+        service: "AuthService",
+        method: "linkAccounts",
+        anonymousId,
+        authenticatedId,
       });
     }
   }

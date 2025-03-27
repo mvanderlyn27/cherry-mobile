@@ -6,8 +6,8 @@ import { chapters$ } from "@/stores/supabaseStores";
 import { books$ } from "@/stores/supabaseStores";
 import { observer, use$ } from "@legendapp/state/react";
 import * as Haptics from "expo-haptics";
-import { userStore$ } from "@/stores/authStore";
-import { Chapter, Icon } from "@/types/app";
+import { Chapter, ExtendedChapter, Icon } from "@/types/app";
+import { userPreferencesStore$ } from "@/stores/appStores";
 
 interface StoryReaderProps {
   bookId: string;
@@ -23,11 +23,11 @@ export const StoryReader = observer(
   ({ bookId, currentChapterIndex, onChapterChange, isOwned, onPurchase }: StoryReaderProps) => {
     // const { showPaywall } = useSuperwall();
     //setup a store to track this later, need to figure out if we're synching this with backend, or not for anon users
-    const textSize = use$(userStore$.readerSettings.fontSize);
-    const backgroundTexture = use$(userStore$.readerSettings.backgroundTexture);
+    const textSize = use$(userPreferencesStore$.fontSize);
+    const backgroundTexture = use$(userPreferencesStore$.backgroundTexture);
     const [showControls, setShowControls] = useState(false);
     // const chapters = Object.values(chapters$.get() || {}).filter((val) => val?.book_id === bookId);
-    const chapters: Chapter[] = [];
+    const chapters: ExtendedChapter[] = [];
 
     if (!chapters || chapters.length === 0) {
       return (
@@ -76,11 +76,11 @@ export const StoryReader = observer(
     };
 
     const handleTextSizeChange = (size: number) => {
-      userStore$.readerSettings.fontSize.set(size);
+      userPreferencesStore$.fontSize.set(size);
     };
 
     const handleBackgroundChange = (texture: BackgroundTexture) => {
-      userStore$.readerSettings.backgroundTexture.set(texture);
+      userPreferencesStore$.backgroundTexture.set(texture);
     };
 
     const getBackgroundStyle = () => {
@@ -160,7 +160,7 @@ export const StoryReader = observer(
       <View>
         <ScrollView>
           <Text>Chapter {currentChapter.chapter_number}</Text>
-          <Text>{currentChapter.text}</Text>
+          <Text>{currentChapter.content}</Text>
         </ScrollView>
 
         <View>

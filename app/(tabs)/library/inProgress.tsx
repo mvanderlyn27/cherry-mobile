@@ -3,17 +3,18 @@ import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { observer, use$ } from "@legendapp/state/react";
-import { books$ } from "@/stores/supabaseStores";
+import { books$, users$ } from "@/stores/supabaseStores";
 import { syncState } from "@legendapp/state";
 import Header from "@/components/ui/Header";
 import { TabFilter } from "@/components/ui/TabFilter";
 import { Icon } from "@/types/app";
-import { userStore$ } from "@/stores/authStore";
 import { categoryData } from "@/config/testData";
 import { userBookStatus } from "@/config/userTestData";
 import { LibraryEmptyState } from "@/components/library/LibraryEmptyState";
 import { LibraryList } from "@/components/library/LibraryList";
 import { useMemo } from "react";
+import { AuthService } from "@/services/authService";
+import { authStore$ } from "@/stores/authStore";
 
 const Page = observer(() => {
   const router = useRouter();
@@ -22,7 +23,8 @@ const Page = observer(() => {
 
   const books = use$(() => Object.values(books$.get() || {}).filter((book) => readingBooks.includes(book.id)));
   console.log("books", books);
-  const credits = use$(userStore$.credits);
+  const userId = use$(authStore$.userId);
+  const credits = use$(() => (userId ? users$[userId].credits : 0));
 
   if (!credits) {
     return null;
