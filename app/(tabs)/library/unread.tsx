@@ -2,12 +2,12 @@ import React from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { observer, use$ } from "@legendapp/state/react";
-import { userStore$ } from "@/stores/userStore";
+import { userStore$ } from "@/stores/authStore";
 import { categoryData } from "@/config/testData";
 import { userBookStatus } from "@/config/userTestData";
 import { LibraryEmptyState } from "@/components/library/LibraryEmptyState";
 import { LibraryList } from "@/components/library/LibraryList";
-import { books$ } from "@/stores/bookStore";
+import { books$ } from "@/stores/supabaseStores";
 
 const UnreadPage = observer(() => {
   const router = useRouter();

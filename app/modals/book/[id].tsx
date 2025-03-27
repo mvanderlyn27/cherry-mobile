@@ -5,7 +5,7 @@ import Header from "@/components/ui/Header";
 import { Icon } from "@/types/app";
 import { categoryData } from "@/config/testData";
 import { BookPage } from "@/components/explore/BookPage";
-import { books$ } from "@/stores/bookStore";
+import { books$ } from "@/stores/supabaseStores";
 import { use$ } from "@legendapp/state/react";
 
 export default function Page() {

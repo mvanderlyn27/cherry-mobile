@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Text, ScrollView, View, TouchableOpacity, Dimensions, SafeAreaView, StyleSheet } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
 import { SUPERWALL_TRIGGERS } from "@/config/superwall";
-import { chapters$ } from "@/stores/bookStore";
-import { books$ } from "@/stores/bookStore";
+import { chapters$ } from "@/stores/supabaseStores";
+import { books$ } from "@/stores/supabaseStores";
 import { observer, use$ } from "@legendapp/state/react";
 import * as Haptics from "expo-haptics";
-import { userStore$ } from "@/stores/userStore";
+import { userStore$ } from "@/stores/authStore";
 import { Chapter, Icon } from "@/types/app";
 
 interface StoryReaderProps {

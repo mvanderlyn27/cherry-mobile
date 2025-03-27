@@ -24,10 +24,7 @@ export const getAnonymousUser = async () => {
 
   if (!session) {
     // Create anonymous session if none exists
-    const { error } = await supabase.auth.signUp({
-      email: `anonymous_${Date.now()}@example.com`,
-      password: `anon_${Math.random().toString(36).substring(2, 15)}`,
-    });
+    const { error } = await supabase.auth.signInAnonymously();
 
     if (error) {
       console.error("[Supabase] Error creating anonymous user:", error);
