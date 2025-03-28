@@ -9,7 +9,7 @@ import { exploreStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
 const colors = require("@/config/colors");
 type Props = {
-  onBookPress: (category: string, categoryName: string) => void;
+  onBookPress: (category: string, bookIds: string[]) => void;
   selectedCategory?: string;
 };
 
@@ -54,7 +54,10 @@ export const TopCategoryList: React.FC<Props> = ({ onBookPress, selectedCategory
                     book={item}
                     size={"small"}
                     onPress={() => {
-                      onBookPress(item.id, category.name);
+                      onBookPress(
+                        item.id,
+                        books.map((book) => book.id)
+                      );
                     }}
                   />
                 </View>

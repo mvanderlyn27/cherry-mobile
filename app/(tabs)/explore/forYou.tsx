@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { ForYouSection } from "@/components/explore/ForYouSection";
+import { bookDetailsStore$ } from "@/stores/appStores";
 
 const Page = memo(() => {
   const router = useRouter();
@@ -10,6 +11,7 @@ const Page = memo(() => {
     router.push(`/modals/reader/${id}`);
   };
   const handleMoreInfo = (id: string) => {
+    bookDetailsStore$.bookIds.set([id]);
     router.push(`/modals/book/${id}`);
   };
 

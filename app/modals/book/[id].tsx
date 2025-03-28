@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Header from "@/components/ui/Header";
@@ -7,29 +7,19 @@ import { categoryData } from "@/config/testData";
 import { BookPage } from "@/components/explore/BookPage";
 import { books$ } from "@/stores/supabaseStores";
 import { use$ } from "@legendapp/state/react";
+import { bookDetailsStore$, exploreStore$ } from "@/stores/appStores";
 
 export default function Page() {
-  const { id, categoryId } = useLocalSearchParams();
+  const { id }: { id: string } = useLocalSearchParams();
   const router = useRouter();
 
   // Get all relevant books (current book + related books if available)
-  const currentBook = use$(() => Object.values(books$.get()).find((book) => book.id === id));
-  const allBooks = React.useMemo(() => {
-    if (!currentBook) return [];
+  // const currentBook = use$(bookDetailsStore$.currentBook);
 
-    //get these all from the db instead of here lol
-    if (categoryId) {
-      const categoryBooks = categoryData.find((cat) => cat.name === categoryId)?.books || [];
-      // Ensure current book is first if it's in the category
-      const filteredBooks = categoryBooks.filter((book) => book.id !== currentBook.id);
-      return [currentBook, ...filteredBooks];
-    }
-
-    return [currentBook];
-  }, [id, categoryId]);
-
-  if (allBooks.length === 0) return null;
-
+  // Combine current book with category books for display
+  const allBooks = use$(bookDetailsStore$.books);
+  if (!allBooks || allBooks.length === 0) return null;
+  console.log(allBooks);
   const handleReadNow = (bookId: string) => {
     router.push(`/modals/reader/${bookId}`);
   };
@@ -38,11 +28,10 @@ export default function Page() {
       <Header
         title={allBooks[0].title}
         subTitle={allBooks[0].author || undefined}
-        leftActions={[{ icon: Icon.menu, onPress: () => console.log("menu") }]}
         rightActions={[{ icon: Icon.close, onPress: () => router.back() }]}
       />
 
-      <BookPage books={allBooks} initialBookId={id as string} onReadNow={handleReadNow} />
+      <BookPage books={allBooks} initialBookId={id} onReadNow={handleReadNow} />
     </View>
   );
 }

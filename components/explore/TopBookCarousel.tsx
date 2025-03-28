@@ -9,7 +9,7 @@ const colors = require("@/config/colors");
 
 type Props = {
   books: Book[];
-  onBookPress: (id: string, categoryName: string) => void;
+  onBookPress: (id: string, bookIds: string[]) => void;
   onBookSave?: (id: string) => void;
 };
 
@@ -74,7 +74,12 @@ export const TopBookCarousel: React.FC<Props> = ({ books, onBookPress, onBookSav
             <CustomBookCard
               book={item}
               animationValue={animationValue}
-              onPress={() => onBookPress(item.id, "Romance")} // Fixed: was passing a function that returns undefined
+              onPress={() =>
+                onBookPress(
+                  item.id,
+                  books.map((book) => book.id)
+                )
+              } // Fixed: was passing a function that returns undefined
               onSave={onBookSave || (() => console.log("Save", item.id))}
             />
           )}

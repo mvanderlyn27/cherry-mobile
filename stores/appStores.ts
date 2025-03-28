@@ -53,8 +53,8 @@ interface UserPreferencesStore {
 }
 
 interface BookDetailsStore {
-  currentBookId: string | null; // Assuming this is a string, adjust as needed for your use case and data structure
-  currentBook: ExtendedBook | null;
+  bookIds: string[] | null; // Assuming this is a string, adjust as needed for your use case and data structure
+  books: ExtendedBook[] | null;
   loading: boolean;
   error: string | null;
 }
@@ -136,8 +136,8 @@ export const libraryStore$ = observable<LibraryStore>({
 //set bookId to update bookdetails
 export const bookDetailsStore$ = observable<BookDetailsStore>({
   // Used for the reader screen, and details
-  currentBookId: null,
-  currentBook: () => BookService.getBookDetails(bookDetailsStore$.currentBookId.get()),
+  bookIds: null,
+  books: () => bookDetailsStore$.bookIds.map((bookId) => BookService.getBookDetails(bookId.get())),
   loading: false,
   error: null,
 });

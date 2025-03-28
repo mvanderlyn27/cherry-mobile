@@ -7,7 +7,7 @@ import { exploreStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
 
 type Props = {
-  onBookPress: (id: string, categoryName: string) => void;
+  onBookPress: (id: string, bookIds: string[]) => void;
 };
 
 export const TopSection: React.FC<Props> = ({ onBookPress }) => {

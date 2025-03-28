@@ -2,12 +2,14 @@ import React from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { TopSection } from "@/components/explore/TopSection";
+import { bookDetailsStore$ } from "@/stores/appStores";
 
 export default function Page() {
   const router = useRouter();
 
-  const handleBookPress = (bookId: string, categoryName: string) => {
-    router.push(`/modals/book/${bookId}?categoryId=${categoryName}`);
+  const handleBookPress = (bookId: string, bookIds: string[]) => {
+    bookDetailsStore$.bookIds.set(bookIds);
+    router.push(`/modals/book/${bookId}`);
   };
 
   return (

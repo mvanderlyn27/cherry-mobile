@@ -24,7 +24,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onRead, onMoreInfo, on
           </Text>
           <TagList tags={tags} />
           <Text className="text-md text-story-light font-heebo-medium dark:text-story-dark opacity-80 my-2 flex-1">
-            {book.preview_text}
+            {book.description}
           </Text>
         </View>
       </View>
