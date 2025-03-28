@@ -7,7 +7,7 @@ export const LibraryEmptyState = () => {
 
   return (
     <View className="flex-1 justify-center items-center p-6">
-      <Text className="font-kaisei-bold text-xl text-gray-800 mb-2">Your library is empty</Text>
+      <Text className="font-kaisei-bold text-xl text-gray-800 mb-2">Find some books!</Text>
       <Text className="text-center text-gray-600 mb-6">
         Save books from the Explore tab to add them to your library
       </Text>

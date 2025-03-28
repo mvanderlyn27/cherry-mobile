@@ -15,42 +15,31 @@ import { LibraryList } from "@/components/library/LibraryList";
 import { useMemo } from "react";
 import { AuthService } from "@/services/authService";
 import { authStore$ } from "@/stores/authStore";
+import { libraryStore$ } from "@/stores/appStores";
 
 const Page = observer(() => {
   const router = useRouter();
   // const isLoading = syncState(books$).isGetting;
-  const readingBooks: string[] = ["17286a5a-fee4-4292-944b-b54686c16418"];
 
-  const books = use$(() => Object.values(books$.get() || {}).filter((book) => readingBooks.includes(book.id)));
+  const books = use$(libraryStore$.readingBooks);
   console.log("books", books);
   const userId = use$(authStore$.userId);
   const credits = use$(() => (userId ? users$[userId].credits : 0));
 
-  if (!credits) {
-    return null;
-  }
+  // if (!credits) {
+  //   return null;
+  // }
   console.log("userId", credits);
+  // const isLoading = use$(libraryStore$.isLoading);
   const isLoading = false;
-
-  // const allBooks = useMemo(() => categoryData.flatMap((category) => category.books), []);
-
-  // const readingBooks = useMemo(
-  //   () =>
-  //     allBooks.filter((book) => {
-  //       const status = userBookStatus.find((s) => s.bookId === book.id);
-  //       return status?.started && status.progress < 100;
-  //     }),
-  //   [allBooks]
-  // );
 
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
-      {/* {isLoading.get() ? ( */}
       {isLoading ? (
         <View className="flex-1 justify-center items-center">
           <Text className="text-gray-600">Loading...</Text>
         </View>
-      ) : readingBooks.length === 0 ? (
+      ) : books.length === 0 ? (
         <LibraryEmptyState />
       ) : (
         <LibraryList

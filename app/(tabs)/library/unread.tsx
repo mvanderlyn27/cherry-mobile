@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { observer, use$ } from "@legendapp/state/react";
 import { categoryData } from "@/config/testData";
@@ -8,18 +8,24 @@ import { LibraryEmptyState } from "@/components/library/LibraryEmptyState";
 import { LibraryList } from "@/components/library/LibraryList";
 import { books$, users$ } from "@/stores/supabaseStores";
 import { authStore$ } from "@/stores/authStore";
+import { libraryStore$ } from "@/stores/appStores";
 
 const UnreadPage = observer(() => {
   const router = useRouter();
   //need logic to get this, will be unread owned books, and saved books
   const userId = use$(authStore$.userId);
   const credits = use$(() => (userId ? users$[userId].credits : 0));
-  const unReadBooks = ["e736f3cd-2ca6-43c8-a0e8-9c1d3f7eff02"];
-  const books = use$(() => Object.values(books$.get() || {}).filter((book) => unReadBooks.includes(book.id)));
+  const books = use$(libraryStore$.unreadBooks);
+  // const isLoading = use$(libraryStore$.isLoading);
+  const isLoading = false;
 
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
-      {books.length === 0 ? (
+      {isLoading ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-600">Loading...</Text>
+        </View>
+      ) : books.length === 0 ? (
         <LibraryEmptyState />
       ) : (
         <LibraryList
