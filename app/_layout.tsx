@@ -18,10 +18,17 @@ import {
 import { Heebo_400Regular, Heebo_500Medium, Heebo_700Bold } from "@expo-google-fonts/heebo";
 import Toast from "react-native-toast-message";
 import { posthog } from "@/services/posthog";
+import { AuthService } from "@/services/authService";
+import { appStore$ } from "@/stores/appStores";
+import { use$ } from "@legendapp/state/react";
+import { BookService } from "@/services/bookService";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const loading = use$(
+    () => appStore$.fontsReady && appStore$.loggedIn && appStore$.booksReady && appStore$.chaptersReady
+  );
   const [fontsLoaded, error] = useFonts({
     KaiseiDecol_400Regular,
     KaiseiDecol_500Medium,
@@ -30,13 +37,24 @@ export default function RootLayout() {
     Heebo_500Medium,
     Heebo_700Bold,
   });
+  useEffect(() => {
+    //initialize all services
+    async () => {
+      await AuthService.initialize();
+    };
+  }, []);
+  useEffect(() => {
+    if (!loading) {
+      //if we're logged in and all services are ready, hide the splash screen
+      SplashScreen.hideAsync();
+    }
+  }, [loading]);
 
   useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      appStore$.fontsReady.set(true);
     }
   }, [fontsLoaded]);
-
   if (!fontsLoaded) {
     return null;
   }

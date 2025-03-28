@@ -16,20 +16,3 @@ export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "", {
     detectSessionInUrl: false,
   },
 });
-
-export const getAnonymousUser = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session) {
-    // Create anonymous session if none exists
-    const { error } = await supabase.auth.signInAnonymously();
-
-    if (error) {
-      console.error("[Supabase] Error creating anonymous user:", error);
-    }
-  }
-
-  return supabase.auth.getUser();
-};

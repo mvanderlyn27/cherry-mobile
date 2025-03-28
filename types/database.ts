@@ -511,18 +511,24 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          tag_image_placeholder: string | null
+          tag_image_url: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          tag_image_placeholder?: string | null
+          tag_image_url?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          tag_image_placeholder?: string | null
+          tag_image_url?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -597,7 +603,6 @@ export type Database = {
           chapter_id: string | null
           created_at: string
           id: string
-          is_full_book: boolean | null
           updated_at: string
           user_id: string | null
         }
@@ -606,7 +611,6 @@ export type Database = {
           chapter_id?: string | null
           created_at?: string
           id?: string
-          is_full_book?: boolean | null
           updated_at?: string
           user_id?: string | null
         }
@@ -615,7 +619,6 @@ export type Database = {
           chapter_id?: string | null
           created_at?: string
           id?: string
-          is_full_book?: boolean | null
           updated_at?: string
           user_id?: string | null
         }
@@ -647,27 +650,24 @@ export type Database = {
         Row: {
           created_at: string
           credits: number | null
-          dark_mode: boolean | null
-          font_size: number | null
           id: string
+          preferences: Json | null
           premium_user: boolean | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           credits?: number | null
-          dark_mode?: boolean | null
-          font_size?: number | null
           id: string
+          preferences?: Json | null
           premium_user?: boolean | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           credits?: number | null
-          dark_mode?: boolean | null
-          font_size?: number | null
           id?: string
+          preferences?: Json | null
           premium_user?: boolean | null
           updated_at?: string
         }
@@ -692,7 +692,12 @@ export type Database = {
         | "save"
         | "comment"
       transaction_status: "completed" | "failed" | "pending" | "refund"
-      transaction_type: "purchase" | "unlock" | "refund"
+      transaction_type:
+        | "PURCHASE_CREDITS"
+        | "UNLOCK_BOOK"
+        | "UNLOCK_CHAPTER"
+        | "REFUND_CREDITS"
+        | "REFUND_UNLOCK"
     }
     CompositeTypes: {
       [_ in never]: never

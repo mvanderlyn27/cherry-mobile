@@ -69,7 +69,7 @@
 
 - load the book-tag pairings from supabase
 
-## Users
+### Users
 
 - load the users from supabase
 

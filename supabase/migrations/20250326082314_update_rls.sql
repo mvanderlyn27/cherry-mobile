@@ -33,7 +33,7 @@ USING (
     (
       SPLIT_PART(name, '/', 1) IN (
         SELECT book_id::text FROM user_unlocks 
-        WHERE user_id = auth.uid() AND is_full_book = true
+        WHERE user_id = auth.uid() 
       )
     )
     OR

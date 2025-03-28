@@ -3,7 +3,8 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "DOTENV_CONFIG_PATH=.env.local expo start",    
+    "start:prod": "DOTENV_CONFIG_PATH=.env.production expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -20,7 +21,9 @@
     "build:production-android": "eas build --profile production --platform android --local --output=./builds/android/production.aab",
     "submit:ios": "eas submit -p ios --path ./builds/ios/production.ipa",
     "submit:android": "eas submit -p android --path ./builds/android/production.aab",
-    "prebuild": "node -e \"require('fs').copyFileSync('.env.' + process.env.APP_ENV, '.env')\""
+    "prebuild": "node -e \"require('fs').copyFileSync('.env.' + process.env.APP_ENV, '.env')\"",
+    "genTestUsers": "DOTENV_CONFIG_PATH=.env.local bunx tsx -r dotenv/config ./supabase/testUsers.ts",
+    "genSeedData": "DOTENV_CONFIG_PATH=.env.local bunx tsx -r dotenv/config ./supabase/seed.ts"
   },
   "jest": {
     "preset": "jest-expo"
@@ -79,13 +82,17 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@snaplet/copycat": "^6.0.0",
+    "@snaplet/seed": "0.98.0",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-native": "^0.72.8",
     "@types/react-test-renderer": "^18.3.0",
     "jest": "^29.2.1",
     "jest-expo": "~52.0.4",
+    "postgres": "^3.4.5",
     "react-test-renderer": "18.3.1",
+    "tsx": "^4.19.3",
     "typescript": "^5.3.3"
   },
   "nativewind": {

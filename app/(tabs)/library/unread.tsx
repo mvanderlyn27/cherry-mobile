@@ -14,7 +14,7 @@ const UnreadPage = observer(() => {
   //need logic to get this, will be unread owned books, and saved books
   const userId = use$(authStore$.userId);
   const credits = use$(() => (userId ? users$[userId].credits : 0));
-  const unReadBooks = ["454fc1f6-6f7d-4d9e-8788-b9524c9a9332"];
+  const unReadBooks = ["e736f3cd-2ca6-43c8-a0e8-9c1d3f7eff02"];
   const books = use$(() => Object.values(books$.get() || {}).filter((book) => unReadBooks.includes(book.id)));
 
   return (

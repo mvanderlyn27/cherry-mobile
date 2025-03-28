@@ -1,7 +1,8 @@
 import { authStore$ } from "@/stores/authStore";
-import { supabase, getAnonymousUser } from "./supabase";
+import { supabase } from "./supabase";
 import { Platform } from "react-native";
 import { LoggingService } from "./loggingService";
+import { appStore$ } from "@/stores/appStores";
 
 export class AuthService {
   // Track the current auth state
@@ -24,6 +25,7 @@ export class AuthService {
 
         console.log(`[AuthService] User already signed in as ${authState}`);
         authStore$.assign({ userId: user.id, isLoading: false, authState });
+        appStore$.loggedIn.set(true);
         return;
       }
 
@@ -47,8 +49,9 @@ export class AuthService {
 
       console.log("[AuthService] Anonymous user created");
       authStore$.assign({ userId: data.user.id, isLoading: false, authState: "anonymous" });
+      appStore$.loggedIn.set(true);
     } catch (error) {
-      LoggingService.handleError(error, { service: "AuthService", method: "createAnonymousUser" });
+      LoggingService.handleError(error, { service: "AuthService", method: "createAnonymousUser" }, true);
       authStore$.assign({ isLoading: false, authState: "unauthenticated" });
     }
   }

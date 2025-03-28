@@ -102,7 +102,6 @@ CREATE TABLE user_unlocks (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     book_id UUID REFERENCES books(id) ON DELETE CASCADE,
     chapter_id UUID REFERENCES chapters(id) ON DELETE CASCADE,
-    is_full_book BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     UNIQUE(user_id, book_id, chapter_id)
@@ -299,14 +298,14 @@ BEGIN
             );
         ELSIF NEW.transaction_type = 'unlock' THEN
             -- Add to user_unlocks
+            -- In the process_completed_transaction() function:
             IF NEW.book_id IS NOT NULL THEN
                 INSERT INTO user_unlocks (
-                    user_id, book_id, is_full_book
+                    user_id, book_id
                 )
                 VALUES (
                     NEW.user_id,
-                    NEW.book_id,
-                    true
+                    NEW.book_id  -- Remove the trailing comma here
                 );
             ELSIF NEW.chapter_id IS NOT NULL THEN
                 INSERT INTO user_unlocks (
