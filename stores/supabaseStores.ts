@@ -36,6 +36,15 @@ export const tags$ = observable(
     actions: ["read"],
   })
 );
+export const savedTags$ = observable(
+  syncedSupabase({
+    supabase,
+    collection: "saved_tags",
+    select: (from) => from.select("*"),
+    actions: ["read"],
+  })
+);
+
 export const bookTags$ = observable(
   syncedSupabase({
     supabase,

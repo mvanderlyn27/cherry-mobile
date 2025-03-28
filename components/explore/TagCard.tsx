@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
-type CategoryCardProps = {
+type TagCardProps = {
   name: string;
   imageUrl: string;
   onPress: () => void;
@@ -13,7 +13,7 @@ type CategoryCardProps = {
   onFavoritePress: () => void;
 };
 
-export const CategoryCard: React.FC<CategoryCardProps> = ({
+export const TagCard: React.FC<TagCardProps> = ({
   name,
   imageUrl,
   onPress,

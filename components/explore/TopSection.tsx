@@ -3,6 +3,8 @@ import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import { TopBookCarousel } from "./TopBookCarousel";
 import { TopCategoryList } from "./TopCategoryList";
 import { categoryData } from "@/config/testData";
+import { exploreStore$ } from "@/stores/appStores";
+import { use$ } from "@legendapp/state/react";
 
 type Props = {
   onBookPress: (id: string, categoryName: string) => void;
@@ -10,7 +12,7 @@ type Props = {
 
 export const TopSection: React.FC<Props> = ({ onBookPress }) => {
   // Use the first few books from the Romance category for the carousel
-  const carouselBooks = categoryData[1].books.slice(0, 5);
+  const carouselBooks = use$(exploreStore$.featuredBooks);
   const onBookSave = (id: string) => {
     console.log("Save", id);
   };

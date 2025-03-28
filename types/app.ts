@@ -45,13 +45,17 @@ export interface ExtendedBook extends Book {
   comments_count?: number;
   likes_count?: number;
   user_progress?: number; // Percentage of completed chapters
-  is_purchased?: boolean;
+  is_owned?: boolean;
 }
 
 export interface UserProfile extends Profile {
   user: User;
   saved_books?: ExtendedBook[];
   reading_history?: ExtendedBook[];
+}
+export interface ExtendedTag extends Tag {
+  is_saved?: boolean;
+  is_hot?: boolean;
 }
 
 export enum Icon {

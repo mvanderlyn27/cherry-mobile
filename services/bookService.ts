@@ -10,9 +10,11 @@ import {
   chapterProgress$,
   userUnlocks$,
   likedChapters$,
+  savedTags$,
 } from "../stores/supabaseStores";
 import { LoggingService } from "./loggingService";
-import { syncState, when } from "@legendapp/state";
+import { Observable, syncState, when } from "@legendapp/state";
+import { ExtendedBook, ExtendedChapter, Tag } from "@/types/app";
 
 // Types
 interface Book {
@@ -39,12 +41,129 @@ interface Category {
 
 export class BookService {
   // Get book details by ID, get the tags, get the like counts
-  static getBookDetails(bookId: string): Book | null {
+  // Get detailed book information including tags, chapters, and likes
+  static getBookDetails(bookId: string | null): ExtendedBook | null {
     try {
-      return books$[bookId].peek() || null;
+      // Get the basic book data
+      if (bookId === null) return null;
+      const book = books$[bookId].get() || null;
+      if (!book) return null;
+
+      // Get all chapters for this book
+      const allChapters = Object.values(chapters$.get() || {})
+        .filter((chapter) => chapter.book_id === bookId)
+        .sort((a, b) => a.chapter_number - b.chapter_number);
+
+      // Get likes for all chapters
+      const allLikedChapters = Object.values(likedChapters$.get() || {});
+
+      // Get tags for this book
+      const allBookTags = Object.values(bookTags$.get() || {}).filter((bookTag) => bookTag.book_id === bookId);
+
+      const allTags = tags$.get() || {};
+      const bookTags = allBookTags.map((bookTag) => allTags[bookTag.tag_id]).filter(Boolean);
+
+      // Calculate likes for each chapter of this book
+      const chapterLikesMap: Map<string, number> = new Map();
+      // Get chapter IDs for this book to filter likes
+      const bookChapterIds = allChapters.map((chapter) => chapter.id);
+
+      // Only count likes for chapters of this book
+      allLikedChapters.forEach((like) => {
+        if (bookChapterIds.includes(like.chapter_id)) {
+          if (chapterLikesMap.get(like.chapter_id)) {
+            chapterLikesMap.set(like.chatper_id, (chapterLikesMap.get(like.chapter_id) || 0) + 1);
+          } else {
+            chapterLikesMap.set(like.chapter_id, 1);
+          }
+        }
+      });
+
+      // Get current user ID from auth store if available
+      const userId = appStore$.userId.get();
+
+      // Initialize user-specific properties
+      let userProgress = 0;
+      let isSaved = false;
+      let isOwned = false;
+      let userLikedChapterIds: string[] = [];
+
+      // If user is logged in, get personalized data
+      if (userId) {
+        // Check if book is saved by user
+        const savedBooksData = Object.values(savedBooks$.get() || {});
+        isSaved = savedBooksData.some((saved) => saved.user_id === userId && saved.book_id === bookId);
+
+        // Check if book is owned by user
+        const userUnlocksData = Object.values(userUnlocks$.get() || {});
+        isOwned = userUnlocksData.some((unlock) => unlock.user_id === userId && unlock.book_id === bookId);
+
+        // Get user's progress for this book
+        const bookProgressData = Object.values(bookProgress$.get() || {});
+        const userBookProgress = bookProgressData.find(
+          (progress) => progress.user_id === userId && progress.book_id === bookId
+        );
+
+        if (userBookProgress) {
+          userProgress = userBookProgress.progress_percentage || 0;
+        }
+
+        // Get chapters liked by the user
+        userLikedChapterIds = allLikedChapters
+          .filter((like) => like.user_id === userId && bookChapterIds.includes(like.chapter_id))
+          .map((like) => like.chapter_id);
+      }
+
+      // Create extended chapters with like counts and user-specific data
+      const extendedChapters: ExtendedChapter[] = allChapters.map((chapter) => {
+        return {
+          ...chapter,
+          content: chapter.content || "",
+          is_locked: chapter.is_premium || false,
+          likes_count: chapterLikesMap.get(chapter.id) || 0,
+          is_liked: userId ? userLikedChapterIds.includes(chapter.id) : false,
+          is_bookmarked: false, // Would need to implement bookmarks in the future
+        };
+      });
+
+      // Calculate total likes for the book
+      const totalLikes = extendedChapters.reduce((sum, chapter) => sum + (chapter.likes_count || 0), 0);
+
+      // Create and return the extended book
+      const extendedBook: ExtendedBook = {
+        ...book,
+        tags: bookTags,
+        chapters: extendedChapters,
+        likes_count: totalLikes,
+        comments_count: 0, // Would need to fetch comments if available
+        user_progress: userProgress,
+        is_saved: isSaved,
+        is_owned: isOwned,
+      };
+
+      return extendedBook;
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getBookDetails", bookId }, false);
       return null;
+    }
+  }
+
+  static handleSaveTag(tagId: string) {
+    console.log("saving tag");
+    try {
+      const userId = appStore$.userId.peek();
+      console.log(userId);
+      if (!userId) return;
+      const existingSave = savedTags$[tagId].peek();
+      if (existingSave) {
+        console.log("existing tag");
+        savedTags$[tagId].delete();
+      } else {
+        console.log("new save tag");
+        savedTags$[tagId].save();
+      }
+    } catch (error) {
+      LoggingService.handleError(error, { method: "BookService.handleSaveTag", tagId }, false);
     }
   }
 
@@ -309,6 +428,71 @@ export class BookService {
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getCompletedBooks", userId }, false);
       return [];
+    }
+  }
+
+  /**
+   * Get top categories and their most popular books
+   * @returns A map of category to array of popular books in that category
+   */
+  static getTopCategoryBooks(): Map<Tag, Book[]> {
+    try {
+      const result = new Map<Tag, Book[]>();
+
+      // Get all tags and saved tags
+      const allTags = tags$.get() || {};
+      const allSavedTags = Object.values(savedTags$.get() || {});
+      const allBooks = books$.get() || {};
+      const allBookTags = Object.values(bookTags$.get() || {});
+
+      // Count saves per tag
+      const tagSaveCount: Record<string, number> = {};
+      allSavedTags.forEach((savedTag) => {
+        const tagId = savedTag.tag_id;
+        tagSaveCount[tagId] = (tagSaveCount[tagId] || 0) + 1;
+      });
+
+      // Sort tags by popularity (number of saves)
+      const sortedTags = Object.values(allTags)
+        .map((tag) => ({
+          tag,
+          saveCount: tagSaveCount[tag.id] || 0,
+        }))
+        .sort((a, b) => b.saveCount - a.saveCount)
+        .slice(0, 8); // Get top 8 categories
+
+      // Get book likes for popularity sorting
+      const bookLikes = this.getBookLikes();
+
+      // For each popular category, get its most popular books
+      sortedTags.forEach(({ tag }) => {
+        // Find all books in this category
+        const bookIdsInCategory = allBookTags
+          .filter((bookTag) => bookTag.tag_id === tag.id)
+          .map((bookTag) => bookTag.book_id);
+
+        // Get the actual book objects
+        const categoryBooks = bookIdsInCategory.map((id) => allBooks[id]).filter(Boolean);
+
+        // Sort books by popularity (reader count + likes)
+        const sortedBooks = [...categoryBooks]
+          .sort((a, b) => {
+            const aLikes = bookLikes[a.id] || 0;
+            const bLikes = bookLikes[b.id] || 0;
+            return b.reader_count + bLikes - (a.reader_count + aLikes);
+          })
+          .slice(0, 10); // Get top 10 books per category
+
+        // Add to result map
+        if (sortedBooks.length > 0) {
+          result.set(tag, sortedBooks);
+        }
+      });
+
+      return result;
+    } catch (error) {
+      LoggingService.handleError(error, { method: "BookService.getTopCategoryBooks" }, false);
+      return new Map();
     }
   }
 }

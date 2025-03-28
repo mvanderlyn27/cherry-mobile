@@ -6,6 +6,8 @@ import { Book } from "@/types/app";
 import { categoryData } from "@/config/testData";
 import { BookCard } from "./BookCard";
 import { useColorScheme } from "nativewind";
+import { exploreStore$ } from "@/stores/appStores";
+import { use$ } from "@legendapp/state/react";
 const colors = require("@/config/colors");
 
 type Props = {
@@ -14,9 +16,9 @@ type Props = {
 };
 
 // Sample data - replace with your actual data
-const recommendedBooks = categoryData[0].books.slice(0, 5);
 
 export const ForYouSection: React.FC<Props> = ({ onRead, onMoreInfo }) => {
+  const recommendedBooks = use$(exploreStore$.recommendedBooks);
   const { colorScheme } = useColorScheme();
   const width = Dimensions.get("window").width;
   const height = Dimensions.get("window").height;

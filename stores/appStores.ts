@@ -19,6 +19,7 @@ interface AppStore {
 
 interface ExploreStore {
   featuredBooks: Book[];
+  topCategoryBooks: Map<Tag, Book[]>;
   popularBooks: Book[];
   newReleases: Book[];
   recommendedBooks: Book[];
@@ -52,9 +53,8 @@ interface UserPreferencesStore {
 }
 
 interface BookDetailsStore {
+  currentBookId: string | null; // Assuming this is a string, adjust as needed for your use case and data structure
   currentBook: ExtendedBook | null;
-  chapters: ExtendedChapter[];
-  currentChapterIndex: number | null;
   loading: boolean;
   error: string | null;
 }
@@ -71,29 +71,34 @@ export const appStore$ = observable<AppStore>({
 
 export const exploreStore$ = observable<ExploreStore>({
   // Featured books - top 5 by reader count
-  featuredBooks: computed(() => {
+  featuredBooks: () => {
     return BookService.getFeaturedBooks();
-  }),
+  },
+
+  // topCategoryBooks - top 10 by reader count and likes
+  topCategoryBooks: () => {
+    return BookService.getTopCategoryBooks();
+  },
 
   // Popular books - top 10 by reader count and likes
-  popularBooks: computed(() => {
+  popularBooks: () => {
     return BookService.getPopularBooks();
-  }),
+  },
 
   // New releases - top 10 by created_at
-  newReleases: computed(() => {
+  newReleases: () => {
     return BookService.getNewReleases();
-  }),
+  },
 
   // Recommended books
-  recommendedBooks: computed(() => {
+  recommendedBooks: () => {
     return BookService.getRecommendedBooks();
-  }),
+  },
 
   // Categories from tags
-  categories: computed(() => {
+  categories: () => {
     return Object.values(tags$.get() || {});
-  }),
+  },
 
   isLoading: true,
   error: null,
@@ -101,37 +106,38 @@ export const exploreStore$ = observable<ExploreStore>({
 
 export const libraryStore$ = observable<LibraryStore>({
   // Books the user has unlocked
-  unreadBooks: computed(() => {
+  unreadBooks: () => {
     const userId = appStore$.userId.get();
     return userId ? BookService.getUnreadBooks(userId) : [];
-  }),
+  },
 
   // Books the user has saved
-  savedBooks: computed(() => {
+  savedBooks: () => {
     const userId = appStore$.userId.get();
     return userId ? BookService.getSavedBooks(userId) : [];
-  }),
+  },
 
   // Recently read books
-  readingBooks: computed(() => {
+  readingBooks: () => {
     const userId = appStore$.userId.get();
     return userId ? BookService.getReadingBooks(userId) : [];
-  }),
+  },
 
   // Completed books
-  completedBooks: computed(() => {
+  completedBooks: () => {
     const userId = appStore$.userId.get();
     return userId ? BookService.getCompletedBooks(userId) : [];
-  }),
+  },
 
   isLoading: true,
   error: null,
 });
+
+//set bookId to update bookdetails
 export const bookDetailsStore$ = observable<BookDetailsStore>({
   // Used for the reader screen, and details
-  currentBook: null,
-  chapters: [],
-  currentChapterIndex: null,
+  currentBookId: null,
+  currentBook: () => BookService.getBookDetails(bookDetailsStore$.currentBookId.get()),
   loading: false,
   error: null,
 });
