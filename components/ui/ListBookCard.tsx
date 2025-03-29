@@ -11,11 +11,11 @@ import { router } from "expo-router";
 import { MotiPressable } from "moti/interactions";
 import { TagList } from "./TagList";
 import { useColorScheme } from "nativewind";
+import { BookService } from "@/services/bookService";
 const colors = require("@/config/colors");
 
 type ListBookCardProps = {
   book: Book;
-  tags?: Tag[];
   owned?: boolean;
   progress?: number;
   started?: boolean;
@@ -29,7 +29,6 @@ type ListBookCardProps = {
 
 export const ListBookCard: React.FC<ListBookCardProps> = ({
   book,
-  tags = [],
   owned = false,
   started = false,
   progress = 0,
@@ -41,6 +40,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
   canBuy,
 }) => {
   const finished = progress === 100;
+  const extendedBook = BookService.getBookDetails(book.id);
   const { colorScheme } = useColorScheme();
   return (
     <MotiPressable
@@ -111,10 +111,10 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
       <View className="flex-1">
         <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-1">{book.title}</Text>
 
-        <TagList tags={tags} />
+        <TagList tags={extendedBook?.tags || []} />
 
         <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
-          {book.preview_text}
+          {book.description}
         </Text>
 
         <View className="flex-col flex flex-1 justify-end px-4 ">

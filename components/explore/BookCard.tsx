@@ -1,18 +1,17 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BookCover } from "../ui/BookCover";
-import { Book, Tag } from "@/types/app";
+import { Book, ExtendedBook, Tag } from "@/types/app";
 import { TagList } from "../ui/TagList";
 
 type BookCardProps = {
-  book: Book;
+  book: ExtendedBook;
   onRead: (id: string) => void;
   onMoreInfo: (id: string) => void;
   onSave?: (id: string, saved: boolean) => void;
 };
 
 export const BookCard: React.FC<BookCardProps> = ({ book, onRead, onMoreInfo, onSave }) => {
-  const tags = [{ name: "18+" }, { name: "tag1" }] as Tag[];
   return (
     <View className="bg-buttons-light/10 dark:bg-button-dark/20 rounded-3xl overflow-hidden  flex-1 flex flex-col p-8">
       <View className="flex-1 items-center">
@@ -22,7 +21,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onRead, onMoreInfo, on
           <Text className="text-4xl text-center font-kaisei-bold text-story-light dark:text-story-dark mt-4 mb-2">
             {book.title}
           </Text>
-          <TagList tags={tags} />
+          <TagList tags={book.tags} />
           <Text className="text-md text-story-light font-heebo-medium dark:text-story-dark opacity-80 my-2 flex-1">
             {book.description}
           </Text>

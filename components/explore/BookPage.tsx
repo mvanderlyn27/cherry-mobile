@@ -5,7 +5,7 @@ import { TagList } from "../ui/TagList";
 import { IconSymbol } from "../ui/IconSymbol";
 import { useColorScheme } from "nativewind";
 import { formatReadingTime } from "@/utils/time";
-import { Book, Icon, Tag } from "@/types/app";
+import { Book, ExtendedBook, Icon, Tag } from "@/types/app";
 import { BookCover } from "../ui/BookCover";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
@@ -31,15 +31,15 @@ import { useRouter } from "expo-router";
 const colors = require("@/config/colors");
 
 type BookPageProps = {
-  books: Book[];
-  initialBookId: string;
+  books: ExtendedBook[];
+  initialBookIndex: number;
   onReadNow: (bookId: string) => void;
 };
 
-export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onReadNow }) => {
+export const BookPage: React.FC<BookPageProps> = ({ books, initialBookIndex, onReadNow }) => {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
-  const [currentBookIndex, setCurrentBookIndex] = useState(0);
+  const [currentBookIndex, setCurrentBookIndex] = useState(initialBookIndex);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleBuyBook = async (bookId: string) => {
@@ -56,12 +56,6 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
     }
   };
   // Find initial book index
-  useEffect(() => {
-    const index = books.findIndex((b) => b.id === initialBookId);
-    if (index !== -1) {
-      setCurrentBookIndex(index);
-    }
-  }, [initialBookId, books]);
 
   const currentBook = books[currentBookIndex];
   const isUnlocked = false;
@@ -114,7 +108,7 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
                 // exiting={FlipOutEasyX.duration(300)}
                 key={currentBook.id}
                 className="text-sm mt-1 text-buttons_text-light dark:text-buttons_text-dark">
-                {currentBook.reader_count?.toLocaleString() || "0"}
+                {currentBook.likes_count || 0}
               </Animated.Text>
             </View>
           </Animated.View>
@@ -133,7 +127,7 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookId, onRead
             // exiting={FadeInDown.duration(300)}
           >
             <Text className="text-lg font-bold mb-2 text-story-light dark:text-story-dark">Summary: </Text>
-            {currentBook.preview_text}
+            {currentBook.description}
           </Animated.Text>
         </View>
 

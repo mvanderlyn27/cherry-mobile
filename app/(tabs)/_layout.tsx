@@ -11,7 +11,6 @@ import { observer, use$ } from "@legendapp/state/react";
 
 const TabLayout = observer(() => {
   const colorScheme = useColorScheme();
-  console.log("colorScheme", colorScheme, colors);
   return (
     <Tabs
       screenOptions={{

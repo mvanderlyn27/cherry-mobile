@@ -1,7 +1,6 @@
+import { SortType } from "@/stores/appStores";
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-
-type SortType = "topRated" | "mostViewed" | "newest";
 
 type SortOptionsProps = {
   selectedSort: SortType;

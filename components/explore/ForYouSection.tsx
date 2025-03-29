@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Dimensions } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, { Pagination } from "react-native-reanimated-carousel";
-import { Book } from "@/types/app";
+import { Book, ExtendedBook } from "@/types/app";
 import { categoryData } from "@/config/testData";
 import { BookCard } from "./BookCard";
 import { useColorScheme } from "nativewind";
@@ -29,7 +29,7 @@ export const ForYouSection: React.FC<Props> = ({ onRead, onMoreInfo }) => {
     console.log(`Pagination pressed: ${index}`);
   };
 
-  const renderBookCard = ({ item }: { item: Book; index: number }) => {
+  const renderBookCard = ({ item }: { item: ExtendedBook; index: number }) => {
     return (
       <BookCard
         book={item}

@@ -19,6 +19,8 @@ export default function Page() {
   // Combine current book with category books for display
   const allBooks = use$(bookDetailsStore$.books);
   if (!allBooks || allBooks.length === 0) return null;
+  const index = allBooks.findIndex((book) => book.id === id);
+  if (index === -1) return null;
   console.log(allBooks);
   const handleReadNow = (bookId: string) => {
     router.push(`/modals/reader/${bookId}`);
@@ -26,12 +28,12 @@ export default function Page() {
   return (
     <View className="h-full bg-background-light dark:bg-background-dark">
       <Header
-        title={allBooks[0].title}
-        subTitle={allBooks[0].author || undefined}
+        title={allBooks[index].title}
+        subTitle={allBooks[index].author || undefined}
         rightActions={[{ icon: Icon.close, onPress: () => router.back() }]}
       />
 
-      <BookPage books={allBooks} initialBookId={id} onReadNow={handleReadNow} />
+      <BookPage books={allBooks} initialBookIndex={index} onReadNow={handleReadNow} />
     </View>
   );
 }

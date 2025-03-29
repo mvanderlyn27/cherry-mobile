@@ -22,7 +22,7 @@ interface ExploreStore {
   topCategoryBooks: Map<Tag, Book[]>;
   popularBooks: Book[];
   newReleases: Book[];
-  recommendedBooks: Book[];
+  recommendedBooks: ExtendedBook[];
   categories: Tag[];
   isLoading: boolean;
   error: string | null;
@@ -39,6 +39,14 @@ interface LibraryStore {
   completedBooks: Book[];
   isLoading: boolean;
   error: string | null;
+}
+export type SortType = "most_liked" | "newest" | "oldest" | "most_viewed";
+
+interface SearchStore {
+  searchString: string | null;
+  tags: Tag[] | null;
+  sort: SortType | null;
+  results: Book[];
 }
 
 interface CherryStore {
@@ -133,7 +141,20 @@ export const libraryStore$ = observable<LibraryStore>({
   error: null,
 });
 
-//set bookId to update bookdetails
+//set search, category, and sort
+export const searchStore$ = observable<SearchStore>({
+  searchString: null,
+  tags: null,
+  sort: null,
+  results: () => {
+    const searchString = searchStore$.searchString.get();
+    const tags = searchStore$.tags.get();
+    const sort = searchStore$.sort.get();
+    return BookService.searchBooks({ title: searchString, tags: tags, sort });
+  },
+});
+
+//set bookIds to update bookdetails
 export const bookDetailsStore$ = observable<BookDetailsStore>({
   // Used for the reader screen, and details
   bookIds: null,

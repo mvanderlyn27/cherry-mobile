@@ -1,82 +1,53 @@
 import React, { useMemo } from "react";
 import { View, Text, FlatList } from "react-native";
 import { useRouter } from "expo-router";
-import { Book } from "@/types/app";
-import { categoryData } from "@/config/testData";
+import { Book, ExtendedBook } from "@/types/app";
 import { ListBookCard } from "@/components/ui/ListBookCard";
 import { LegendList } from "@legendapp/list";
+import { bookDetailsStore$, searchStore$ } from "@/stores/appStores";
+import { use$ } from "@legendapp/state/react";
 
 type SortType = "topRated" | "mostViewed" | "newest";
 
-type SearchResultsProps = {
-  searchQuery: string;
-  selectedTags: string[];
-  sortBy: SortType;
-};
+type SearchResultsProps = {};
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ searchQuery, selectedTags, sortBy }) => {
+export const SearchResults: React.FC<SearchResultsProps> = ({}) => {
   const router = useRouter();
 
-  // Filter and sort books based on search criteria
-  const filteredBooks = useMemo(() => {
-    // Get all books
-    let books = categoryData.flatMap((category) => {
-      // Add category to each book for filtering
-      return category.books.map((book) => ({
-        ...book,
-        category: category.name,
-      }));
-    });
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      books = books.filter(
-        (book) => book.title.toLowerCase().includes(query) || (book.author && book.author.toLowerCase().includes(query))
-      );
-    }
-
-    // Filter by selected tags
-    if (selectedTags.length > 0) {
-      books = books.filter((book) => selectedTags.includes(book.category));
-    }
-
-    // Sort books
-    switch (sortBy) {
-      case "topRated":
-        // For demo purposes, we'll sort by price as a stand-in for rating
-        return books.sort((a, b) => (b.price || 0) - (a.price || 0));
-      case "mostViewed":
-        return books.sort((a, b) => (b.reader_count || 0) - (a.reader_count || 0));
-      case "newest":
-        return books.sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
-      default:
-        return books;
-    }
-  }, [searchQuery, selectedTags, sortBy]);
+  // Sort books based on the selected sort type
+  const books = use$(searchStore$.results);
+  console.log("books", books);
 
   // Handle book selection
-  const handleBookPress = (bookId: string, categoryName: string) => {
-    router.navigate(`/modals/book/${bookId}?categoryId=${categoryName}`);
+  const handleBookPress = (bookId: string, bookIds: string[]) => {
+    console.log("going to book", bookId);
+    bookDetailsStore$.bookIds.set(bookIds);
+    router.navigate(`/modals/book/${bookId}`);
   };
+
   const handleBookRead = (bookId: string) => {
     router.navigate(`/modals/reader/${bookId}`);
   };
 
   return (
     <View className="flex-1 mt-4">
-      {/* <Text className="text-buttons_text-light dark:text-white font-medium mb-2">{filteredBooks.length} Results</Text> */}
+      <Text className="text-buttons_text-light dark:text-white font-medium mb-2">{books.length} Results</Text>
 
-      {filteredBooks.length > 0 ? (
+      {books.length > 0 ? (
         <LegendList
           estimatedItemSize={178}
-          data={filteredBooks}
+          data={books}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ListBookCard
               book={item as Book}
               onRead={() => handleBookRead(item.id)}
-              onClick={() => handleBookPress(item.id, item.category)}
+              onClick={() =>
+                handleBookPress(
+                  item.id,
+                  books.slice(0, 5).map((book) => book.id)
+                )
+              }
             />
           )}
           showsVerticalScrollIndicator={false}

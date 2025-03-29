@@ -189,22 +189,27 @@ export class BookService {
    * @param options Search options including category, title, and pagination
    * @returns Array of books matching the search criteria
    */
-  static searchBooks(options: { categoryId?: string; title?: string; page?: number; pageSize?: number }): {
-    books: Book[];
-    totalCount: number;
-  } {
+  static searchBooks(options: {
+    tags?: Tag[] | null;
+    title?: string | null;
+    sort?: "newest" | "oldest" | "most_read" | "most_liked" | "most_viewed" | null;
+    page?: number;
+    pageSize?: number;
+  }): Book[] {
     try {
-      const { categoryId, title, page = 1, pageSize = 10 } = options;
+      console.log("searching books", options);
+      const { tags, title, page = 1, pageSize = 10 } = options;
       let filteredBooks: Book[] = [];
 
       // Get all books
       const allBooks = Object.values(books$.peek());
-
+      //   console.log("all books", allBooks);
       // Filter by category if provided
-      if (categoryId) {
+      if (tags && tags.length > 0) {
+        const tagIds = tags.map((tag) => tag.id);
         const allBookTags = Object.values(bookTags$.peek());
         const bookIdsInCategory = allBookTags
-          .filter((bookTag) => bookTag.tag_id === categoryId)
+          .filter((bookTag) => tagIds.includes(bookTag.tag_id))
           .map((bookTag) => bookTag.book_id);
 
         filteredBooks = allBooks.filter((book) => bookIdsInCategory.includes(book.id));
@@ -219,18 +224,13 @@ export class BookService {
           (book) => book.title.toLowerCase().includes(searchTerm) || book.author.toLowerCase().includes(searchTerm)
         );
       }
-
-      // Calculate total count before pagination
-      const totalCount = filteredBooks.length;
-
+      console.log("filtered books", filteredBooks);
       // Apply pagination
-      const startIndex = (page - 1) * pageSize;
-      const paginatedBooks = filteredBooks.slice(startIndex, startIndex + pageSize);
+      //   const startIndex = (page - 1) * pageSize;
+      //   const paginatedBooks = filteredBooks.slice(startIndex, startIndex + pageSize);
+      const paginatedBooks = filteredBooks;
 
-      return {
-        books: paginatedBooks,
-        totalCount,
-      };
+      return paginatedBooks;
     } catch (error) {
       LoggingService.handleError(
         error,
@@ -240,7 +240,7 @@ export class BookService {
         },
         false
       );
-      return { books: [], totalCount: 0 };
+      return [];
     }
   }
 
@@ -321,7 +321,11 @@ export class BookService {
     try {
       const allBooks = Object.values(books$.get() || {});
       // Using a deterministic "random" sort to avoid constant reshuffling
-      return [...allBooks].sort((a, b) => a.id.localeCompare(b.id)).slice(0, 10);
+      const reccomendedBooks = [...allBooks].sort((a, b) => a.id.localeCompare(b.id)).slice(0, 10);
+      const extendedBooks = reccomendedBooks
+        .map((book) => this.getBookDetails(book.id))
+        .filter((book) => book !== null);
+      return extendedBooks;
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getRecommendedBooks" }, false);
       return [];

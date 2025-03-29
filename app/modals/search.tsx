@@ -2,35 +2,32 @@ import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Header from "@/components/ui/Header";
-import { Icon } from "@/types/app";
-import { View, Text, Easing } from "react-native";
+import { Icon, Tag } from "@/types/app";
+import { View } from "react-native";
 import { SearchBar } from "@/components/search/SearchBar";
-import { categoryData } from "@/config/testData";
 import { SearchResults } from "@/components/search/SearchResults";
 import { SortOptions } from "@/components/search/SortOptions";
 import { TagSelector } from "@/components/search/TagSelector";
-import Animated, { FadeIn, FadeOut, Layout, LinearTransition } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
+import { BookService } from "@/services/bookService";
+import { use$ } from "@legendapp/state/react";
+import { exploreStore$, searchStore$, SortType } from "@/stores/appStores";
 
 // Define sort types
-type SortType = "topRated" | "mostViewed" | "newest";
 
 export default function Page() {
   const router = useRouter();
   const { category } = useLocalSearchParams();
 
   // State for search functionality
-  const [searchQuery, setSearchQuery] = useState("");
   const [showSortOptions, setShowSortOptions] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<string[]>(category ? [category as string] : []);
-  const [sortBy, setSortBy] = useState<SortType>("topRated");
 
-  // Extract all unique tags from category data
-  const allTags = Array.from(new Set(categoryData.map((cat) => cat.name)));
-
-  // Handle search query change
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
+  // Get all tags from the exploreStore's topCategoryBooks
+  const selectedTags = use$(searchStore$.tags);
+  const searchString = use$(searchStore$.searchString);
+  const sort = use$(searchStore$.sort);
+  const topCategoryBooks = use$(exploreStore$.topCategoryBooks);
+  const allTags: Tag[] = topCategoryBooks ? Array.from(topCategoryBooks.keys()) : [];
 
   // Toggle sort options visibility
   const toggleSortOptions = () => {
@@ -38,17 +35,18 @@ export default function Page() {
   };
 
   // Handle tag selection
-  const handleTagSelect = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
+  const handleTagSelect = (tag: Tag) => {
+    if (selectedTags?.includes(tag)) {
+      const updatedTags = selectedTags.filter((t) => t.id !== tag.id);
+      searchStore$.tags.set(updatedTags);
     } else {
-      setSelectedTags([...selectedTags, tag]);
+      searchStore$.tags.set([...(selectedTags || []), tag]);
     }
   };
 
   // Handle sort selection
   const handleSortSelect = (sort: SortType) => {
-    setSortBy(sort);
+    searchStore$.sort.set(sort);
     setShowSortOptions(false);
   };
 
@@ -67,7 +65,11 @@ export default function Page() {
           rightActions={[{ icon: Icon.close, onPress: () => router.back() }]}
         />
         <View className="px-4">
-          <SearchBar value={searchQuery} onChangeText={handleSearch} onSortPress={toggleSortOptions} />
+          <SearchBar
+            value={searchString || ""}
+            onChangeText={(text) => searchStore$.searchString.set(text)}
+            onSortPress={toggleSortOptions}
+          />
 
           <Animated.View layout={LinearTransition.springify()}>
             {showSortOptions && (
@@ -75,7 +77,11 @@ export default function Page() {
                 entering={FadeIn.duration(400)}
                 exiting={FadeOut.duration(150)}
                 layout={LinearTransition.springify()}>
-                <SortOptions selectedSort={sortBy} onSortSelect={handleSortSelect} />
+                <SortOptions
+                  selectedSort={sort || "most_viewed"}
+                  // onSortPress={toggleSortOptions}
+                  onSortSelect={handleSortSelect}
+                />
               </Animated.View>
             )}
             {!showSortOptions && (
@@ -83,7 +89,7 @@ export default function Page() {
                 entering={FadeIn.duration(400)}
                 exiting={FadeOut.duration(150)}
                 layout={LinearTransition.springify()}>
-                <TagSelector tags={allTags} selectedTags={selectedTags} onTagSelect={handleTagSelect} />
+                <TagSelector tags={allTags} selectedTags={selectedTags || []} onTagSelect={handleTagSelect} />
               </Animated.View>
             )}
           </Animated.View>
@@ -91,7 +97,7 @@ export default function Page() {
       </View>
 
       <View className="flex-1 px-4">
-        <SearchResults searchQuery={searchQuery} selectedTags={selectedTags} sortBy={sortBy} />
+        <SearchResults />
       </View>
     </SafeAreaView>
   );

@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
 import { View } from "react-native";
 import Animated, { Layout, FadeIn, LinearTransition } from "react-native-reanimated";
-import { Tag } from "../ui/Tag";
+import { Tag as TagComp } from "../ui/Tag";
+import { Tag } from "@/types/app";
 
 type TagSelectorProps = {
-  tags: string[];
-  selectedTags: string[];
-  onTagSelect: (tag: string) => void;
+  tags: Tag[];
+  selectedTags: Tag[];
+  onTagSelect: (tag: Tag) => void;
 };
 
 export const TagSelector: React.FC<TagSelectorProps> = ({ tags, selectedTags, onTagSelect }) => {
@@ -24,8 +25,8 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ tags, selectedTags, on
     <View className="mb-2">
       <Animated.View className="flex-row flex-wrap">
         {sortedTags.map((tag) => (
-          <Animated.View key={tag} entering={FadeIn} layout={LinearTransition.springify()}>
-            <Tag tag={tag} selected={selectedTags.includes(tag)} onPress={() => onTagSelect(tag)} />
+          <Animated.View key={tag.id} entering={FadeIn} layout={LinearTransition.springify()}>
+            <TagComp tag={tag} selected={selectedTags.includes(tag)} onPress={() => onTagSelect(tag)} />
           </Animated.View>
         ))}
       </Animated.View>
