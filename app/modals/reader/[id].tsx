@@ -134,7 +134,7 @@ const ReaderScreen = observer(() => {
 
   // Handle chapter selection
   const handleChapterSelect = (index: number) => {
-    if (chapters[index].is_locked) {
+    if (chapters[index].is_owned) {
       setChapterToUnlock(index);
       setShowPurchaseModal(true);
     } else {
@@ -151,7 +151,7 @@ const ReaderScreen = observer(() => {
     if (credits >= 50) {
       // Assuming 50 credits per chapter
       // Update chapter to unlocked
-      chapters[chapterToUnlock].is_locked = false;
+      chapters[chapterToUnlock].is_owned = false;
 
       // Navigate to the chapter
       setCurrentChapterIndex(chapterToUnlock);

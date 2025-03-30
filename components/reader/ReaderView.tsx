@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { Chapter } from "@/types/app";
+import { Chapter, ExtendedChapter } from "@/types/app";
 import * as Haptics from "expo-haptics";
 import Animated, { runOnJS } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 
 type ReaderViewProps = {
-  chapter: Chapter & { content: string };
+  chapter: ExtendedChapter;
   onScroll?: any;
   onPress?: () => void;
   fontSize?: number; // Add fontSize prop

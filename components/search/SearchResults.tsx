@@ -16,7 +16,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({}) => {
 
   // Sort books based on the selected sort type
   const books = use$(searchStore$.results);
-  console.log("books", books);
+  // console.log("books", books);
 
   // Handle book selection
   const handleBookPress = (bookId: string, bookIds: string[]) => {
@@ -35,6 +35,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({}) => {
 
       {books.length > 0 ? (
         <LegendList
+          style={{ flex: 1 }}
           estimatedItemSize={178}
           data={books}
           keyExtractor={(item) => item.id}
@@ -52,6 +53,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({}) => {
           )}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
+          recycleItems
         />
       ) : (
         <View className="flex-1 justify-center items-center">

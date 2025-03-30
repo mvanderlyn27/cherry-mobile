@@ -87,3 +87,7 @@ Current migration files in this project:
 5. Use meaningful names for migration files
 
 For more detailed information, refer to the [Supabase CLI documentation](https://supabase.com/docs/reference/cli/supabase-db-push).
+
+## upload seed to remote
+
+- psql CONNECTION_STRING -f seed.sql

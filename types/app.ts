@@ -2,8 +2,10 @@ import { Database } from "./database";
 
 // Base types from database
 export type Book = Database["public"]["Tables"]["books"]["Row"];
+export type SavedBook = Database["public"]["Tables"]["saved_books"]["Row"];
 export type Chapter = Database["public"]["Tables"]["chapters"]["Row"];
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
+export type SavedTag = Database["public"]["Tables"]["saved_tags"]["Row"];
 export type BookTag = Database["public"]["Tables"]["book_tags"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type User = Database["public"]["Tables"]["users"]["Row"];
@@ -27,8 +29,8 @@ export enum BookStatus {
 
 // Extended types for frontend use
 export interface ExtendedChapter extends Chapter {
-  content: string;
-  is_locked: boolean;
+  content?: string;
+  is_owned: boolean;
   progress?: ChapterProgress;
   comments?: Comment[];
   likes_count?: number;
@@ -37,14 +39,12 @@ export interface ExtendedChapter extends Chapter {
 }
 
 export interface ExtendedBook extends Book {
-  tags: Tag[];
+  tags: BookTag[];
   chapters: ExtendedChapter[];
   progress?: BookProgress;
-  current_chapter?: ExtendedChapter;
   is_saved?: boolean;
   comments_count?: number;
-  likes_count?: number;
-  user_progress?: number; // Percentage of completed chapters
+  total_views?: number;
   is_owned?: boolean;
 }
 

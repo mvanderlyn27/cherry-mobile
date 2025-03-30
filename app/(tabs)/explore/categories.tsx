@@ -2,16 +2,21 @@ import React, { memo } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { CategoriesSection } from "@/components/explore/CategoriesSection";
-import { exploreStore$ } from "@/stores/appStores";
+import { exploreStore$, searchStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
+import { tags$ } from "@/stores/supabaseStores";
+import { when } from "@legendapp/state";
+import { Tag } from "@/types/app";
 
 const Page = memo(() => {
   const router = useRouter();
 
-  const handleCategoryPress = (id: string) => {
-    router.push(`/modals/search?category=${id}`);
+  const handleCategoryPress = (tag: Tag) => {
+    searchStore$.tags.set([tag]);
+    router.push(`/modals/search`);
   };
-  const categories = use$(exploreStore$.categories);
+  const categories = use$(exploreStore$.userTags);
+  if (!categories || categories.length === 0) return null;
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
       <CategoriesSection categories={categories} onCategoryPress={handleCategoryPress} />

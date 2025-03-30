@@ -1,5 +1,4 @@
 import { supabase } from "./supabase";
-import { appStore$, exploreStore$, libraryStore$ } from "../stores/appStores";
 import {
   books$,
   chapters$,
@@ -11,156 +10,159 @@ import {
   userUnlocks$,
   likedChapters$,
   savedTags$,
+  generateId,
 } from "../stores/supabaseStores";
 import { LoggingService } from "./loggingService";
 import { Observable, syncState, when } from "@legendapp/state";
-import { ExtendedBook, ExtendedChapter, Tag } from "@/types/app";
+import { ExtendedBook, ExtendedChapter, Tag, Book, SavedTag, SavedBook, BookTag, ExtendedTag } from "@/types/app";
+import { exploreStore$ } from "@/stores/appStores";
 
-// Types
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string;
-  cover_url: string;
-  cover_placeholder: string;
-  chapter_count: number;
-  price: number;
-  reader_count: number;
-  reading_time: number;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  tag_image_url: string;
-  tag_image_placeholder: string;
-}
+const HOT_THRESHOLD = 5;
 
 export class BookService {
-  // Get book details by ID, get the tags, get the like counts
-  // Get detailed book information including tags, chapters, and likes
-  static getBookDetails(bookId: string | null): ExtendedBook | null {
+  /**
+   * Gets detailed information about a book including chapters, likes, and user-specific data
+   * @param bookId The ID of the book to get details for
+   * @param userId The ID of the current user
+   * @returns Detailed book information with chapters and user-specific data
+   */
+  static getBookDetails(bookId: string, userId?: string): ExtendedBook | null {
     try {
-      // Get the basic book data
-      if (bookId === null) return null;
-      const book = books$[bookId].get() || null;
+      // Get the book data
+      const book = books$.get()[bookId];
+      console.log("book", book, "bookid", bookId, "userid", userId);
       if (!book) return null;
 
       // Get all chapters for this book
-      const allChapters = Object.values(chapters$.get() || {})
-        .filter((chapter) => chapter.book_id === bookId)
-        .sort((a, b) => a.chapter_number - b.chapter_number);
+      const allChapters = Object.values(chapters$.get() || {});
+      const bookChapters = allChapters.filter((chapter) => chapter.book_id === bookId);
 
-      // Get likes for all chapters
+      // Sort chapters by their order
+      const sortedChapters = [...bookChapters].sort((a, b) => {
+        const aOrder = a.chapter_number || 0;
+        const bOrder = b.chapter_number || 0;
+        return aOrder - bOrder;
+      });
+
+      // Get all liked chapters
       const allLikedChapters = Object.values(likedChapters$.get() || {});
+      const bookChapterIds = bookChapters.map((chapter) => chapter.id);
 
-      // Get tags for this book
-      const allBookTags = Object.values(bookTags$.get() || {}).filter((bookTag) => bookTag.book_id === bookId);
-
-      const allTags = tags$.get() || {};
-      const bookTags = allBookTags.map((bookTag) => allTags[bookTag.tag_id]).filter(Boolean);
-
-      // Calculate likes for each chapter of this book
-      const chapterLikesMap: Map<string, number> = new Map();
-      // Get chapter IDs for this book to filter likes
-      const bookChapterIds = allChapters.map((chapter) => chapter.id);
-
-      // Only count likes for chapters of this book
+      // Count likes per chapter
+      const chapterLikesMap = new Map<string, number>();
       allLikedChapters.forEach((like) => {
         if (bookChapterIds.includes(like.chapter_id)) {
-          if (chapterLikesMap.get(like.chapter_id)) {
-            chapterLikesMap.set(like.chatper_id, (chapterLikesMap.get(like.chapter_id) || 0) + 1);
+          if (chapterLikesMap.has(like.chapter_id)) {
+            chapterLikesMap.set(like.chapter_id, (chapterLikesMap.get(like.chapter_id) || 0) + 1);
           } else {
             chapterLikesMap.set(like.chapter_id, 1);
           }
         }
       });
+      // Get book Tags
+      const bookTags: BookTag[] = Object.values(bookTags$.get() || {}).filter((tag) => tag.book_id === bookId);
+      // Get user unlocks for this book
+      const allUserUnlocks = Object.values(userUnlocks$.get() || {});
+      const userBookUnlocks = allUserUnlocks.filter((unlock) => unlock.user_id === userId && unlock.book_id === bookId);
 
-      // Get current user ID from auth store if available
-      const userId = appStore$.userId.get();
+      // Check if the entire book is unlocked (user has an unlock entry with just the book_id)
+      const isEntireBookUnlocked = userBookUnlocks.some((unlock) => unlock.book_id === bookId && !unlock.chapter_id);
+      const bookProgress = Object.values(bookProgress$.get() || {}).find(
+        (progress) => progress.book_id === bookId && userId === progress.user_id
+      );
+      // Extended chapter data with likes and locked status
+      // Might need to move to chapter service
+      const userChapterProgress = Object.values(chapterProgress$.get() || {}).filter(
+        (progress) => progress.user_id === userId
+      );
+      const extendedChapters: ExtendedChapter[] = sortedChapters.map((chapter) => {
+        // Check if this specific chapter is unlocked
+        const isChapterUnlocked = userBookUnlocks.some((unlock) => unlock.chapter_id === chapter.id);
 
-      // Initialize user-specific properties
-      let userProgress = 0;
-      let isSaved = false;
-      let isOwned = false;
-      let userLikedChapterIds: string[] = [];
+        // Chapter is unlocked if either the entire book is unlocked or this specific chapter is unlocked
+        const is_owned = userId ? isEntireBookUnlocked || isChapterUnlocked : false;
 
-      // If user is logged in, get personalized data
-      if (userId) {
-        // Check if book is saved by user
-        const savedBooksData = Object.values(savedBooks$.get() || {});
-        isSaved = savedBooksData.some((saved) => saved.user_id === userId && saved.book_id === bookId);
+        // Get progress for this chapter
+        const progress = userChapterProgress.find((progress) => progress.chapter_id === chapter.id);
 
-        // Check if book is owned by user
-        const userUnlocksData = Object.values(userUnlocks$.get() || {});
-        isOwned = userUnlocksData.some((unlock) => unlock.user_id === userId && unlock.book_id === bookId);
-
-        // Get user's progress for this book
-        const bookProgressData = Object.values(bookProgress$.get() || {});
-        const userBookProgress = bookProgressData.find(
-          (progress) => progress.user_id === userId && progress.book_id === bookId
-        );
-
-        if (userBookProgress) {
-          userProgress = userBookProgress.progress_percentage || 0;
-        }
-
-        // Get chapters liked by the user
-        userLikedChapterIds = allLikedChapters
-          .filter((like) => like.user_id === userId && bookChapterIds.includes(like.chapter_id))
-          .map((like) => like.chapter_id);
-      }
-
-      // Create extended chapters with like counts and user-specific data
-      const extendedChapters: ExtendedChapter[] = allChapters.map((chapter) => {
         return {
           ...chapter,
-          content: chapter.content || "",
-          is_locked: chapter.is_premium || false,
-          likes_count: chapterLikesMap.get(chapter.id) || 0,
-          is_liked: userId ? userLikedChapterIds.includes(chapter.id) : false,
-          is_bookmarked: false, // Would need to implement bookmarks in the future
+          likes: chapterLikesMap.get(chapter.id) || 0,
+
+          is_owned,
+          status: progress?.status || "unread",
         };
       });
 
-      // Calculate total likes for the book
-      const totalLikes = extendedChapters.reduce((sum, chapter) => sum + (chapter.likes_count || 0), 0);
-
-      // Create and return the extended book
-      const extendedBook: ExtendedBook = {
+      // Return enhanced book data
+      return {
         ...book,
         tags: bookTags,
         chapters: extendedChapters,
-        likes_count: totalLikes,
-        comments_count: 0, // Would need to fetch comments if available
-        user_progress: userProgress,
-        is_saved: isSaved,
-        is_owned: isOwned,
+        progress: bookProgress,
       };
-
-      return extendedBook;
     } catch (error) {
-      LoggingService.handleError(error, { method: "BookService.getBookDetails", bookId }, false);
+      LoggingService.handleError(error, { method: "BookService.getBookDetails", bookId, userId }, false);
       return null;
     }
   }
+  static getUserTags(userId: string): ExtendedTag[] {
+    try {
+      // Get all tags and book tags
+      const allBookTags = Object.values(bookTags$.get() || {});
+      const allTags = Object.values(tags$.get() || {});
+      const allSavedTags = Object.values(savedTags$.get() || {});
 
-  static handleSaveTag(tagId: string) {
+      // Find user's saved tags
+      const userSavedTagIds = allSavedTags
+        .filter((savedTag) => savedTag.user_id === userId)
+        .map((savedTag) => savedTag.tag_id);
+
+      // Count books per tag for popularity
+      const tagPopularity: Record<string, number> = {};
+      allBookTags.forEach((bookTag) => {
+        if (bookTag.tag_id) {
+          tagPopularity[bookTag.tag_id] = (tagPopularity[bookTag.tag_id] || 0) + 1;
+        }
+      });
+
+      // Create extended tags with saved status and popularity
+      const extendedTags: ExtendedTag[] = allTags.map((tag) => ({
+        ...tag,
+        is_saved: userSavedTagIds.includes(tag.id),
+        is_hot: tagPopularity[tag.id] > HOT_THRESHOLD,
+      }));
+
+      // Sort: saved tags first, then by popularity
+      const sortedTags = extendedTags.sort((a, b) => {
+        // First sort by saved status
+        if (a.is_saved && !b.is_saved) return -1;
+        if (!a.is_saved && b.is_saved) return 1;
+
+        // Then sort by popularity
+        return tagPopularity[b.id] - tagPopularity[b.id];
+      });
+      return sortedTags;
+    } catch (error) {
+      LoggingService.handleError(error, { method: "BookService.getUserTags", userId }, false);
+      return [];
+    }
+  }
+  static toggleSaveTag(userId: string, tagId: string) {
     console.log("saving tag");
     try {
-      const userId = appStore$.userId.peek();
       console.log(userId);
       if (!userId) return;
-      const existingSave = savedTags$[tagId].peek();
-      if (existingSave) {
+      const existingSavedTagId = Object.values(exploreStore$.savedTags.get() || {}).find(
+        (savedTag) => savedTag.user_id === userId && savedTag.tag_id === tagId
+      )?.id;
+      if (existingSavedTagId) {
         console.log("existing tag");
-        savedTags$[tagId].delete();
+        savedTags$[existingSavedTagId].delete();
       } else {
         console.log("new save tag");
-        savedTags$[tagId].save();
+        const id = generateId();
+        savedTags$[id].set({ id, user_id: userId, tag_id: tagId } as SavedTag);
       }
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.handleSaveTag", tagId }, false);
@@ -197,19 +199,20 @@ export class BookService {
     pageSize?: number;
   }): Book[] {
     try {
-      console.log("searching books", options);
+      //   console.log("searching books", options);
       const { tags, title, page = 1, pageSize = 10 } = options;
       let filteredBooks: Book[] = [];
 
       // Get all books
-      const allBooks = Object.values(books$.peek());
+      const allBooks = Object.values(books$.get());
       //   console.log("all books", allBooks);
+      //   console.log("supabase creds", process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
       // Filter by category if provided
       if (tags && tags.length > 0) {
         const tagIds = tags.map((tag) => tag.id);
         const allBookTags = Object.values(bookTags$.peek());
         const bookIdsInCategory = allBookTags
-          .filter((bookTag) => tagIds.includes(bookTag.tag_id))
+          .filter((bookTag) => bookTag.tag_id && tagIds.includes(bookTag.tag_id))
           .map((bookTag) => bookTag.book_id);
 
         filteredBooks = allBooks.filter((book) => bookIdsInCategory.includes(book.id));
@@ -224,7 +227,7 @@ export class BookService {
           (book) => book.title.toLowerCase().includes(searchTerm) || book.author.toLowerCase().includes(searchTerm)
         );
       }
-      console.log("filtered books", filteredBooks);
+      //   console.log("filtered books", filteredBooks);
       // Apply pagination
       //   const startIndex = (page - 1) * pageSize;
       //   const paginatedBooks = filteredBooks.slice(startIndex, startIndex + pageSize);
@@ -251,14 +254,16 @@ export class BookService {
       const allChapters = Object.values(chapters$.get() || {});
 
       // Create a map of chapter IDs to book IDs
-      const chapterToBookMap = allChapters.reduce((map, chapter) => {
+      const chapterToBookMap = allChapters.reduce<Record<string, string>>((map, chapter) => {
+        if (!chapter.id) return map;
         map[chapter.id] = chapter.book_id;
+
         return map;
       }, {});
 
       // Count likes per book
-      const bookLikesMap = allLikedChapters.reduce((map, like) => {
-        const bookId = chapterToBookMap[like.chapter_id];
+      const bookLikesMap = allLikedChapters.reduce<Record<string, number>>((map, like) => {
+        const bookId = like.chapter_id && chapterToBookMap[like.chapter_id];
         if (bookId) {
           map[bookId] = (map[bookId] || 0) + 1;
         }
@@ -271,7 +276,16 @@ export class BookService {
       return {};
     }
   }
-
+  static getSavedTags(userId: string | null) {
+    if (!userId) return [];
+    try {
+      const allSavedTags = Object.values(savedTags$.get() || {}).filter((saved) => saved.user_id === userId);
+      return allSavedTags;
+    } catch (error) {
+      LoggingService.handleError(error, { method: "BookService.getSavedTags" }, false);
+      return [];
+    }
+  }
   // Get featured books
   static getFeaturedBooks() {
     try {
@@ -317,13 +331,13 @@ export class BookService {
   }
 
   // Get recommended books
-  static getRecommendedBooks() {
+  static getRecommendedBooks(userId: string) {
     try {
       const allBooks = Object.values(books$.get() || {});
       // Using a deterministic "random" sort to avoid constant reshuffling
       const reccomendedBooks = [...allBooks].sort((a, b) => a.id.localeCompare(b.id)).slice(0, 10);
       const extendedBooks = reccomendedBooks
-        .map((book) => this.getBookDetails(book.id))
+        .map((book) => this.getBookDetails(book.id, userId))
         .filter((book) => book !== null);
       return extendedBooks;
     } catch (error) {
@@ -388,12 +402,33 @@ export class BookService {
       const allBooks = books$.get() || {};
       const allSavedBooks = Object.values(savedBooks$.get() || {});
 
-      const savedBookIds = allSavedBooks.filter((saved) => saved.user_id === userId).map((saved) => saved.book_id);
+      const savedBookIds = allSavedBooks.filter((saved) => saved.user_id === userId);
 
-      return savedBookIds.map((id) => allBooks[id]).filter(Boolean);
+      //   return savedBookIds.map((id) => allBooks[id]).filter(Boolean);
+      return savedBookIds;
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getSavedBooks", userId }, false);
       return [];
+    }
+  }
+  static toggleSavedBook(userId: string, bookId: string) {
+    console.log("saving book");
+    try {
+      console.log(userId);
+      if (!userId) return;
+      const existingSavedBookId = Object.values(savedBooks$.get() || {}).find(
+        (saved) => saved.user_id === userId && saved.book_id === bookId
+      )?.id;
+      if (existingSavedBookId) {
+        console.log("existing book");
+        savedBooks$[existingSavedBookId].delete();
+      } else {
+        console.log("new save book");
+        const id = generateId();
+        savedBooks$[id].set({ id, user_id: userId, book_id: bookId } as SavedBook);
+      }
+    } catch (error) {
+      LoggingService.handleError(error, { method: "BookService.handleSaveBook", bookId }, false);
     }
   }
 
@@ -439,9 +474,9 @@ export class BookService {
    * Get top categories and their most popular books
    * @returns A map of category to array of popular books in that category
    */
-  static getTopCategoryBooks(): Map<Tag, Book[]> {
+  static getTopTagsBooks(): Map<string, Book[]> {
     try {
-      const result = new Map<Tag, Book[]>();
+      const result = new Map<string, Book[]>();
 
       // Get all tags and saved tags
       const allTags = tags$.get() || {};
@@ -489,7 +524,7 @@ export class BookService {
 
         // Add to result map
         if (sortedBooks.length > 0) {
-          result.set(tag, sortedBooks);
+          result.set(tag.id, sortedBooks);
         }
       });
 
@@ -497,6 +532,17 @@ export class BookService {
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getTopCategoryBooks" }, false);
       return new Map();
+    }
+  }
+  static getTopTags() {
+    try {
+      const topTagIds = Object.keys(BookService.getTopTagsBooks());
+      const allTags = Object.values(tags$.get() || {});
+      const topTags = allTags.filter((tag) => topTagIds.includes(tag.id));
+      return topTags;
+    } catch (error) {
+      LoggingService.handleError(error, { method: "BookService.getTopTags" }, false);
+      return [];
     }
   }
 }

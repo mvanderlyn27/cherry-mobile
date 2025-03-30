@@ -3,9 +3,10 @@
 import { computed, observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
-import { Book, ExtendedBook, ExtendedChapter, Tag } from "@/types/app";
+import { Book, ExtendedBook, ExtendedChapter, ExtendedTag, SavedTag, Tag } from "@/types/app";
 import { books$, tags$ } from "./supabaseStores";
 import { BookService } from "@/services/bookService";
+import { authStore$ } from "./authStore";
 
 // Type interfaces for the stores
 interface AppStore {
@@ -19,11 +20,13 @@ interface AppStore {
 
 interface ExploreStore {
   featuredBooks: Book[];
-  topCategoryBooks: Map<Tag, Book[]>;
+  topTagBooks: Map<string, Book[]>;
+  topTags: Tag[];
   popularBooks: Book[];
   newReleases: Book[];
   recommendedBooks: ExtendedBook[];
-  categories: Tag[];
+  userTags: ExtendedTag[];
+  savedTags: SavedTag[];
   isLoading: boolean;
   error: string | null;
 }
@@ -84,8 +87,12 @@ export const exploreStore$ = observable<ExploreStore>({
   },
 
   // topCategoryBooks - top 10 by reader count and likes
-  topCategoryBooks: () => {
-    return BookService.getTopCategoryBooks();
+  topTagBooks: () => {
+    return BookService.getTopTagsBooks();
+  },
+
+  topTags: () => {
+    return BookService.getTopTags();
   },
 
   // Popular books - top 10 by reader count and likes
@@ -100,12 +107,19 @@ export const exploreStore$ = observable<ExploreStore>({
 
   // Recommended books
   recommendedBooks: () => {
-    return BookService.getRecommendedBooks();
+    const userId = authStore$.userId.get();
+    return userId ? BookService.getRecommendedBooks(userId) : [];
   },
 
   // Categories from tags
-  categories: () => {
-    return Object.values(tags$.get() || {});
+  userTags: () => {
+    const userId = authStore$.userId.get();
+    return userId ? BookService.getUserTags(userId) : [];
+  },
+  // Loading state
+  savedTags: () => {
+    const userId = authStore$.userId.get();
+    return BookService.getSavedTags(userId);
   },
 
   isLoading: true,
@@ -158,7 +172,13 @@ export const searchStore$ = observable<SearchStore>({
 export const bookDetailsStore$ = observable<BookDetailsStore>({
   // Used for the reader screen, and details
   bookIds: null,
-  books: () => bookDetailsStore$.bookIds.map((bookId) => BookService.getBookDetails(bookId.get())),
+  books: () => {
+    const userId = authStore$.userId.get();
+    const bookIds = bookDetailsStore$.bookIds.get();
+    return userId && bookIds && bookIds.length > 0
+      ? bookIds.map((bookId) => BookService.getBookDetails(bookId, userId))
+      : [];
+  },
   loading: false,
   error: null,
 });

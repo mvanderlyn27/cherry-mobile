@@ -23,12 +23,13 @@ export default function Page() {
   const [showSortOptions, setShowSortOptions] = useState(false);
 
   // Get all tags from the exploreStore's topCategoryBooks
-  const selectedTags = use$(searchStore$.tags);
-  const searchString = use$(searchStore$.searchString);
-  const sort = use$(searchStore$.sort);
-  const topCategoryBooks = use$(exploreStore$.topCategoryBooks);
-  const allTags: Tag[] = topCategoryBooks ? Array.from(topCategoryBooks.keys()) : [];
-
+  const selectedTags = use$(searchStore$.tags || []);
+  const searchString = use$(searchStore$.searchString || "");
+  const sort = use$(searchStore$.sort || []);
+  const topTags = use$(exploreStore$.topTags);
+  // console.log("selectedTags", selectedTags);
+  // remove all selectedTags from the top tags, move them to the top, then have the rest fo the top tags
+  const allTags = [...(selectedTags || []), ...topTags.filter((tag) => !selectedTags?.find((t) => t.id === tag.id))];
   // Toggle sort options visibility
   const toggleSortOptions = () => {
     setShowSortOptions(!showSortOptions);

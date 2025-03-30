@@ -5,9 +5,11 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/types/database";
 import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
 import { supabase } from "@/services/supabase";
+import uuid from "react-native-uuid";
+import { LoggingService } from "@/services/loggingService";
 
 // provide a function to generate ids locally
-const generateId = () => uuidv4();
+export const generateId = () => uuid.v4();
 configureSyncedSupabase({
   generateId,
 });
@@ -18,6 +20,9 @@ export const books$ = observable(
     collection: "books",
     select: (from) => from.select("*"),
     actions: ["read"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "books" }, false);
+    },
   })
 );
 export const chapters$ = observable(
@@ -26,6 +31,9 @@ export const chapters$ = observable(
     collection: "chapters",
     select: (from) => from.select("*"),
     actions: ["read"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "chapters" }, false);
+    },
   })
 );
 export const tags$ = observable(
@@ -34,6 +42,9 @@ export const tags$ = observable(
     collection: "tags",
     select: (from) => from.select("*"),
     actions: ["read"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "tags" }, false);
+    },
   })
 );
 export const savedTags$ = observable(
@@ -41,7 +52,10 @@ export const savedTags$ = observable(
     supabase,
     collection: "saved_tags",
     select: (from) => from.select("*"),
-    actions: ["read"],
+    actions: ["read", "create", "update", "delete"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "saved_tags" }, false);
+    },
   })
 );
 
@@ -51,6 +65,9 @@ export const bookTags$ = observable(
     collection: "book_tags",
     select: (from) => from.select("*"),
     actions: ["read"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "book_tags" }, false);
+    },
   })
 );
 
@@ -60,6 +77,9 @@ export const users$ = observable(
     collection: "users",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "users" }, false);
+    },
   })
 );
 export const profiles$ = observable(
@@ -68,6 +88,9 @@ export const profiles$ = observable(
     collection: "profiles",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "profiles" }, false);
+    },
   })
 );
 export const savedBooks$ = observable(
@@ -76,6 +99,9 @@ export const savedBooks$ = observable(
     collection: "saved_books",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "saved_books" }, false);
+    },
   })
 );
 export const bookProgress$ = observable(
@@ -84,6 +110,9 @@ export const bookProgress$ = observable(
     collection: "book_progress",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "book_progress" }, false);
+    },
   })
 );
 export const chapterProgress$ = observable(
@@ -92,6 +121,9 @@ export const chapterProgress$ = observable(
     collection: "chapter_progress",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "chapter_progress" }, false);
+    },
   })
 );
 export const likedChapters$ = observable(
@@ -100,6 +132,9 @@ export const likedChapters$ = observable(
     collection: "liked_chapters",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "liked_chapters" }, false);
+    },
   })
 );
 export const comments$ = observable(
@@ -107,7 +142,10 @@ export const comments$ = observable(
     supabase,
     collection: "comments",
     select: (from) => from.select("*"),
-    actions: ["read", "create", "update"],
+    actions: ["read", "create", "update", "delete"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "comments" }, false);
+    },
   })
 );
 export const interactions$ = observable(
@@ -116,6 +154,9 @@ export const interactions$ = observable(
     collection: "interactions",
     select: (from) => from.select("*"),
     actions: ["create"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "interactions" }, false);
+    },
   })
 );
 //shoud be realtime?
@@ -125,6 +166,9 @@ export const transactions$ = observable(
     collection: "transactions",
     select: (from) => from.select("*"),
     actions: ["read", "create"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "transactions" }, false);
+    },
   })
 );
 //should be realtime?
@@ -134,5 +178,8 @@ export const userUnlocks$ = observable(
     collection: "user_unlocks",
     select: (from) => from.select("*"),
     actions: ["read"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "user_unlocks" }, false);
+    },
   })
 );

@@ -3,24 +3,16 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { ExtendedTag } from "@/types/app";
 
 type TagCardProps = {
-  name: string;
-  imageUrl: string;
+  tag: ExtendedTag;
   onPress: () => void;
-  isHot?: boolean;
-  isFavorite: boolean;
   onFavoritePress: () => void;
 };
 
-export const TagCard: React.FC<TagCardProps> = ({
-  name,
-  imageUrl,
-  onPress,
-  isHot = false,
-  isFavorite,
-  onFavoritePress,
-}) => {
+export const TagCard: React.FC<TagCardProps> = ({ tag, onPress, onFavoritePress }) => {
+  if (!tag) return null;
   return (
     <View>
       <TouchableOpacity
@@ -29,7 +21,8 @@ export const TagCard: React.FC<TagCardProps> = ({
         style={{ height: 120, width: "100%" }}>
         <View className="relative w-full h-full">
           <Image
-            source={{ uri: imageUrl }}
+            source={{ uri: tag.tag_image_url || "" }}
+            placeholder={{ blurhash: tag.tag_image_placeholder }}
             style={{ width: "100%", height: "100%" }}
             contentFit="cover"
             cachePolicy="memory-disk"
@@ -45,15 +38,15 @@ export const TagCard: React.FC<TagCardProps> = ({
               e.stopPropagation();
               onFavoritePress();
             }}>
-            <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color="white" />
+            <Ionicons name={tag.is_saved ? "heart" : "heart-outline"} size={24} color="white" />
           </TouchableOpacity>
 
           <View className="absolute w-full h-full items-center justify-center">
-            <Text className="text-white text-xl font-kaisei-bold">{name}</Text>
+            <Text className="text-white text-xl font-kaisei-bold">{tag.name}</Text>
           </View>
         </View>
       </TouchableOpacity>
-      {isHot && (
+      {tag.is_hot && (
         <View className="absolute left-0 -top-2 bg-red-500 w-10 h-10 rounded-full z-20 items-center justify-center">
           <Text className="text-white text-[10px] font-bold">HOT</Text>
         </View>

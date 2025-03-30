@@ -11,31 +11,34 @@ export type Database = {
     Tables: {
       book_progress: {
         Row: {
-          book_id: string | null
+          book_id: string
           created_at: string
           current_chapter_id: string | null
           id: string
+          percent_done: number
           status: Database["public"]["Enums"]["book_status"] | null
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           created_at?: string
           current_chapter_id?: string | null
           id?: string
+          percent_done?: number
           status?: Database["public"]["Enums"]["book_status"] | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           created_at?: string
           current_chapter_id?: string | null
           id?: string
+          percent_done?: number
           status?: Database["public"]["Enums"]["book_status"] | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -63,24 +66,24 @@ export type Database = {
       }
       book_tags: {
         Row: {
-          book_id: string | null
+          book_id: string
           created_at: string
           id: string
-          tag_id: string | null
+          tag_id: string
           updated_at: string
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           created_at?: string
           id?: string
-          tag_id?: string | null
+          tag_id: string
           updated_at?: string
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           created_at?: string
           id?: string
-          tag_id?: string | null
+          tag_id?: string
           updated_at?: string
         }
         Relationships: [
@@ -103,42 +106,39 @@ export type Database = {
       books: {
         Row: {
           author: string
-          chapter_count: number | null
           cover_placeholder: string | null
           cover_url: string | null
           created_at: string
           description: string | null
           id: string
           price: number
-          reader_count: number | null
+          reader_count: number
           reading_time: number | null
           title: string
           updated_at: string
         }
         Insert: {
           author: string
-          chapter_count?: number | null
           cover_placeholder?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
           price: number
-          reader_count?: number | null
+          reader_count?: number
           reading_time?: number | null
           title: string
           updated_at?: string
         }
         Update: {
           author?: string
-          chapter_count?: number | null
           cover_placeholder?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
           price?: number
-          reader_count?: number | null
+          reader_count?: number
           reading_time?: number | null
           title?: string
           updated_at?: string
@@ -147,28 +147,28 @@ export type Database = {
       }
       chapter_progress: {
         Row: {
-          chapter_id: string | null
+          chapter_id: string
           created_at: string
           id: string
           status: Database["public"]["Enums"]["chapter_status"] | null
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          chapter_id?: string | null
+          chapter_id: string
           created_at?: string
           id?: string
           status?: Database["public"]["Enums"]["chapter_status"] | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          chapter_id?: string | null
+          chapter_id?: string
           created_at?: string
           id?: string
           status?: Database["public"]["Enums"]["chapter_status"] | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -189,7 +189,7 @@ export type Database = {
       }
       chapters: {
         Row: {
-          book_id: string | null
+          book_id: string
           chapter_number: number
           content_url: string | null
           created_at: string
@@ -200,7 +200,7 @@ export type Database = {
           word_count: number
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           chapter_number: number
           content_url?: string | null
           created_at?: string
@@ -211,7 +211,7 @@ export type Database = {
           word_count?: number
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           chapter_number?: number
           content_url?: string | null
           created_at?: string
@@ -238,9 +238,9 @@ export type Database = {
           id: string
           new_balance: number
           previous_balance: number
-          transaction_id: string | null
+          transaction_id: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           amount: number
@@ -248,9 +248,9 @@ export type Database = {
           id?: string
           new_balance: number
           previous_balance: number
-          transaction_id?: string | null
+          transaction_id: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           amount?: number
@@ -258,9 +258,9 @@ export type Database = {
           id?: string
           new_balance?: number
           previous_balance?: number
-          transaction_id?: string | null
+          transaction_id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -281,31 +281,31 @@ export type Database = {
       }
       comments: {
         Row: {
-          book_id: string | null
+          book_id: string
           chapter_id: string | null
           content: string
           created_at: string
           id: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           chapter_id?: string | null
           content: string
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           chapter_id?: string | null
           content?: string
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -339,7 +339,7 @@ export type Database = {
           id: string
           type: Database["public"]["Enums"]["interaction_type"]
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           book_id?: string | null
@@ -348,7 +348,7 @@ export type Database = {
           id?: string
           type: Database["public"]["Enums"]["interaction_type"]
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           book_id?: string | null
@@ -357,7 +357,7 @@ export type Database = {
           id?: string
           type?: Database["public"]["Enums"]["interaction_type"]
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -386,27 +386,27 @@ export type Database = {
       liked_chapters: {
         Row: {
           book_id: string | null
-          chapter_id: string | null
+          chapter_id: string
           created_at: string
           id: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           book_id?: string | null
-          chapter_id?: string | null
+          chapter_id: string
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           book_id?: string | null
-          chapter_id?: string | null
+          chapter_id?: string
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -469,25 +469,25 @@ export type Database = {
       }
       saved_books: {
         Row: {
-          book_id: string | null
+          book_id: string
           created_at: string
           id: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -510,20 +510,20 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          tag_id: string | null
-          user_id: string | null
+          tag_id: string
+          user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          tag_id?: string | null
-          user_id?: string | null
+          tag_id?: string
+          user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          tag_id?: string | null
-          user_id?: string | null
+          tag_id?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -635,28 +635,28 @@ export type Database = {
       }
       user_unlocks: {
         Row: {
-          book_id: string | null
+          book_id: string
           chapter_id: string | null
           created_at: string
           id: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           chapter_id?: string | null
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           chapter_id?: string | null
           created_at?: string
           id?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {

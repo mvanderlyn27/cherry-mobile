@@ -7,6 +7,7 @@ import { useColorScheme } from "nativewind";
 import { LinearGradient } from "expo-linear-gradient";
 import { exploreStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
+import { tags$ } from "@/stores/supabaseStores";
 const colors = require("@/config/colors");
 type Props = {
   onBookPress: (category: string, bookIds: string[]) => void;
@@ -16,18 +17,17 @@ type Props = {
 export const TopCategoryList: React.FC<Props> = ({ onBookPress, selectedCategory }) => {
   const { colorScheme } = useColorScheme();
   const screenWidth = Dimensions.get("window").width;
-  const topCategoryBooks = use$(exploreStore$.topCategoryBooks);
+  const topCategoryBooks = use$(exploreStore$.topTagBooks);
 
   // Convert Map to array for rendering
   const categoryEntries = topCategoryBooks ? Array.from(topCategoryBooks.entries()) : [];
-
   return (
     <View className="flex flex-col px-6">
-      {categoryEntries.map(([category, books], index) => (
-        <View key={category.id || index} className="flex flex-col">
+      {categoryEntries.map(([tagId, books], index) => (
+        <View key={tagId} className="flex flex-col">
           <View className="px-4 mb-2">
             <Text className="text-xl font-kaisei-bold text-buttons_text-light dark:text-buttons_text-dark font-bold">
-              {category.name}
+              {tags$[tagId].name.get()}
             </Text>
             <View
               style={{

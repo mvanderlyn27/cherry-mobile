@@ -22,9 +22,12 @@ const Page = observer(() => {
   // const isLoading = syncState(books$).isGetting;
 
   const books = use$(libraryStore$.readingBooks);
-  console.log("books", books);
+  // console.log("books", books);
   const userId = use$(authStore$.userId);
-  const credits = use$(() => (userId ? users$[userId].credits : 0));
+  if (!userId) {
+    return null;
+  }
+  const credits = use$(users$[userId].credits);
 
   // if (!credits) {
   //   return null;
@@ -47,7 +50,7 @@ const Page = observer(() => {
           onBookPress={(id) => router.navigate(`/modals/book/${id}`)}
           onBookRead={(id) => router.navigate(`/modals/reader/${id}`)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
-          credits={credits}
+          credits={credits || 0}
         />
       )}
     </View>

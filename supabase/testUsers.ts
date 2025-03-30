@@ -4,20 +4,19 @@ import { Database } from "@/types/database";
 
 const PASSWORD = "testuser";
 
-export const supabase = createClient<Database>(
+const supabase = createClient<Database>(
   process.env.EXPO_PUBLIC_SUPABASE_URL!,
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 async function createSupabaseUser(seed: string): Promise<void> {
   const email = copycat.email(seed).toLowerCase();
-  await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password: PASSWORD,
-    options: {
-      data: {},
-    },
   });
+  await setTimeout(async () => {}, 1000);
+  // console.log("data, error", data, error);
 }
 const clearUsers = async () => {
   const { data, error } = await supabase.from("users").select("*");
@@ -25,7 +24,7 @@ const clearUsers = async () => {
     console.error("Error fetching users:", error);
     return;
   }
-  console.log(`Found ${data?.length || 0} existing users`);
+  // console.log(`Found ${data?.length || 0} existing users`);
   if (data) {
     for (const user of data) {
       await supabase.auth.admin.deleteUser(user.id);

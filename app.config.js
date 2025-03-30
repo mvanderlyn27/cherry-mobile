@@ -15,6 +15,7 @@ module.exports = () => {
       userInterfaceStyle: "automatic",
       newArchEnabled: true,
       ios: {
+        usesAppleSignIn: true,
         supportsTablet: true,
         bundleIdentifier: "com.cherrystories.cherrystories",
         infoPlist: {
@@ -26,7 +27,8 @@ module.exports = () => {
           foregroundImage: "./assets/images/adaptive-icon.png",
           backgroundColor: "#ffffff"
         },
-        package: "com.cherrystories.cherrystories"
+        package: "com.cherrystories.cherrystories",
+        minSdkVersion: 26
       },
       web: {
         bundler: "metro",
@@ -34,6 +36,15 @@ module.exports = () => {
         favicon: "./assets/images/favicon.png"
       },
       plugins: [
+        [
+          "expo-apple-authentication",
+        ],
+        [
+          "@react-native-google-signin/google-signin",
+          {
+            "iosUrlScheme": "com.googleusercontent.apps.603703582907-vkt8sgl9o3tb0l2mmcr6oq7vlauh8p37"
+          }
+        ],
         "expo-router",
         [
           "expo-splash-screen",
@@ -42,6 +53,14 @@ module.exports = () => {
             imageWidth: 200,
             resizeMode: "contain",
             backgroundColor: "#ffffff"
+          }
+        ],
+        [
+          "expo-build-properties",
+          {
+            "android": {
+              "minSdkVersion": 26
+            }
           }
         ]
       ],
@@ -59,6 +78,7 @@ module.exports = () => {
       owner: "cherrystories"
     }
   };
+
 
   return baseConfig;
 };

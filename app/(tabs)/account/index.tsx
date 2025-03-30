@@ -20,6 +20,7 @@ export default function Page() {
   const handleCreateAccount = () => {
     // Navigate to sign up screen or show modal
     console.log("Create account");
+    router.navigate("/modals/signIn");
   };
 
   const handleRestorePurchases = () => {

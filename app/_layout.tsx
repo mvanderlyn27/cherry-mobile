@@ -39,9 +39,10 @@ export default function RootLayout() {
   });
   useEffect(() => {
     //initialize all services
-    async () => {
+    const init = async () => {
       await AuthService.initialize();
     };
+    init();
   }, []);
   useEffect(() => {
     if (!loading) {
@@ -70,6 +71,7 @@ export default function RootLayout() {
           <Stack.Screen name="modals/cherry" options={{ presentation: "modal" }} />
           <Stack.Screen name="modals/reader" options={{ presentation: "fullScreenModal" }} />
           <Stack.Screen name="modals/cherryInfo" options={{ presentation: "modal" }} />
+          <Stack.Screen name="modals/signIn" options={{ presentation: "modal" }} />
         </Stack>
         <Toast />
       </PostHogProvider>

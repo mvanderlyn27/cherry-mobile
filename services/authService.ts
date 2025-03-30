@@ -18,6 +18,7 @@ export class AuthService {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      console.log("user", user);
 
       if (user) {
         // User already has a session
@@ -74,83 +75,14 @@ export class AuthService {
   /**
    * Link anonymous account to authenticated account
    */
-  static async linkAccounts(anonymousId: string, authenticatedId: string): Promise<void> {
+  static async linkAccounts(anonymousId: string, oAuthCode: string): Promise<void> {
     try {
-      console.log(`[AuthService] Linking accounts: ${anonymousId} -> ${authenticatedId}`);
-
-      // Transfer user data between accounts
-      // This could be a series of database operations to move data
-      const tables = [
-        "saved_books",
-        "book_progress",
-        "chapter_progress",
-        "liked_chapters",
-        "user_unlocks",
-        "transactions",
-        "comments",
-      ];
-
-      for (const table of tables) {
-        const { error } = await supabase.from(table).update({ user_id: authenticatedId }).eq("user_id", anonymousId);
-
-        if (error) {
-          LoggingService.handleError(
-            error,
-            {
-              service: "AuthService",
-              method: "linkAccounts",
-              table,
-              anonymousId,
-              authenticatedId,
-            },
-            false
-          ); // Don't show toast for individual table errors
-        }
-      }
-
-      // Transfer credits if applicable
-      const { data: anonymousUser, error: fetchError } = await supabase
-        .from("users")
-        .select("credits")
-        .eq("id", anonymousId)
-        .single();
-
-      if (fetchError) {
-        throw fetchError;
-      }
-
-      if (anonymousUser?.credits) {
-        // Get current authenticated user credits
-        const { data: authUser, error: authUserError } = await supabase
-          .from("users")
-          .select("credits")
-          .eq("id", authenticatedId)
-          .single();
-
-        if (authUserError) {
-          throw authUserError;
-        }
-
-        const newCredits = (authUser?.credits || 0) + anonymousUser.credits;
-
-        // Update authenticated user credits
-        const { error: updateError } = await supabase
-          .from("users")
-          .update({ credits: newCredits })
-          .eq("id", authenticatedId);
-
-        if (updateError) {
-          throw updateError;
-        }
-      }
-
-      console.log("[AuthService] Account linking completed");
+      console.log(`[AuthService] Linking accounts: ${anonymousId}`);
     } catch (error) {
       LoggingService.handleError(error, {
         service: "AuthService",
         method: "linkAccounts",
         anonymousId,
-        authenticatedId,
       });
     }
   }

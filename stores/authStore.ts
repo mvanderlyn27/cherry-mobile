@@ -1,6 +1,6 @@
 // should hold user preferences,
 
-import { observable } from "@legendapp/state";
+import { observable, syncState } from "@legendapp/state";
 import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
 import { syncObservable } from "@legendapp/state/sync";
 import { User } from "@supabase/supabase-js";
@@ -30,3 +30,5 @@ syncObservable(authStore$, {
     plugin: ObservablePersistMMKV,
   },
 });
+// const sync$ = syncState(authStore$);
+// sync$.clearPersist();

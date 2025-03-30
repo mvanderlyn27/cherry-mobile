@@ -12,6 +12,10 @@ import { MotiPressable } from "moti/interactions";
 import { TagList } from "./TagList";
 import { useColorScheme } from "nativewind";
 import { BookService } from "@/services/bookService";
+import { appStore$ } from "@/stores/appStores";
+import { use$ } from "@legendapp/state/react";
+import { authStore$ } from "@/stores/authStore";
+import { tags$ } from "@/stores/supabaseStores";
 const colors = require("@/config/colors");
 
 type ListBookCardProps = {
@@ -40,7 +44,11 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
   canBuy,
 }) => {
   const finished = progress === 100;
-  const extendedBook = BookService.getBookDetails(book.id);
+  const userId = use$(authStore$.userId);
+  console.log("userId", userId);
+  if (!userId) return null;
+  const extendedBook = BookService.getBookDetails(userId, book.id);
+  const tags = use$(() => extendedBook?.tags.map((bookTag) => tags$[bookTag.tag_id].get())) || [];
   const { colorScheme } = useColorScheme();
   return (
     <MotiPressable
@@ -111,7 +119,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
       <View className="flex-1">
         <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-1">{book.title}</Text>
 
-        <TagList tags={extendedBook?.tags || []} />
+        <TagList tags={tags} />
 
         <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
           {book.description}
