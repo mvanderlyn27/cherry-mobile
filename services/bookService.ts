@@ -468,7 +468,7 @@ export class BookService {
       const allBookProgress = Object.values(bookProgress$.get() || {});
 
       const readProgress = [...allBookProgress]
-        .filter((progress) => progress.user_id === userId)
+        .filter((progress) => progress.user_id === userId && progress.status === "reading")
         .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
 
       return readProgress.map((progress) => allBooks[progress.book_id]).filter(Boolean);
