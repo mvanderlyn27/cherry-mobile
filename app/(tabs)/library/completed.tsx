@@ -9,6 +9,7 @@ import { LibraryList } from "@/components/library/LibraryList";
 import { books$, users$ } from "@/stores/supabaseStores";
 import { authStore$ } from "@/stores/authStore";
 import { BookService } from "@/services/bookService";
+import { bookDetailsStore$ } from "@/stores/appStores";
 
 const CompletedPage = observer(() => {
   const router = useRouter();
@@ -20,7 +21,15 @@ const CompletedPage = observer(() => {
   const books = use$(() => BookService.getCompletedBooks());
   // const isLoading = use$(libraryStore$.isLoading);
   const isLoading = false;
+  const handleBookPress = (id: string) => {
+    bookDetailsStore$.bookIds.set([id]);
+    router.push(`/modals/book/${id}`);
+  };
 
+  const handleBookRead = (id: string) => {
+    // readerStore$.set([id]);
+    router.push(`/modals/reader/${id}`);
+  };
   return (
     <View className="flex-1 bg-background-light dark:bg-background-dark">
       {isLoading ? (
@@ -32,8 +41,8 @@ const CompletedPage = observer(() => {
       ) : (
         <LibraryList
           books={books}
-          onBookPress={(id) => router.push(`/modals/book/${id}`)}
-          onBookRead={(id) => router.push(`/modals/reader/${id}`)}
+          onBookPress={(id) => handleBookPress(id)}
+          onBookRead={(id) => handleBookRead(id)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
           credits={credits}
         />
