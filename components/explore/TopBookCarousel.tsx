@@ -3,12 +3,14 @@ import { View, Dimensions } from "react-native";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
 import Animated, { interpolate, SharedTransition, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { BookCover } from "../ui/BookCover";
-import { Book } from "@/types/app";
+import { Book, ExtendedBook } from "@/types/app";
 import { useColorScheme } from "nativewind";
+import { BookService } from "@/services/bookService";
+import { authStore$ } from "@/stores/authStore";
+import { observer, use$ } from "@legendapp/state/react";
 const colors = require("@/config/colors");
 
 type Props = {
-  books: Book[];
   onBookPress: (id: string, bookIds: string[]) => void;
   onBookSave?: (id: string) => void;
 };
@@ -32,8 +34,10 @@ const customParallaxLayout = ({ size }: { size: number }) => {
   };
 };
 
-export const TopBookCarousel: React.FC<Props> = ({ books, onBookPress, onBookSave }) => {
-  //id of the category (tag) test for now
+export const TopBookCarousel: React.FC<Props> = ({ onBookPress, onBookSave }) => {
+  const userId = use$(authStore$.userId);
+  const books: ExtendedBook[] = use$(BookService.getPopularBooks);
+  if (!userId) return null;
   const { colorScheme } = useColorScheme();
   const width = Dimensions.get("window").width;
   const PAGE_WIDTH = width * 0.7;
@@ -70,19 +74,22 @@ export const TopBookCarousel: React.FC<Props> = ({ books, onBookPress, onBookSav
           }}
           customAnimation={customParallaxLayout({ size: PAGE_WIDTH })}
           // Fix the onPress handler in renderItem
-          renderItem={({ item, index, animationValue }) => (
-            <CustomBookCard
-              book={item}
-              animationValue={animationValue}
-              onPress={() =>
-                onBookPress(
-                  item.id,
-                  books.map((book) => book.id)
-                )
-              } // Fixed: was passing a function that returns undefined
-              onSave={onBookSave || (() => console.log("Save", item.id))}
-            />
-          )}
+          renderItem={({ item, index, animationValue }) => {
+            return (
+              <CustomBookCard
+                key={item.id}
+                book={item}
+                animationValue={animationValue}
+                onPress={() =>
+                  onBookPress(
+                    item.id,
+                    books.map((book) => book.id)
+                  )
+                } // Fixed: was passing a function that returns undefined
+                onSave={onBookSave || (() => console.log("Save", item.id))}
+              />
+            );
+          }}
         />
 
         {/* Updated Pagination */}
@@ -108,16 +115,14 @@ export const TopBookCarousel: React.FC<Props> = ({ books, onBookPress, onBookSav
 };
 
 interface CustomBookCardProps {
-  book: Book & { isHot?: boolean; isSaved?: boolean };
+  book: ExtendedBook;
   animationValue: Animated.SharedValue<number>;
-  onPress: (id: string, categoryName: string) => void;
+  onPress: () => void;
   onSave: (id: string) => void;
 }
 
 // In the CustomBookCard component
 const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, onPress, onSave }) => {
-  const bookCategoryName = "Romance";
-
   const cardStyle = useAnimatedStyle(() => {
     "worklet";
     const opacity = interpolate(animationValue.value, [-0.2, -0.05, 0, 0.05, 0.2], [0.8, 0.9, 1, 0.9, 0.8]);
@@ -131,10 +136,9 @@ const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, o
   const handlePress = () => {
     // If this is the center item (value close to 0), allow the press
     if (Math.abs(animationValue.value) < 0.05) {
-      onPress(book.id, bookCategoryName);
+      onPress();
     }
   };
-
   return (
     <Animated.View
       style={[

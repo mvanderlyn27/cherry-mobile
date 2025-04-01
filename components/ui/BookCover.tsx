@@ -2,25 +2,24 @@ import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { IconSymbol } from "./IconSymbol";
-import { Icon, Book } from "@/types/app";
+import { Icon, Book, ExtendedBook } from "@/types/app";
 import { formatReadingTime } from "@/utils/time";
 import { LinearGradient } from "expo-linear-gradient";
+import { tags$ } from "@/stores/supabaseStores";
+import { use$ } from "@legendapp/state/react";
 
 type BookCoverSize = "x-large" | "large" | "medium" | "small";
 
 type Props = {
-  book: Book;
+  book: ExtendedBook;
   size?: BookCoverSize;
   onPress?: () => void;
-  onSave?: (id: string, saved: boolean) => void;
+  onSave?: (id: string) => void;
 };
 
 export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onSave }) => {
-  const tags = [{ label: "18+" }];
-  const is_adult = tags.some((tag) => tag.label === "18+");
-  const is_hot = true;
-  const is_saved = true;
-
+  const tags = use$(() => book?.tags?.map((bookTag) => tags$[bookTag.tag_id].get())) || [];
+  const is_adult = tags.some((tag) => tag && tag.name === "18+");
   const renderSmallCover = () => {
     return (
       <Pressable
@@ -58,8 +57,8 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
           <Pressable
             className="absolute top-2 right-2"
             hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
-            onPress={() => onSave?.(book.id, !is_saved)}>
-            <IconSymbol name={is_saved ? Icon.saved : Icon.save} size={20} color="white" />
+            onPress={() => onSave?.(book.id)}>
+            <IconSymbol name={book.is_saved ? Icon.saved : Icon.save} size={20} color="white" />
           </Pressable>
 
           {/* 18+ badge */}
@@ -91,9 +90,9 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
 
         {/* Save Button */}
         <Pressable
-          onPress={() => onSave?.(book.id, !is_saved)}
+          onPress={() => onSave?.(book.id)}
           className="absolute top-2 right-2 bg-black/50 rounded-full aspect-square w-10 h-10 items-center justify-center">
-          <IconSymbol name={is_saved ? Icon.saved : Icon.save} size={20} color="white" />
+          <IconSymbol name={book.is_saved ? Icon.saved : Icon.save} size={20} color="white" />
         </Pressable>
 
         <View className="absolute top-2 left-2 flex-col gap-2">
@@ -106,7 +105,7 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
             </View>
           )}
 
-          {is_hot && (
+          {book.is_hot && (
             <View className="bg-tabs_selected-light dark:bg-tabs_selected-dark rounded-full px-2 py-1 flex-row items-center">
               <IconSymbol name={Icon.fire} size={12} color="white" />
               <Text className="text-white text-xs font-heebo-medium ml-1">Hot</Text>
@@ -160,9 +159,9 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
 
         {/* Save Button */}
         <Pressable
-          onPress={() => onSave?.(book.id, !is_saved)}
+          onPress={() => onSave?.(book.id)}
           className="absolute top-2 right-2 bg-black/50 rounded-full aspect-square w-10 h-10 items-center justify-center">
-          <IconSymbol name={is_saved ? Icon.saved : Icon.save} size={20} color="white" />
+          <IconSymbol name={book.is_saved ? Icon.saved : Icon.save} size={20} color="white" />
         </Pressable>
 
         <View className="absolute top-2 left-2 flex-col gap-2">
@@ -175,7 +174,7 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
             </View>
           )}
 
-          {is_hot && (
+          {book.is_hot && (
             <View className="bg-tabs_selected-light dark:bg-tabs_selected-dark rounded-full px-2 py-1 flex-row items-center">
               <IconSymbol name={Icon.fire} size={12} color="white" />
               <Text className="text-white text-xs font-heebo-medium ml-1">Hot</Text>
@@ -228,9 +227,9 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
 
         {/* Save Button */}
         <Pressable
-          onPress={() => onSave?.(book.id, !is_saved)}
+          onPress={() => onSave?.(book.id)}
           className="absolute top-2 right-4 bg-black/50 rounded-full aspect-square w-12 h-12 items-center justify-center">
-          <IconSymbol name={is_saved ? Icon.saved : Icon.save} size={26} color="white" />
+          <IconSymbol name={book.is_saved ? Icon.saved : Icon.save} size={26} color="white" />
         </Pressable>
 
         <View className="absolute top-2 left-4 flex-col gap-2">
@@ -243,7 +242,7 @@ export const BookCover: React.FC<Props> = ({ book, size = "medium", onPress, onS
             </View>
           )}
 
-          {is_hot && (
+          {book.is_hot && (
             <View className="bg-tabs_selected-light dark:bg-tabs_selected-dark rounded-full px-2 py-1 flex-row items-center">
               <IconSymbol name={Icon.fire} size={18} color="white" />
               <Text className="text-white text-md font-heebo-medium ml-2">Hot</Text>

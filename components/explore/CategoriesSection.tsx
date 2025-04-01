@@ -39,7 +39,7 @@ export const CategoriesSection: React.FC<Props> = ({ categories, onCategoryPress
             exiting={FadeOut}>
             <TagCard
               tag={item}
-              onFavoritePress={() => userId && BookService.toggleSaveTag(userId, item.id)}
+              onFavoritePress={() => userId && BookService.toggleSaveTag(item.id)}
               onPress={() => onCategoryPress(item)}
             />
           </Animated.View>

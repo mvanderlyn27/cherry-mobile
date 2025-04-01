@@ -42,10 +42,11 @@ export interface ExtendedBook extends Book {
   tags: BookTag[];
   chapters: ExtendedChapter[];
   progress?: BookProgress;
-  is_saved?: boolean;
   comments_count?: number;
   total_views?: number;
   is_owned?: boolean;
+  is_saved?: boolean;
+  is_hot?: boolean;
 }
 
 export interface UserProfile extends Profile {

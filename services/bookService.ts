@@ -15,7 +15,7 @@ import {
 import { LoggingService } from "./loggingService";
 import { Observable, syncState, when } from "@legendapp/state";
 import { ExtendedBook, ExtendedChapter, Tag, Book, SavedTag, SavedBook, BookTag, ExtendedTag } from "@/types/app";
-import { exploreStore$ } from "@/stores/appStores";
+import { authStore$ } from "@/stores/authStore";
 
 const HOT_THRESHOLD = 5;
 
@@ -30,7 +30,7 @@ export class BookService {
     try {
       // Get the book data
       const book = books$.get()[bookId];
-      console.log("book", book, "bookid", bookId, "userid", userId);
+      //   console.log("book", book, "bookid", bookId, "userid", userId);
       if (!book) return null;
 
       // Get all chapters for this book
@@ -59,6 +59,16 @@ export class BookService {
           }
         }
       });
+
+      // get is saved
+      const is_saved = userId
+        ? Object.values(savedBooks$.get() || {}).some((saved) => saved.book_id === bookId && saved.user_id === userId)
+        : false;
+
+      // get is  hot
+      const is_hot = false;
+      //map of sums of likes per book
+
       // Get book Tags
       const bookTags: BookTag[] = Object.values(bookTags$.get() || {}).filter((tag) => tag.book_id === bookId);
       // Get user unlocks for this book
@@ -88,7 +98,6 @@ export class BookService {
         return {
           ...chapter,
           likes: chapterLikesMap.get(chapter.id) || 0,
-
           is_owned,
           status: progress?.status || "unread",
         };
@@ -99,6 +108,9 @@ export class BookService {
         ...book,
         tags: bookTags,
         chapters: extendedChapters,
+        is_owned: userId ? isEntireBookUnlocked : false,
+        is_saved,
+        is_hot: extendedChapters.reduce((acc, chapter) => acc + (chapter.likes_count || 0), 0) > HOT_THRESHOLD,
         progress: bookProgress,
       };
     } catch (error) {
@@ -106,7 +118,9 @@ export class BookService {
       return null;
     }
   }
-  static getUserTags(userId: string): ExtendedTag[] {
+  static getUserTags(): ExtendedTag[] {
+    const userId = authStore$.userId.get();
+    if (!userId) return [];
     try {
       // Get all tags and book tags
       const allBookTags = Object.values(bookTags$.get() || {});
@@ -148,12 +162,13 @@ export class BookService {
       return [];
     }
   }
-  static toggleSaveTag(userId: string, tagId: string) {
+  static toggleSaveTag(tagId: string) {
     console.log("saving tag");
     try {
-      console.log(userId);
+      const userId = authStore$.userId.get();
       if (!userId) return;
-      const existingSavedTagId = Object.values(exploreStore$.savedTags.get() || {}).find(
+      const savedTags = BookService.getSavedTags();
+      const existingSavedTagId = Object.values(savedTags).find(
         (savedTag) => savedTag.user_id === userId && savedTag.tag_id === tagId
       )?.id;
       if (existingSavedTagId) {
@@ -276,7 +291,8 @@ export class BookService {
       return {};
     }
   }
-  static getSavedTags(userId: string | null) {
+  static getSavedTags() {
+    const userId = authStore$.userId.get();
     if (!userId) return [];
     try {
       const allSavedTags = Object.values(savedTags$.get() || {}).filter((saved) => saved.user_id === userId);
@@ -300,10 +316,12 @@ export class BookService {
   // Get popular books
   static getPopularBooks() {
     try {
+      const userId = authStore$.userId.get();
+      if (!userId) return [];
       const allBooks = Object.values(books$.get() || {});
-      const bookLikes = this.getBookLikes();
+      const bookLikes = BookService.getBookLikes();
 
-      return [...allBooks]
+      const topBooks = [...allBooks]
         .sort((a, b) => {
           // Sort by combined score of reader_count and likes
           const aLikes = bookLikes[a.id] || 0;
@@ -311,6 +329,8 @@ export class BookService {
           return b.reader_count + bLikes - (a.reader_count + aLikes);
         })
         .slice(0, 10);
+      const extendedBooks = topBooks.map((book) => BookService.getBookDetails(book.id, userId));
+      return extendedBooks.filter((book) => Boolean(book)) as ExtendedBook[];
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getPopularBooks" }, false);
       return [];
@@ -331,13 +351,15 @@ export class BookService {
   }
 
   // Get recommended books
-  static getRecommendedBooks(userId: string) {
+  static getRecommendedBooks(): ExtendedBook[] {
     try {
+      const userId = authStore$.userId.get();
+      if (!userId) return [];
       const allBooks = Object.values(books$.get() || {});
       // Using a deterministic "random" sort to avoid constant reshuffling
       const reccomendedBooks = [...allBooks].sort((a, b) => a.id.localeCompare(b.id)).slice(0, 10);
       const extendedBooks = reccomendedBooks
-        .map((book) => this.getBookDetails(book.id, userId))
+        .map((book) => BookService.getBookDetails(book.id, userId))
         .filter((book) => book !== null);
       return extendedBooks;
     } catch (error) {
@@ -474,10 +496,11 @@ export class BookService {
    * Get top categories and their most popular books
    * @returns A map of category to array of popular books in that category
    */
-  static getTopTagsBooks(): Map<string, Book[]> {
+  static getTopTagsBooks(): Map<string, ExtendedBook[]> {
     try {
-      const result = new Map<string, Book[]>();
-
+      const result = new Map<string, ExtendedBook[]>();
+      const userId = authStore$.userId.get();
+      if (!userId) return result;
       // Get all tags and saved tags
       const allTags = tags$.get() || {};
       const allSavedTags = Object.values(savedTags$.get() || {});
@@ -501,7 +524,7 @@ export class BookService {
         .slice(0, 8); // Get top 8 categories
 
       // Get book likes for popularity sorting
-      const bookLikes = this.getBookLikes();
+      const bookLikes = BookService.getBookLikes();
 
       // For each popular category, get its most popular books
       sortedTags.forEach(({ tag }) => {
@@ -521,13 +544,15 @@ export class BookService {
             return b.reader_count + bLikes - (a.reader_count + aLikes);
           })
           .slice(0, 10); // Get top 10 books per category
+        const extendedBooks = sortedBooks
+          .map((book) => BookService.getBookDetails(book.id, userId))
+          .filter((book) => book !== null); // Add user_id and book_id to inde
 
         // Add to result map
         if (sortedBooks.length > 0) {
-          result.set(tag.id, sortedBooks);
+          result.set(tag.id, extendedBooks);
         }
       });
-
       return result;
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getTopCategoryBooks" }, false);
@@ -536,7 +561,8 @@ export class BookService {
   }
   static getTopTags() {
     try {
-      const topTagIds = Object.keys(BookService.getTopTagsBooks());
+      const topTagsBooks = BookService.getTopTagsBooks();
+      const topTagIds = Array.from(topTagsBooks.keys());
       const allTags = Object.values(tags$.get() || {});
       const topTags = allTags.filter((tag) => topTagIds.includes(tag.id));
       return topTags;

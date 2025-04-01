@@ -11,7 +11,7 @@ import { TagSelector } from "@/components/search/TagSelector";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
 import { BookService } from "@/services/bookService";
 import { use$ } from "@legendapp/state/react";
-import { exploreStore$, searchStore$, SortType } from "@/stores/appStores";
+import { searchStore$, SortType } from "@/stores/appStores";
 
 // Define sort types
 
@@ -26,8 +26,8 @@ export default function Page() {
   const selectedTags = use$(searchStore$.tags || []);
   const searchString = use$(searchStore$.searchString || "");
   const sort = use$(searchStore$.sort || []);
-  const topTags = use$(exploreStore$.topTags);
-  // console.log("selectedTags", selectedTags);
+  const topTags = use$(() => BookService.getTopTags());
+  console.log("selectedTags", topTags);
   // remove all selectedTags from the top tags, move them to the top, then have the rest fo the top tags
   const allTags = [...(selectedTags || []), ...topTags.filter((tag) => !selectedTags?.find((t) => t.id === tag.id))];
   // Toggle sort options visibility

@@ -3,12 +3,13 @@ import { View, Dimensions } from "react-native";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { BookCover } from "../ui/BookCover";
-import { Book } from "@/types/app";
+import { Book, ExtendedBook } from "@/types/app";
 import { useColorScheme } from "nativewind";
+import { bookDetailsStore$ } from "@/stores/appStores";
+import { use$ } from "@legendapp/state/react";
 const colors = require("@/config/colors");
 
 type Props = {
-  books: Book[];
   initialIndex: number;
   onBookPress: (id: string) => void;
   onBookSave?: (id: string) => void;
@@ -33,7 +34,9 @@ const customParallaxLayout = ({ size }: { size: number }) => {
   };
 };
 
-export const BookPageCarousel: React.FC<Props> = ({ books, initialIndex, onBookPress, onBookSave }) => {
+export const BookPageCarousel: React.FC<Props> = ({ initialIndex, onBookPress, onBookSave }) => {
+  const books = use$(bookDetailsStore$.books);
+  if (!books || books.length === 0) return null;
   const { colorScheme } = useColorScheme();
   const width = Dimensions.get("window").width;
   const PAGE_WIDTH = width * 0.7;
@@ -110,7 +113,7 @@ export const BookPageCarousel: React.FC<Props> = ({ books, initialIndex, onBookP
 };
 
 interface CustomBookCardProps {
-  book: Book & { isHot?: boolean; isSaved?: boolean };
+  book: ExtendedBook;
   animationValue: Animated.SharedValue<number>;
   onPress: (id: string) => void;
   onSave: (id: string) => void;

@@ -19,11 +19,11 @@ interface AppStore {
 }
 
 interface ExploreStore {
-  featuredBooks: Book[];
-  topTagBooks: Map<string, Book[]>;
-  topTags: Tag[];
-  popularBooks: Book[];
-  newReleases: Book[];
+  featuredBooks: ExtendedBook[];
+  topTagBooks: Map<string, ExtendedBook[]>;
+  topTags: ExtendedTag[];
+  popularBooks: ExtendedBook[];
+  newReleases: ExtendedBook[];
   recommendedBooks: ExtendedBook[];
   userTags: ExtendedTag[];
   savedTags: SavedTag[];
@@ -80,51 +80,51 @@ export const appStore$ = observable<AppStore>({
   userId: null,
 });
 
-export const exploreStore$ = observable<ExploreStore>({
-  // Featured books - top 5 by reader count
-  featuredBooks: () => {
-    return BookService.getFeaturedBooks();
-  },
+// export const exploreStore$ = observable<ExploreStore>({
+//   // Featured books - top 5 by reader count
+//   featuredBooks: () => {
+//     return BookService.getFeaturedBooks();
+//   },
 
-  // topCategoryBooks - top 10 by reader count and likes
-  topTagBooks: () => {
-    return BookService.getTopTagsBooks();
-  },
+//   // topCategoryBooks - top 10 by reader count and likes
+//   topTagBooks: () => {
+//     return BookService.getTopTagsBooks();
+//   },
 
-  topTags: () => {
-    return BookService.getTopTags();
-  },
+//   topTags: () => {
+//     return BookService.getTopTags();
+//   },
 
-  // Popular books - top 10 by reader count and likes
-  popularBooks: () => {
-    return BookService.getPopularBooks();
-  },
+//   // Popular books - top 10 by reader count and likes
+//   popularBooks: () => {
+//     return BookService.getPopularBooks();
+//   },
 
-  // New releases - top 10 by created_at
-  newReleases: () => {
-    return BookService.getNewReleases();
-  },
+//   // New releases - top 10 by created_at
+//   newReleases: () => {
+//     return BookService.getNewReleases();
+//   },
 
-  // Recommended books
-  recommendedBooks: () => {
-    const userId = authStore$.userId.get();
-    return userId ? BookService.getRecommendedBooks(userId) : [];
-  },
+//   // Recommended books
+//   recommendedBooks: () => {
+//     const userId = authStore$.userId.get();
+//     return userId ? BookService.getRecommendedBooks() : [];
+//   },
 
-  // Categories from tags
-  userTags: () => {
-    const userId = authStore$.userId.get();
-    return userId ? BookService.getUserTags(userId) : [];
-  },
-  // Loading state
-  savedTags: () => {
-    const userId = authStore$.userId.get();
-    return BookService.getSavedTags(userId);
-  },
+//   // Categories from tags
+//   userTags: () => {
+//     const userId = authStore$.userId.get();
+//     return userId ? BookService.getUserTags(userId) : [];
+//   },
+//   // Loading state
+//   savedTags: () => {
+//     const userId = authStore$.userId.get();
+//     return BookService.getSavedTags(userId);
+//   },
 
-  isLoading: true,
-  error: null,
-});
+//   isLoading: true,
+//   error: null,
+// });
 
 export const libraryStore$ = observable<LibraryStore>({
   // Books the user has unlocked

@@ -28,20 +28,19 @@ import Animated, {
 } from "react-native-reanimated";
 import ActionButton from "../ui/ActionButton";
 import { useRouter } from "expo-router";
-import { appStore$ } from "@/stores/appStores";
+import { appStore$, bookDetailsStore$ } from "@/stores/appStores";
 import { authStore$ } from "@/stores/authStore";
 import { use$ } from "@legendapp/state/react";
 import { tags$, users$ } from "@/stores/supabaseStores";
 const colors = require("@/config/colors");
 
 type BookPageProps = {
-  books: ExtendedBook[];
   initialBookIndex: number;
   onReadNow: (bookId: string) => void;
   toggleSave: (bookId: string) => void;
 };
 
-export const BookPage: React.FC<BookPageProps> = ({ books, initialBookIndex, onReadNow, toggleSave }) => {
+export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow, toggleSave }) => {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const [currentBookIndex, setCurrentBookIndex] = useState(initialBookIndex);
@@ -50,7 +49,10 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookIndex, onR
   if (!userId) {
     return null;
   }
-
+  const books = use$(bookDetailsStore$.books);
+  if (!books) {
+    return null;
+  }
   // get current book
   const currentBook: ExtendedBook = books[currentBookIndex];
   //get like count
@@ -63,7 +65,8 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookIndex, onR
   const curCredits = use$(users$[userId].credits) || 0;
   //check if we can buy
   const canBuy = curCredits >= currentBook.price;
-  console.log("current book", currentBook);
+  //is saved
+  console.log("current book", currentBook.is_saved);
 
   const handleBuyBook = async (bookId: string) => {
     setIsLoading(true);
@@ -89,9 +92,9 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookIndex, onR
     <SafeAreaView className="h-full relative">
       <View className="w-full flex justify-center items-center p-8">
         {books.length > 1 ? (
-          <BookPageCarousel books={books} initialIndex={currentBookIndex} onBookPress={handleBookChange} />
+          <BookPageCarousel initialIndex={currentBookIndex} onBookPress={handleBookChange} onBookSave={toggleSave} />
         ) : (
-          <BookCover book={currentBook} size={"large"} />
+          <BookCover book={currentBook} size={"large"} onSave={toggleSave} />
         )}
       </View>
 
@@ -130,7 +133,12 @@ export const BookPage: React.FC<BookPageProps> = ({ books, initialBookIndex, onR
           <TouchableOpacity
             onPress={() => toggleSave(currentBook.id)}
             className="flex-1 flex-row items-center justify-center gap-2 bg-story-light dark:bg-story-dark mx-2 rounded-2xl py-3">
-            <IconSymbol name={currentBook.is_saved ? Icon.saved : Icon.save} color={"white"} />
+            {currentBook.is_saved ? (
+              <IconSymbol key="saved" name={Icon.saved} color={"white"} />
+            ) : (
+              <IconSymbol key="unsaved" name={Icon.save} color={"white"} />
+            )}
+
             <Text className="text-sm mt-1 text-white">Save</Text>
           </TouchableOpacity>
         </View>
