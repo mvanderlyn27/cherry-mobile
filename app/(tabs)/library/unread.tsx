@@ -8,15 +8,15 @@ import { LibraryEmptyState } from "@/components/library/LibraryEmptyState";
 import { LibraryList } from "@/components/library/LibraryList";
 import { books$, users$ } from "@/stores/supabaseStores";
 import { authStore$ } from "@/stores/authStore";
-import { libraryStore$ } from "@/stores/appStores";
+import { BookService } from "@/services/bookService";
 
 const UnreadPage = observer(() => {
   const router = useRouter();
   //need logic to get this, will be unread owned books, and saved books
   const userId = use$(authStore$.userId);
-  const credits = use$(() => (userId ? users$[userId].credits : 0));
-  const books = use$(libraryStore$.unreadBooks);
-  // const isLoading = use$(libraryStore$.isLoading);
+  if (!userId) return null;
+  const credits = use$(users$[userId].credits) || 0;
+  const books = use$(() => BookService.getUnreadBooks());
   const isLoading = false;
 
   return (

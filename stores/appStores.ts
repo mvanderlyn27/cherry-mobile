@@ -126,34 +126,34 @@ export const appStore$ = observable<AppStore>({
 //   error: null,
 // });
 
-export const libraryStore$ = observable<LibraryStore>({
-  // Books the user has unlocked
-  unreadBooks: () => {
-    const userId = appStore$.userId.get();
-    return userId ? BookService.getUnreadBooks(userId) : [];
-  },
+// export const libraryStore$ = observable<LibraryStore>({
+//   // Books the user has unlocked
+//   unreadBooks: () => {
+//     const userId = appStore$.userId.get();
+//     return userId ? BookService.getUnreadBooks(userId) : [];
+//   },
 
-  // Books the user has saved
-  savedBooks: () => {
-    const userId = appStore$.userId.get();
-    return userId ? BookService.getSavedBooks(userId) : [];
-  },
+//   // Books the user has saved
+//   savedBooks: () => {
+//     const userId = appStore$.userId.get();
+//     return userId ? BookService.getSavedBooks(userId) : [];
+//   },
 
-  // Recently read books
-  readingBooks: () => {
-    const userId = appStore$.userId.get();
-    return userId ? BookService.getReadingBooks(userId) : [];
-  },
+//   // Recently read books
+//   readingBooks: () => {
+//     const userId = appStore$.userId.get();
+//     return userId ? BookService.getReadingBooks(userId) : [];
+//   },
 
-  // Completed books
-  completedBooks: () => {
-    const userId = appStore$.userId.get();
-    return userId ? BookService.getCompletedBooks(userId) : [];
-  },
+//   // Completed books
+//   completedBooks: () => {
+//     const userId = appStore$.userId.get();
+//     return userId ? BookService.getCompletedBooks(userId) : [];
+//   },
 
-  isLoading: true,
-  error: null,
-});
+//   isLoading: true,
+//   error: null,
+// });
 
 //set search, category, and sort
 export const searchStore$ = observable<SearchStore>({

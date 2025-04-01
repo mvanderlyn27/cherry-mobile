@@ -387,13 +387,14 @@ export class BookService {
     }
   }
   // Get books the user owns but hasn't started reading yet
-  static getUnreadBooks(userId: string) {
+  static getUnreadBooks() {
+    const userId = authStore$.userId.get();
+    if (!userId) return [];
     try {
-      if (!userId) return [];
-
       const allBooks = books$.get() || {};
       const allUserUnlocks = Object.values(userUnlocks$.get() || {});
       const allBookProgress = Object.values(bookProgress$.get() || {});
+      const savedBooks = Object.values(savedBooks$.get() || {});
 
       // Get all books the user owns
       const ownedBookIds = allUserUnlocks
@@ -401,15 +402,19 @@ export class BookService {
         .map((unlock) => unlock.book_id);
 
       // Get all books the user has any reading progress on
-      const booksWithProgressIds = allBookProgress
-        .filter((progress) => progress.user_id === userId)
+      const allBookProgressIds = allBookProgress
+        .filter((progress) => progress.user_id === userId && progress.status !== "unread")
         .map((progress) => progress.book_id);
-
-      // Filter for books the user owns but hasn't started reading
-      const unreadBookIds = ownedBookIds.filter((bookId) => !booksWithProgressIds.includes(bookId));
+      const unreadBookIds = allBookProgress
+        .filter((progress) => progress.user_id === userId && progress.status === "unread")
+        .map((progress) => progress.book_id);
+      // get all savedBooksids not already in bookProgress
+      const savedBookIds = savedBooks
+        .map((saved) => saved.book_id)
+        .filter((book_id) => !allBookProgressIds.includes(book_id));
 
       // Get the actual book objects
-      return unreadBookIds.map((id) => allBooks[id]).filter(Boolean);
+      return [...unreadBookIds, ...savedBookIds].map((id) => allBooks[id]).filter(Boolean);
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getUnreadingBooks", userId }, false);
       return [];
@@ -455,10 +460,10 @@ export class BookService {
   }
 
   // Get recently read books
-  static getReadingBooks(userId: string) {
+  static getReadingBooks() {
+    const userId = authStore$.userId.get();
+    if (!userId) return [];
     try {
-      if (!userId) return [];
-
       const allBooks = books$.get() || {};
       const allBookProgress = Object.values(bookProgress$.get() || {});
 
@@ -474,10 +479,10 @@ export class BookService {
   }
 
   // Get completed books
-  static getCompletedBooks(userId: string) {
+  static getCompletedBooks() {
+    const userId = authStore$.userId.get(); // Replace with actual user ID from yo
+    if (!userId) return [];
     try {
-      if (!userId) return [];
-
       const allBooks = books$.get() || {};
       const allBookProgress = Object.values(bookProgress$.get() || {});
 

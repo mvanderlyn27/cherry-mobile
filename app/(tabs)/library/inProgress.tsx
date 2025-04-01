@@ -12,22 +12,20 @@ import { categoryData } from "@/config/testData";
 import { userBookStatus } from "@/config/userTestData";
 import { LibraryEmptyState } from "@/components/library/LibraryEmptyState";
 import { LibraryList } from "@/components/library/LibraryList";
-import { useMemo } from "react";
-import { AuthService } from "@/services/authService";
 import { authStore$ } from "@/stores/authStore";
-import { libraryStore$ } from "@/stores/appStores";
+import { BookService } from "@/services/bookService";
 
 const Page = observer(() => {
   const router = useRouter();
   // const isLoading = syncState(books$).isGetting;
 
-  const books = use$(libraryStore$.readingBooks);
+  const books = use$(() => BookService.getReadingBooks());
   // console.log("books", books);
   const userId = use$(authStore$.userId);
   if (!userId) {
     return null;
   }
-  const credits = use$(users$[userId].credits);
+  const credits = use$(users$[userId].credits) || 0;
 
   // if (!credits) {
   //   return null;
@@ -50,7 +48,7 @@ const Page = observer(() => {
           onBookPress={(id) => router.navigate(`/modals/book/${id}`)}
           onBookRead={(id) => router.navigate(`/modals/reader/${id}`)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
-          credits={credits || 0}
+          credits={credits}
         />
       )}
     </View>

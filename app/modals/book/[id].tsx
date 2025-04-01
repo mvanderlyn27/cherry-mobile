@@ -7,7 +7,7 @@ import { categoryData } from "@/config/testData";
 import { BookPage } from "@/components/explore/BookPage";
 import { books$, generateId, savedBooks$ } from "@/stores/supabaseStores";
 import { use$ } from "@legendapp/state/react";
-import { bookDetailsStore$, libraryStore$ } from "@/stores/appStores";
+import { bookDetailsStore$ } from "@/stores/appStores";
 import { authStore$ } from "@/stores/authStore";
 import { BookService } from "@/services/bookService";
 
