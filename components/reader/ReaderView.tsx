@@ -4,9 +4,13 @@ import { Chapter, ExtendedChapter } from "@/types/app";
 import * as Haptics from "expo-haptics";
 import Animated, { runOnJS } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
+import { authStore$ } from "@/stores/authStore";
+import { use$ } from "@legendapp/state/react";
+import { ReaderService } from "@/services/readerService";
+import { readerStore$ } from "@/stores/appStores";
 
 type ReaderViewProps = {
-  chapter: ExtendedChapter;
+  content: string;
   onScroll?: any;
   onPress?: () => void;
   fontSize?: number; // Add fontSize prop
@@ -14,7 +18,7 @@ type ReaderViewProps = {
 };
 
 export const ReaderView = ({
-  chapter,
+  content,
   onScroll,
   onPress,
   fontSize = 18, // Default font size
@@ -26,7 +30,6 @@ export const ReaderView = ({
       onPress();
     }
   };
-
   // Create a tap gesture
   const tapGesture = Gesture.Tap().onEnd(() => {
     runOnJS(handleTap)();
@@ -46,7 +49,7 @@ export const ReaderView = ({
           <Text
             style={{ fontSize: fontSize, lineHeight: fontSize * 2 }}
             className="leading-7 font-kaisei-medium text-story-light dark:text-gray-200">
-            {chapter.content}
+            {content}
           </Text>
         </Animated.ScrollView>
       </View>

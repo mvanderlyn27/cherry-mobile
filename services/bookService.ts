@@ -80,7 +80,7 @@ export class BookService {
       const bookProgress = Object.values(bookProgress$.get() || {}).find(
         (progress) => progress.book_id === bookId && userId === progress.user_id
       );
-      // Extended chapter data with likes and locked status
+      // Extended chapter data with likes and locked status, and progress
       // Might need to move to chapter service
       const userChapterProgress = Object.values(chapterProgress$.get() || {}).filter(
         (progress) => progress.user_id === userId

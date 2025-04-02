@@ -29,7 +29,6 @@ export enum BookStatus {
 
 // Extended types for frontend use
 export interface ExtendedChapter extends Chapter {
-  content?: string;
   is_owned: boolean;
   progress?: ChapterProgress;
   comments?: Comment[];

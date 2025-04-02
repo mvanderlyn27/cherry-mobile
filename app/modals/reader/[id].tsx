@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { observer } from "@legendapp/state/react";
+import { observer, use$ } from "@legendapp/state/react";
 import { ReaderView } from "@/components/reader/ReaderView";
 import { ReaderHeader } from "@/components/reader/ReaderHeader";
 import { ReaderBottomBar } from "@/components/reader/ReaderBottomBar";
@@ -10,7 +10,6 @@ import { SettingsSheet } from "@/components/reader/SettingsSheet";
 import { PurchaseModal } from "@/components/reader/PurchaseModal";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { ErrorScreen } from "@/components/ui/ErrorScreen";
-import { sampleChapters } from "@/config/testData";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, {
@@ -22,52 +21,100 @@ import Animated, {
   useAnimatedScrollHandler,
   runOnJS,
 } from "react-native-reanimated";
+import { BookService } from "@/services/bookService";
+import { ReaderService } from "@/services/readerService";
+import { authStore$ } from "@/stores/authStore";
+import { readerStore$ } from "@/stores/appStores";
 
 const ReaderScreen = observer(() => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const insets = useSafeAreaInsets();
+  const userId = use$(authStore$.userId);
+  if (!id || !userId) return null;
   const router = useRouter();
+
+  // Use Legend state for book and chapter index
+  const book = use$(readerStore$.book);
+  const chapterIndex = use$(readerStore$.chapter_index) || 0;
+  const chapterContent = use$(readerStore$.chapter_content);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize reader store with book data
+  useEffect(() => {
+    const initializeReader = async () => {
+      if (!userId || !id) return;
+
+      // Get book details
+      const bookDetails = BookService.getBookDetails(id, userId);
+      if (!bookDetails) return;
+      console.log("Book Details:", bookDetails);
+
+      // Set book in reader store
+      readerStore$.book.set(bookDetails);
+      readerStore$.chapter_index.set(0);
+      setIsInitialized(true);
+    };
+
+    initializeReader();
+  }, [id, userId]);
+
+  // Load chapter content when chapter changes
+  useEffect(() => {
+    const loadChapterContent = async () => {
+      if (!book || !book.chapters || book.chapters.length === 0) return;
+
+      const currentChapter = book.chapters[chapterIndex];
+      if (!currentChapter) return;
+
+      // Check if content is already loaded
+      if (!chapterContent) {
+        try {
+          const content = await ReaderService.getChapterContent(currentChapter, userId);
+
+          // Update chapter content in the store
+          if (content) {
+            readerStore$.chapter_content.set(content);
+          }
+        } catch (error) {
+          console.error("Failed to load chapter content:", error);
+        }
+      }
+    };
+
+    loadChapterContent();
+  }, [book, chapterIndex]);
 
   // Animation values
   const scrollY = useSharedValue(0);
   const lastScrollY = useSharedValue(0);
   const [uiVisible, setUiVisible] = useState(true);
 
-  // Threshold for UI visibility (how many pixels to scroll before UI starts fading)
+  // Threshold for UI visibility
   const SCROLL_THRESHOLD = 20;
 
   // State
-  const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showChapterList, setShowChapterList] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [chapterToUnlock, setChapterToUnlock] = useState<number | null>(null);
-
-  // Use sample chapters from testData
-  const [chapters] = useState(sampleChapters);
-  const [book] = useState({ title: "Dragon's Quest", author: "J.R. Blackwood" });
+  const [fontSize, setFontSize] = useState(18);
   const [credits] = useState(100);
   const [isLoading] = useState(false);
+  const insets = useSafeAreaInsets();
 
   // Scroll handler to track scroll position
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       const currentScrollY = event.contentOffset.y;
       const scrollDelta = currentScrollY - lastScrollY.value;
+      const animationRate = 0.15;
 
-      // Use smaller increments for smoother transitions
-      const animationRate = 0.15; // Reduced for smoother animation
-
-      // Only update when scrolling down and past threshold
       if (scrollDelta > 0 && currentScrollY > SCROLL_THRESHOLD) {
-        // Use withTiming for smoother transitions
         scrollY.value = withTiming(Math.min(scrollY.value + scrollDelta * animationRate, 1), { duration: 150 });
 
         if (scrollY.value > 0.9 && uiVisible) {
           runOnJS(setUiVisible)(false);
         }
       } else if (scrollDelta < 0) {
-        // Scrolling up - gradually restore UI with smooth animation
         scrollY.value = withTiming(Math.max(scrollY.value + scrollDelta * animationRate, 0), { duration: 150 });
 
         if (scrollY.value < 0.1 && !uiVisible) {
@@ -124,61 +171,56 @@ const ReaderScreen = observer(() => {
 
   // Handle tap on reading area
   const handleContentPress = () => {
-    // Restore UI on tap with smoother animation
     scrollY.value = withTiming(0, { duration: 300 });
     setUiVisible(true);
   };
 
-  // Get current chapter
-  const currentChapter = chapters[currentChapterIndex] || chapters[0];
-
   // Handle chapter selection
   const handleChapterSelect = (index: number) => {
-    if (chapters[index].is_owned) {
+    if (!book || !book.chapters) return;
+
+    if (!book.chapters[index].is_owned) {
       setChapterToUnlock(index);
       setShowPurchaseModal(true);
     } else {
-      setCurrentChapterIndex(index);
+      readerStore$.chapter_index.set(index);
       setShowChapterList(false);
     }
   };
 
   // Handle chapter purchase
   const handlePurchaseChapter = () => {
-    if (chapterToUnlock === null) return;
+    if (chapterToUnlock === null || !book || !book.chapters) return;
 
-    // Check if user has enough credits
     if (credits >= 50) {
-      // Assuming 50 credits per chapter
       // Update chapter to unlocked
-      chapters[chapterToUnlock].is_owned = false;
+      readerStore$.book.chapters[chapterToUnlock].is_owned.set(true);
 
       // Navigate to the chapter
-      setCurrentChapterIndex(chapterToUnlock);
+      readerStore$.chapter_index.set(chapterToUnlock);
       setShowPurchaseModal(false);
       setShowChapterList(false);
     } else {
-      // Not enough credits, show cherry modal
       router.push("/modals/cherry");
     }
   };
 
-  if (isLoading) {
+  if (!isInitialized || isLoading || !book) {
     return <LoadingScreen />;
   }
 
-  if (!chapters || chapters.length === 0) {
+  if (!book.chapters || book.chapters.length === 0) {
     return <ErrorScreen message="No chapters found for this book." onBack={() => router.back()} />;
   }
 
-  // Add font size state
-  const [fontSize, setFontSize] = useState(18);
+  // Get current chapter
+  const currentChapter = book.chapters[chapterIndex] || book.chapters[0];
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ChapterSidebar
-        chapters={chapters}
-        currentChapterIndex={currentChapterIndex}
+        chapters={book.chapters}
+        currentChapterIndex={chapterIndex}
         onChapterSelect={handleChapterSelect}
         isOpen={showChapterList}
         onClose={() => setShowChapterList(false)}>
@@ -190,7 +232,7 @@ const ReaderScreen = observer(() => {
             style={[
               {
                 width: "100%",
-                height: 120, // Initial fixed height
+                height: 120,
                 paddingTop: insets.top,
               },
               headerAnimatedStyle,
@@ -205,12 +247,16 @@ const ReaderScreen = observer(() => {
 
           {/* Main content */}
           <Animated.View style={[{ flex: 1, paddingHorizontal: 20 }, contentAnimatedStyle]}>
-            <ReaderView
-              chapter={currentChapter}
-              onScroll={scrollHandler}
-              onPress={handleContentPress}
-              fontSize={fontSize}
-            />
+            {chapterContent ? (
+              <ReaderView
+                content={chapterContent}
+                onScroll={scrollHandler}
+                onPress={handleContentPress}
+                fontSize={fontSize}
+              />
+            ) : (
+              <LoadingScreen />
+            )}
           </Animated.View>
 
           {/* Footer */}
@@ -219,7 +265,7 @@ const ReaderScreen = observer(() => {
               {
                 width: "100%",
                 paddingBottom: insets.bottom,
-                height: 80, // Initial fixed height
+                height: 80,
               },
               footerAnimatedStyle,
             ]}>
@@ -229,14 +275,13 @@ const ReaderScreen = observer(() => {
       </ChapterSidebar>
 
       {/* Modals */}
-
       {showSettings && (
         <SettingsSheet onClose={() => setShowSettings(false)} fontSize={fontSize} onFontSizeChange={setFontSize} />
       )}
 
-      {showPurchaseModal && chapterToUnlock !== null && (
+      {showPurchaseModal && chapterToUnlock !== null && book.chapters && (
         <PurchaseModal
-          chapter={chapters[chapterToUnlock]}
+          chapter={book.chapters[chapterToUnlock]}
           credits={credits}
           onPurchase={handlePurchaseChapter}
           onClose={() => setShowPurchaseModal(false)}

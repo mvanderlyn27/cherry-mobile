@@ -69,6 +69,13 @@ interface BookDetailsStore {
   loading: boolean;
   error: string | null;
 }
+interface ReaderStore {
+  book: ExtendedBook | null;
+  chapter_index: number | null;
+  chapter_content: string | null;
+  loading: boolean;
+  error: string | null;
+}
 
 // Create the observables with their respective types
 export const appStore$ = observable<AppStore>({
@@ -179,6 +186,13 @@ export const bookDetailsStore$ = observable<BookDetailsStore>({
       ? bookIds.map((bookId) => BookService.getBookDetails(bookId, userId))
       : [];
   },
+  loading: false,
+  error: null,
+});
+export const readerStore$ = observable<ReaderStore>({
+  book: null,
+  chapter_index: null,
+  chapter_content: null,
   loading: false,
   error: null,
 });
