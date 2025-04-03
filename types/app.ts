@@ -39,7 +39,6 @@ export interface ExtendedChapter extends Chapter {
 
 export interface ExtendedBook extends Book {
   tags: BookTag[];
-  chapters: ExtendedChapter[];
   progress?: BookProgress;
   comments_count?: number;
   total_views?: number;

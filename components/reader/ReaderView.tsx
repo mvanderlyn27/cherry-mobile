@@ -43,7 +43,7 @@ export const ReaderView = ({
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
           contentContainerStyle={{
-            paddingVertical: 20,
+            paddingVertical: 30,
             paddingHorizontal,
           }}>
           <Text

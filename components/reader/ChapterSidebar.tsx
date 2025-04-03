@@ -64,14 +64,14 @@ export const ChapterSidebar = ({
                       currentChapterIndex === index
                         ? "font-bold text-story-light dark:text-story-dark"
                         : "text-gray-800 dark:text-gray-200"
-                    } ${chapter.is_locked ? "text-gray-400 dark:text-gray-500" : ""}`}>
+                    } ${!chapter.is_owned ? "text-gray-400 dark:text-gray-500" : ""}`}>
                     Chapter {chapter.chapter_number}
                   </Text>
                   <Text className="font-kaisei-medium text-tags-light dark:text-tags-dark font-thin text-sm ">
                     {chapter.title}
                   </Text>
                 </View>
-                {chapter.is_locked && <IconSymbol name={Icon.lock} size={18} color={isDark ? "#aaa" : "#666"} />}
+                {!chapter.is_owned && <IconSymbol name={Icon.lock} size={18} color={isDark ? "#aaa" : "#666"} />}
               </TouchableOpacity>
             ))}
           </ScrollView>

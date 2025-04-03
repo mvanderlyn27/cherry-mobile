@@ -56,7 +56,7 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
   // get current book
   const currentBook: ExtendedBook = books[currentBookIndex];
   //get like count
-  const like_count = currentBook.chapters.reduce((acc, curr) => acc + (curr.likes_count || 0), 0);
+  const like_count = currentBook.like_count || 0;
   //get tags
   const tags: Tag[] = use$(() => currentBook.tags.map((bookTag: BookTag) => tags$[bookTag.tag_id].get()));
   //get is owned

@@ -182,9 +182,7 @@ export const bookDetailsStore$ = observable<BookDetailsStore>({
   books: () => {
     const userId = authStore$.userId.get();
     const bookIds = bookDetailsStore$.bookIds.get();
-    return userId && bookIds && bookIds.length > 0
-      ? bookIds.map((bookId) => BookService.getBookDetails(bookId, userId))
-      : [];
+    return userId && bookIds && bookIds.length > 0 ? bookIds.map((bookId) => BookService.getBookDetails(bookId)) : [];
   },
   loading: false,
   error: null,

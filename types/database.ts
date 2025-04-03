@@ -111,6 +111,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          like_count: number | null
           price: number
           reader_count: number
           reading_time: number | null
@@ -124,6 +125,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          like_count?: number | null
           price: number
           reader_count?: number
           reading_time?: number | null
@@ -137,6 +139,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          like_count?: number | null
           price?: number
           reader_count?: number
           reading_time?: number | null
