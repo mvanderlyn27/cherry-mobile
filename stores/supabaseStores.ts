@@ -7,6 +7,9 @@ import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
 import { supabase } from "@/services/supabase";
 import uuid from "react-native-uuid";
 import { LoggingService } from "@/services/loggingService";
+import { appStore$ } from "./appStores";
+import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
+import { ChapterProgress } from "@/types/app";
 
 // provide a function to generate ids locally
 export const generateId = () => uuid.v4();
@@ -121,9 +124,12 @@ export const chapterProgress$ = observable(
     collection: "chapter_progress",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
-    onError: (error) => {
+    onError: (error, params) => {
+      console.log("chapterProgress onError", error, params);
       LoggingService.handleError(error, { collection: "chapter_progress" }, false);
     },
+    waitForSet: ({ value }: WaitForSetCrudFnParams<ChapterProgress>) =>
+      bookProgress$[value.book_progress_id].created_at,
   })
 );
 export const likedChapters$ = observable(
@@ -183,3 +189,59 @@ export const userUnlocks$ = observable(
     },
   })
 );
+
+// Add this function to check if all stores are loaded
+export const areStoresLoaded = () => {
+  // Create an array of all stores to check
+  const stores = [
+    books$,
+    chapters$,
+    tags$,
+    savedTags$,
+    bookTags$,
+    users$,
+    profiles$,
+    savedBooks$,
+    bookProgress$,
+    chapterProgress$,
+    likedChapters$,
+    comments$,
+    interactions$,
+    transactions$,
+    userUnlocks$,
+  ];
+
+  // Check if all stores have been initialized (not in loading state)
+  return stores.every((store) => {
+    const storeState = store.get();
+    // A store is considered loaded if it's not null and not in a loading state
+    return storeState !== null && !store.loading?.get();
+  });
+};
+
+// Function to wait until all stores are loaded
+export const waitForStoresLoaded = () => {
+  return new Promise<boolean>((resolve) => {
+    // Check immediately first
+    if (areStoresLoaded()) {
+      appStore$.storesLoaded.set(true);
+      resolve(true);
+      return;
+    }
+
+    // Set up an interval to check periodically
+    const checkInterval = setInterval(() => {
+      if (areStoresLoaded()) {
+        clearInterval(checkInterval);
+        resolve(true);
+      }
+    }, 100); // Check every 100ms
+
+    // Set a timeout to prevent infinite waiting
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      console.warn("Store loading timed out after 10 seconds");
+      resolve(false);
+    }, 10000); // 10 second timeout
+  });
+};

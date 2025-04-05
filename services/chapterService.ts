@@ -1,9 +1,19 @@
 import { authStore$ } from "@/stores/authStore";
-import { chapterProgress$, chapters$, comments$, likedChapters$, userUnlocks$ } from "@/stores/supabaseStores";
-import { ExtendedChapter } from "@/types/app";
+import { readerStore$ } from "@/stores/appStores";
+import {
+  chapterProgress$,
+  chapters$,
+  comments$,
+  generateId,
+  likedChapters$,
+  userUnlocks$,
+} from "@/stores/supabaseStores";
+import { ChapterProgress, ExtendedChapter } from "@/types/app";
+import { LoggingService } from "./loggingService";
 
 export class ChapterService {
   static async getChapterContent(chapter: ExtendedChapter): Promise<string> {
+    console.log("Getting chapter content");
     try {
       if (chapter.content_url && chapter.content_url !== "" && chapter.is_owned) {
         // Fetch the content from the storage bucket URL
@@ -19,7 +29,6 @@ export class ChapterService {
 
         // Process the text content if needed (e.g., remove BOM characters)
         const cleanedContent = textContent.replace(/^\uFEFF/, ""); // Remove BOM if present
-
         return cleanedContent;
       }
 
@@ -27,6 +36,7 @@ export class ChapterService {
       return "";
     } catch (error) {
       console.error("Error downloading chapter content:", error);
+      //   readerStore$.error.set(`Error downloading chapter content: ${error}`);
       return ""; // Return empty string on error
     }
   }
@@ -43,9 +53,11 @@ export class ChapterService {
       (chapter) => chapter.book_id === bookId && userId === chapter.user_id
     );
     const chapter_likes = Object.values(likedChapters$.get() || {}).filter((chapter) => chapter.book_id === bookId);
+    const chapter_ids = chapters.map((chapter) => chapter.id);
     const chapter_progress = Object.values(chapterProgress$.get() || {}).filter(
-      (chapter) => chapters.map((chapter) => chapter.id).includes(chapter.id) && chapter.user_id === userId
+      (chapterProgress) => chapter_ids.includes(chapterProgress.chapter_id) && chapterProgress.user_id === userId
     );
+    console.log("chapter_progress", chapter_progress);
     const extendedChapters: ExtendedChapter[] = chapters.map((chapter) => {
       const likes = chapter_likes.filter((like) => like.chapter_id === chapter.id).length;
       const comments_count = comments.filter((comment) => comment.chapter_id === chapter.id).length;
@@ -54,6 +66,7 @@ export class ChapterService {
         chapter_likes.filter((like) => like.chapter_id === chapter.id && like.user_id === userId).length > 0;
       const is_unlocked = unlocked_chapters.filter((chapter) => chapter.id === chapter.id).length > 0;
       const progress = chapter_progress.find((progress) => progress.chapter_id === chapter.id);
+      console.log("progress found", progress);
       return {
         ...chapter,
         likes,
@@ -64,25 +77,48 @@ export class ChapterService {
         progress,
       };
     });
-    // console.log(
-    //   "chapters",
-    //   chapters,
-    //   "comments",
-    //   comments,
-    //   "ownsBook",
-    //   owns_book,
-    //   "unlocked_chapters",
-    //   unlocked_chapters,
-    //   "chapterProgress",
-    //   chapter_progress
-    // );
-    // console.log("extendedChapters", extendedChapters);
     const sorted = extendedChapters.sort((a, b) => {
       const aOrder = a.chapter_number || 0;
       const bOrder = b.chapter_number || 0;
       return aOrder - bOrder;
     });
     return sorted;
+  }
+
+  static startReadingChapter(chapter: ExtendedChapter, bookProgressId: string) {
+    const progress = chapter.progress;
+    if (progress) {
+      console.log("reading progress found", progress);
+      chapterProgress$[progress.id].status.set("reading");
+    } else {
+      const chapterProgressId = generateId();
+      chapterProgress$[chapterProgressId].set({
+        id: chapterProgressId,
+        user_id: authStore$.userId.get()!,
+        chapter_id: chapter.id,
+        status: "reading",
+        book_progress_id: bookProgressId,
+      } as ChapterProgress);
+    }
+  }
+  static finishReadingChapter(chapter: ExtendedChapter, bookProgressId: string) {
+    const progress = chapter.progress;
+    console.log("Finishing Chapter", chapter.id);
+    if (progress) {
+      console.log("completed progress found", progress);
+      console.log("chapterProgress", chapterProgress$[progress.id].peek());
+
+      chapterProgress$[progress.id].set({ ...progress, status: "completed" });
+    } else {
+      const chapterProgressId = generateId();
+      chapterProgress$[chapterProgressId].set({
+        id: chapterProgressId,
+        user_id: authStore$.userId.get()!,
+        chapter_id: chapter.id,
+        status: "completed",
+        book_progress_id: bookProgressId,
+      } as ChapterProgress);
+    }
   }
 }
 

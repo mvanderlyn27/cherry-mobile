@@ -9,7 +9,7 @@ import { Drawer } from "react-native-drawer-layout";
 
 type ChapterSidebarProps = {
   chapters: ExtendedChapter[];
-  currentChapterIndex: number;
+  currentChapterId?: string;
   onChapterSelect: (index: number) => void;
   onClose: () => void;
   isOpen: boolean;
@@ -18,7 +18,7 @@ type ChapterSidebarProps = {
 
 export const ChapterSidebar = ({
   chapters,
-  currentChapterIndex,
+  currentChapterId,
   onChapterSelect,
   onClose,
   isOpen,
@@ -55,13 +55,13 @@ export const ChapterSidebar = ({
               <TouchableOpacity
                 key={chapter.id}
                 className={`py-4 px-6 flex-row justify-between items-center border-b border-tab_bar_border-light dark:border-tab_bar_border-dark ${
-                  currentChapterIndex === index ? "bg-tabs-light dark:bg-tabs-dark" : ""
+                  currentChapterId === chapter.id ? "bg-tabs-light dark:bg-tabs-dark" : ""
                 }`}
                 onPress={() => handleSelect(index)}>
                 <View className="flex flex-col">
                   <Text
                     className={`font-kaisei-medium text-xl flex-1 ${
-                      currentChapterIndex === index
+                      currentChapterId === chapter.id
                         ? "font-bold text-story-light dark:text-story-dark"
                         : "text-gray-800 dark:text-gray-200"
                     } ${!chapter.is_owned ? "text-gray-400 dark:text-gray-500" : ""}`}>
@@ -72,6 +72,9 @@ export const ChapterSidebar = ({
                   </Text>
                 </View>
                 {!chapter.is_owned && <IconSymbol name={Icon.lock} size={18} color={isDark ? "#aaa" : "#666"} />}
+                {chapter.progress?.status === "completed" && (
+                  <IconSymbol name={Icon.checkmark} size={18} color={isDark ? "#aaa" : "#666"} />
+                )}
               </TouchableOpacity>
             ))}
           </ScrollView>

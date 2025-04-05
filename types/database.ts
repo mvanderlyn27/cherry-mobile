@@ -150,6 +150,7 @@ export type Database = {
       }
       chapter_progress: {
         Row: {
+          book_progress_id: string
           chapter_id: string
           created_at: string
           id: string
@@ -158,6 +159,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          book_progress_id: string
           chapter_id: string
           created_at?: string
           id?: string
@@ -166,6 +168,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          book_progress_id?: string
           chapter_id?: string
           created_at?: string
           id?: string
@@ -174,6 +177,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "chapter_progress_book_progress_id_fkey"
+            columns: ["book_progress_id"]
+            isOneToOne: false
+            referencedRelation: "book_progress"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "chapter_progress_chapter_id_fkey"
             columns: ["chapter_id"]

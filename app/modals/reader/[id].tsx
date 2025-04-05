@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
-import { View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Pressable } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { observer, use$ } from "@legendapp/state/react";
+import ConfettiCannon from "react-native-confetti-cannon";
 import { ReaderView } from "@/components/reader/ReaderView";
 import { ReaderHeader } from "@/components/reader/ReaderHeader";
 import { ReaderBottomBar } from "@/components/reader/ReaderBottomBar";
@@ -22,12 +23,13 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import { BookService } from "@/services/bookService";
-import { ReaderService } from "@/services/readerService";
 import { authStore$ } from "@/stores/authStore";
 import { readerStore$ } from "@/stores/appStores";
 import { ChapterService } from "@/services/chapterService";
-import { ExtendedBook, ExtendedChapter } from "@/types/app";
-import { LoggingService } from "@/services/loggingService";
+import { ExtendedChapter } from "@/types/app";
+import { generateId } from "@/stores/supabaseStores";
+import { when } from "@legendapp/state";
+import { RatingSheet } from "@/components/reader/RatingBottomDrawer";
 
 const ReaderScreen = observer(() => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,72 +37,57 @@ const ReaderScreen = observer(() => {
   if (!id || !userId) return null;
   const router = useRouter();
 
-  // Use Legend state for book and chapter index
-  const book: ExtendedBook | null = use$(() => BookService.getBookDetails(id));
-  const chapters: ExtendedChapter[] = use$(() => ChapterService.getChapters(id));
-  const [chapterContent, setChapterContent] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [chapterIndex, setChapterIndex] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    // console.log("book", book, "chapters", chapters);
-    if (book && chapters && chapters.length > 0 && !isInitialized) {
-      // Find the last chapter with 'reading' status
-      const readingChapters = chapters.filter((chapter) => chapter.progress?.status === "reading");
-      const initialIndex =
-        readingChapters.length > 0
-          ? chapters.findIndex((c) => c.id === readingChapters[readingChapters.length - 1].id)
-          : 0;
-      console.log("initialIndex", initialIndex);
-      setChapterIndex(initialIndex);
-      setIsInitialized(true);
-    }
-  }, [book, chapters, isInitialized]);
+  // Use Legend state from readerStore
+  const book = use$(readerStore$.book);
+  const chapters = use$(readerStore$.chapters);
+  const currentChapter = use$(readerStore$.currentChapter);
+  const chapterContent = use$(readerStore$.chapterContent);
+  const loading = use$(readerStore$.loading);
 
   useEffect(() => {
-    console.log("chapterIndex", chapterIndex, "chapters", chapters);
-    if (chapterIndex === null || !chapters) return;
-    const updateChapterContent = async () => {
-      setLoading(true);
-      try {
-        const selectedChapter = chapters[chapterIndex];
-        console.log("selectedChapter", selectedChapter);
-        if (selectedChapter) {
-          console.log("loaded chapter content");
-          const content = await ChapterService.getChapterContent(selectedChapter);
-          setChapterContent(content);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Failed to load chapter content:", error);
-      }
-    };
-    updateChapterContent();
-  }, [chapterIndex]);
+    readerStore$.initialize(id);
+  }, []);
 
-  // Animation values
-  const scrollY = useSharedValue(0);
-  const lastScrollY = useSharedValue(0);
-  const [uiVisible, setUiVisible] = useState(true);
-
-  // Threshold for UI visibility
-  const SCROLL_THRESHOLD = 20;
-
-  // State
+  // UI state (kept in component)
   const [showChapterList, setShowChapterList] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [chapterToUnlock, setChapterToUnlock] = useState<number | null>(null);
   const [fontSize, setFontSize] = useState(18);
   const [credits] = useState(100);
+  const [uiVisible, setUiVisible] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const insets = useSafeAreaInsets();
 
+  // Animation values
+  const scrollY = useSharedValue(0);
+  const lastScrollY = useSharedValue(0);
+
+  // Threshold for UI visibility
+  const SCROLL_THRESHOLD = 20;
+
+  // Add this useEffect to handle the bottom detection
+  useEffect(() => {
+    if (isAtBottom && currentChapter?.progress?.status !== "completed") {
+      handleChapterComplete();
+      setIsAtBottom(false); // Reset the flag
+    }
+  }, [isAtBottom, currentChapter]);
   // Scroll handler to track scroll position
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       const currentScrollY = event.contentOffset.y;
       const scrollDelta = currentScrollY - lastScrollY.value;
       const animationRate = 0.15;
+
+      // Check if we're near the bottom of the content
+      const { layoutMeasurement, contentOffset, contentSize } = event;
+      const paddingToBottom = 20; // Adjust this value as needed
+      const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+
+      if (isCloseToBottom && currentChapter?.progress?.status !== "completed") {
+        runOnJS(setIsAtBottom)(true);
+      }
 
       if (scrollDelta > 0 && currentScrollY > SCROLL_THRESHOLD) {
         scrollY.value = withTiming(Math.min(scrollY.value + scrollDelta * animationRate, 1), { duration: 150 });
@@ -170,26 +157,57 @@ const ReaderScreen = observer(() => {
   };
 
   // Handle chapter selection
-  const handleChapterSelect = (index: number) => {
+  const handleChapterSelect = async (index: number) => {
     if (!book || !chapters) return;
 
     if (!chapters[index].is_owned) {
       setChapterToUnlock(index);
       setShowPurchaseModal(true);
     } else {
-      setChapterIndex(index);
+      // Update chapter current chapter
+      readerStore$.setChapter(chapters[index].id);
       setShowChapterList(false);
     }
+  };
+  // Add a new state for the rating drawer
+  const [showRatingDrawer, setShowRatingDrawer] = useState(false);
+
+  // Update the handleChapterComplete function
+  const handleChapterComplete = () => {
+    readerStore$.finishChapter();
+
+    // Check if this is the last chapter
+    const isLastChapter = !chapters?.find((chapter) => chapter.chapter_number > currentChapter?.chapter_number!);
+
+    if (isLastChapter) {
+      // Show rating drawer and confetti for book completion
+      setShowRatingDrawer(true);
+      // We'll add confetti here
+      return;
+    }
+
+    // Find the next chapter
+    const nextChapter = chapters?.find((chapter) => chapter.chapter_number === currentChapter?.chapter_number! + 1);
+    if (!nextChapter) return;
+
+    //if next chapter needs to be bought open modal
+    if (!nextChapter.is_owned) {
+      setChapterToUnlock(nextChapter.chapter_number);
+      setShowPurchaseModal(true);
+      return;
+    }
+
+    //otherwise go to next chapter
+    readerStore$.setChapter(nextChapter.id);
+    setUiVisible(true);
   };
 
   // Handle chapter purchase
   const handlePurchaseChapter = () => {
-    // if (chapterToUnlock === null || !book || !chapters) return;
-    // if (credits >= 50) {
+    // Implementation for purchasing chapters
+    // if (chapterToUnlock !== null && credits >= 50) {
     //   // Update chapter to unlocked
-    //   readerStore$.book.chapters[chapterToUnlock].is_owned.set(true);
     //   // Navigate to the chapter
-    //   readerStore$.chapter_index.set(chapterToUnlock);
     //   setShowPurchaseModal(false);
     //   setShowChapterList(false);
     // } else {
@@ -197,22 +215,22 @@ const ReaderScreen = observer(() => {
     // }
   };
 
-  if (!isInitialized || loading || !book || !chapters) {
+  if (loading || !book || !chapters) {
+    console.log("loading", book, chapters, loading);
     return <LoadingScreen />;
   }
 
-  if (!chapters || chapters.length === 0) {
+  if (chapters.length === 0) {
     return <ErrorScreen message="No chapters found for this book." onBack={() => router.back()} />;
   }
 
   // Get current chapter
-  const currentChapter = chapterIndex !== null && chapters ? chapters[chapterIndex] : null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ChapterSidebar
         chapters={chapters}
-        currentChapterIndex={chapterIndex || 0}
+        currentChapterId={currentChapter?.id}
         onChapterSelect={handleChapterSelect}
         isOpen={showChapterList}
         onClose={() => setShowChapterList(false)}>
@@ -283,6 +301,12 @@ const ReaderScreen = observer(() => {
           onClose={() => setShowPurchaseModal(false)}
         />
       )}
+
+      {/* Book Completion Rating Drawer */}
+      {showRatingDrawer && book && <RatingSheet />}
+
+      {/* Confetti effect when book is completed */}
+      {showRatingDrawer && <ConfettiCannon count={100} origin={{ x: -10, y: 0 }} autoStart={true} fadeOut={true} />}
     </GestureHandlerRootView>
   );
 });

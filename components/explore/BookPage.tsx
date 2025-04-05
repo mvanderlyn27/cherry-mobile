@@ -66,7 +66,7 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
   //check if we can buy
   const canBuy = curCredits >= currentBook.price;
   //is saved
-  console.log("current book", currentBook.is_saved);
+  // console.log("current book", currentBook.is_saved);
 
   const handleBuyBook = async (bookId: string) => {
     setIsLoading(true);

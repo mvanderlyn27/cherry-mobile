@@ -22,13 +22,12 @@ import { AuthService } from "@/services/authService";
 import { appStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
 import { BookService } from "@/services/bookService";
+import { waitForStoresLoaded } from "@/stores/supabaseStores";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const loading = use$(
-    () => appStore$.fontsReady && appStore$.loggedIn && appStore$.booksReady && appStore$.chaptersReady
-  );
+  const loading = use$(() => appStore$.fontsReady && appStore$.loggedIn && appStore$.storesLoaded);
   const [fontsLoaded, error] = useFonts({
     KaiseiDecol_400Regular,
     KaiseiDecol_500Medium,
@@ -41,6 +40,7 @@ export default function RootLayout() {
     //initialize all services
     const init = async () => {
       await AuthService.initialize();
+      await waitForStoresLoaded();
     };
     init();
   }, []);
