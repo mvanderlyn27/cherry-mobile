@@ -21,6 +21,7 @@ export const books$ = observable(
   syncedSupabase({
     supabase,
     collection: "books",
+    realtime: true,
     select: (from) => from.select("*"),
     actions: ["read"],
     onError: (error) => {
@@ -111,6 +112,7 @@ export const bookProgress$ = observable(
   syncedSupabase({
     supabase,
     collection: "book_progress",
+    realtime: true,
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
     onError: (error) => {
@@ -136,6 +138,7 @@ export const likedChapters$ = observable(
   syncedSupabase({
     supabase,
     collection: "liked_chapters",
+    realtime: true,
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
     onError: (error) => {
@@ -182,6 +185,7 @@ export const userUnlocks$ = observable(
   syncedSupabase({
     supabase,
     collection: "user_unlocks",
+    realtime: true,
     select: (from) => from.select("*"),
     actions: ["read"],
     onError: (error) => {

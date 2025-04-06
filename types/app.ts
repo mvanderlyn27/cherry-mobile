@@ -85,6 +85,7 @@ export enum Icon {
   "watch-ads" = "watch-ads",
   "diamond" = "diamond",
   "heart" = "heart",
+  "heart_empty" = "heart_empty",
   "question" = "question",
   "google" = "google",
   "apple" = "apple",

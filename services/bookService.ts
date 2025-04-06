@@ -14,7 +14,17 @@ import {
 } from "../stores/supabaseStores";
 import { LoggingService } from "./loggingService";
 import { Observable, syncState, when } from "@legendapp/state";
-import { ExtendedBook, ExtendedChapter, Tag, Book, SavedTag, SavedBook, BookTag, ExtendedTag } from "@/types/app";
+import {
+  ExtendedBook,
+  ExtendedChapter,
+  Tag,
+  Book,
+  SavedTag,
+  SavedBook,
+  BookTag,
+  ExtendedTag,
+  BookProgress,
+} from "@/types/app";
 import { authStore$ } from "@/stores/authStore";
 
 const HOT_THRESHOLD = 5;
@@ -528,6 +538,24 @@ export class BookService {
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getTopTags" }, false);
       return [];
+    }
+  }
+  static updateBookProgress(bookId: string, status: "reading" | "unread" | "finished", percentDone: number) {
+    console.log("updating book progress");
+    const userId = authStore$.userId.get();
+    if (!userId) return;
+    try {
+      const bookProgress = bookProgress$.get() || {};
+      const bookProgressId = Object.values(bookProgress).find((progress) => progress.book_id === bookId)?.id;
+      console.log("bookProgressId", bookProgressId, percentDone);
+      if (!bookProgressId) return;
+      bookProgress$[bookProgressId].set({
+        ...bookProgress[bookProgressId],
+        percent_done: percentDone,
+        status: status,
+      });
+    } catch (error) {
+      LoggingService.handleError(error, { method: "BookService.updateBookProgress", bookId }, false);
     }
   }
 }

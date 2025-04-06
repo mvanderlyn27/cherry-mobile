@@ -4,7 +4,7 @@ import { computed, observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
 import { Book, BookProgress, ExtendedBook, ExtendedChapter, ExtendedTag, SavedTag, Tag } from "@/types/app";
-import { bookProgress$, books$, generateId, tags$ } from "./supabaseStores";
+import { bookProgress$, books$, chapters$, generateId, tags$ } from "./supabaseStores";
 import { BookService } from "@/services/bookService";
 import { authStore$ } from "./authStore";
 import { ChapterService } from "@/services/chapterService";
@@ -72,14 +72,13 @@ interface BookDetailsStore {
 }
 interface ReaderStore {
   book: ExtendedBook | null;
-  chapters: ExtendedChapter[] | null;
+  chapters: Record<number, ExtendedChapter> | null;
   chapterContent: string | null;
-  currentChapter: ExtendedChapter | null;
+  currentChapterNumber: number | null;
   loading: boolean;
   error: string | null;
   initialize: (bookId: string) => void;
-  setChapter: (chapterId: string) => void;
-  finishChapter: () => void;
+  setChapter: (chapterNumber: number) => void;
 }
 
 // Create the observables with their respective types
@@ -193,107 +192,84 @@ export const bookDetailsStore$ = observable<BookDetailsStore>({
 });
 export const readerStore$ = observable<ReaderStore>({
   book: null,
-  chapters: null, //id, is_owned
-  currentChapter: null,
+  chapters: null,
+  currentChapterNumber: null,
   chapterContent: null,
   loading: true,
   error: null,
-  initialize: async (bookId: string) => {
-    // get book details
-    // Setup progress for this chapter, and chapter progress, if they don't exist yet
-    // get id/is_owned for all chapters
-    // get most recently read chapter, set as current chapter
-    // get chapter_content
-    readerStore$.loading.set(true);
-    const userId = authStore$.userId.get();
-    if (!userId) {
-      readerStore$.error.set("no user found");
-      return;
-    }
-    const book = BookService.getBookDetails(bookId);
-    if (!book) {
-      readerStore$.error.set("no book found");
-      LoggingService.handleError("Book not found", { bookId: bookId }, false);
-      return;
-    }
-    readerStore$.book.set(book);
 
-    const chapters = ChapterService.getChapters(bookId);
-    if (!chapters || chapters.length === 0) {
-      readerStore$.error.set("no chapters found");
-      LoggingService.handleError("Chapters not found", { bookId: bookId }, false);
-      return;
-    }
-    readerStore$.chapters.set(chapters);
-    //update book progress
-    const bookProgress = book.progress;
-    if (!bookProgress) {
-      const currentChapter = chapters[0];
-      //create book progress
-      const bookProgressId = generateId();
-      const bookProgress = {
-        id: bookProgressId,
-        user_id: userId,
-        book_id: bookId,
-        current_chapter_id: currentChapter.id,
-        status: "reading",
-      } as BookProgress;
-      bookProgress$[bookProgressId].set(bookProgress);
-      readerStore$.book.progress.set(bookProgress);
-      readerStore$.setChapter(currentChapter.id);
-    } else {
-      //we already have a bookProgress & hopefully chapterProgress
-      const currentChapterId = bookProgress.current_chapter_id;
-      if (!currentChapterId) {
-        readerStore$.error.set("no current chapter found");
-        LoggingService.handleError("Current chapter not found", { currentChapterId: currentChapterId }, false);
-        return;
-      }
-      readerStore$.setChapter(currentChapterId);
-    }
-    readerStore$.error.set(null);
-    readerStore$.loading.set(false);
-  },
-  setChapter: async (chapterId: string) => {
+  initialize: async (bookId: string) => {
+    console.log("initializing reader", bookId);
     readerStore$.loading.set(true);
-    const bookProgress = readerStore$.book.progress.get();
-    if (!bookProgress) {
-      readerStore$.error.set("no book progress found");
-      LoggingService.handleError("Book progress not found", { bookProgress: bookProgress }, false);
-      return;
+
+    try {
+      const userId = authStore$.userId.get();
+      if (!userId) {
+        throw new Error("No user found");
+      }
+
+      // Delegate initialization to ChapterService
+      const { book, chapters, currentChapterNumber } = await ChapterService.initializeReader(bookId, userId);
+
+      // Update store with initialized data
+      readerStore$.book.set(book);
+      readerStore$.chapters.set(chapters);
+      readerStore$.currentChapterNumber.set(currentChapterNumber);
+
+      // Load content for the current chapter
+      readerStore$.setChapter(currentChapterNumber);
+
+      readerStore$.error.set(null);
+    } catch (error) {
+      console.error("Reader initialization error:", error);
+      readerStore$.error.set(JSON.stringify(error) || "Failed to initialize reader");
+      LoggingService.handleError("Reader initialization failed", { bookId, error }, false);
+    } finally {
+      readerStore$.loading.set(false);
     }
-    const newChapter = readerStore$.chapters.get()?.find((chapter) => chapter.id === chapterId);
-    if (!newChapter) {
-      readerStore$.error.set("no chapter found");
-      LoggingService.handleError("Chapter not found", { chapterId: chapterId }, false);
-      return;
-    }
-    readerStore$.currentChapter.set(newChapter);
-    const content = await ChapterService.getChapterContent(newChapter);
-    readerStore$.chapterContent.set(content);
-    readerStore$.loading.set(false);
-    if (!content) {
-      readerStore$.error.set("no chapter content found");
-      LoggingService.handleError("Chapter content not found", { chapterId: chapterId }, false);
-      return;
-    }
-    bookProgress$[bookProgress.id].current_chapter_id.set(chapterId);
-    ChapterService.startReadingChapter(newChapter, bookProgress.id);
   },
-  finishChapter: () => {
-    const bookProgress = readerStore$.book.progress.get();
-    if (!bookProgress) {
-      readerStore$.error.set("no book progress found");
-      LoggingService.handleError("Book progress not found", { bookProgress: bookProgress }, false);
-      return;
+
+  setChapter: async (chapterNumber: number) => {
+    console.log("setting chapter", chapterNumber);
+    readerStore$.loading.set(true);
+
+    try {
+      const book = readerStore$.book.peek();
+      const chapters = readerStore$.chapters.peek();
+
+      if (!book || !chapters) {
+        throw new Error("Book or chapters not loaded");
+      }
+
+      const chapter: ExtendedChapter = chapters[chapterNumber];
+      if (!chapter) {
+        throw new Error(`Chapter ${chapterNumber} not found`);
+      }
+
+      // Delegate chapter loading to ChapterService
+      const { content, bookProgressId } = await ChapterService.loadChapter(chapter.chapter_number, book.id);
+
+      // Update store with chapter data
+      readerStore$.currentChapterNumber.set(chapterNumber);
+      readerStore$.chapterContent.set(content);
+
+      // Update book progress in store if needed
+      if (bookProgressId && book.progress && book.progress.id !== bookProgressId) {
+        readerStore$.book.progress.set({
+          ...book.progress,
+          id: bookProgressId,
+          current_chapter_id: chapter.id,
+        });
+      }
+
+      readerStore$.error.set(null);
+    } catch (error) {
+      console.error("Chapter loading error:", error);
+      readerStore$.error.set(JSON.stringify(error) || "Failed to load chapter");
+      LoggingService.handleError("Chapter loading failed", { chapterNumber, error }, false);
+    } finally {
+      readerStore$.loading.set(false);
     }
-    const currentChapter = readerStore$.currentChapter.get();
-    if (!currentChapter) {
-      readerStore$.error.set("no current chapter found");
-      LoggingService.handleError("Current chapter not found", { currentChapter: currentChapter }, false);
-      return;
-    }
-    ChapterService.finishReadingChapter(currentChapter, bookProgress.id);
   },
 });
 

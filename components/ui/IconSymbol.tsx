@@ -92,7 +92,9 @@ export function IconSymbol({
     case "diamond":
       return <Ionicons name="diamond" size={size} color={color} />;
     case "heart":
-      return <MaterialIcons name="favorite" size={size} color={color} />;
+      return <AntDesign name="heart" size={size} color={color} />;
+    case "heart_empty":
+      return <AntDesign name="hearto" size={size} color={color} />;
     case "question":
       return <MaterialIcons name="help" size={size} color={color} />;
     case "google":

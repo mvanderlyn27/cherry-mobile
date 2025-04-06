@@ -8,9 +8,9 @@ import * as Haptics from "expo-haptics";
 import { Drawer } from "react-native-drawer-layout";
 
 type ChapterSidebarProps = {
-  chapters: ExtendedChapter[];
-  currentChapterId?: string;
-  onChapterSelect: (index: number) => void;
+  chapters: Record<number, ExtendedChapter>;
+  currentChapterNumber?: number;
+  onChapterSelect: (chapterNumber: number) => void;
   onClose: () => void;
   isOpen: boolean;
   children: React.ReactNode;
@@ -18,7 +18,7 @@ type ChapterSidebarProps = {
 
 export const ChapterSidebar = ({
   chapters,
-  currentChapterId,
+  currentChapterNumber,
   onChapterSelect,
   onClose,
   isOpen,
@@ -28,13 +28,14 @@ export const ChapterSidebar = ({
   const isDark = colorScheme === "dark";
   //   const drawerRef = React.useRef<Drawer>(null);
 
-  const handleSelect = (index: number) => {
+  const handleSelect = (chapterNumber: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onChapterSelect(index);
+    onChapterSelect(chapterNumber);
     // onClose();
   };
 
   const insets = useSafeAreaInsets();
+  const sortedChapters = Object.values(chapters).sort((a, b) => a.chapter_number - b.chapter_number);
   return (
     <Drawer
       open={isOpen}
@@ -51,17 +52,17 @@ export const ChapterSidebar = ({
             <Text className="font-kaisei-medium text-xl font-bold text-gray-900 dark:text-white">Summary</Text>
           </View>
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-            {chapters.map((chapter, index) => (
+            {sortedChapters.map((chapter, index) => (
               <TouchableOpacity
                 key={chapter.id}
                 className={`py-4 px-6 flex-row justify-between items-center border-b border-tab_bar_border-light dark:border-tab_bar_border-dark ${
-                  currentChapterId === chapter.id ? "bg-tabs-light dark:bg-tabs-dark" : ""
+                  currentChapterNumber === chapter.chapter_number ? "bg-tabs-light dark:bg-tabs-dark" : ""
                 }`}
-                onPress={() => handleSelect(index)}>
+                onPress={() => handleSelect(chapter.chapter_number)}>
                 <View className="flex flex-col">
                   <Text
                     className={`font-kaisei-medium text-xl flex-1 ${
-                      currentChapterId === chapter.id
+                      currentChapterNumber === chapter.chapter_number
                         ? "font-bold text-story-light dark:text-story-dark"
                         : "text-gray-800 dark:text-gray-200"
                     } ${!chapter.is_owned ? "text-gray-400 dark:text-gray-500" : ""}`}>
