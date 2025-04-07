@@ -9,10 +9,13 @@ export type SavedTag = Database["public"]["Tables"]["saved_tags"]["Row"];
 export type BookTag = Database["public"]["Tables"]["book_tags"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type User = Database["public"]["Tables"]["users"]["Row"];
+export type UserUnlock = Database["public"]["Tables"]["user_unlocks"]["Row"];
 export type BookProgress = Database["public"]["Tables"]["book_progress"]["Row"];
 export type ChapterProgress = Database["public"]["Tables"]["chapter_progress"]["Row"];
 export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type ChapterLike = Database["public"]["Tables"]["liked_chapters"]["Row"];
+export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
+export type CherryLedger = Database["public"]["Tables"]["cherry_ledger"]["Row"];
 
 // Enums
 export enum ChapterStatus {
@@ -25,6 +28,16 @@ export enum BookStatus {
   FINISHED = "finished",
   READING = "reading",
   UNREAD = "unread",
+}
+
+export enum PurchaseError {
+  NeedsMoreCherries = "NEEDS_MORE_CHERRIES",
+  ChapterNotFound = "CHAPTER_NOT_FOUND",
+  AlreadyOwned = "ALREADY_OWNED",
+  NetworkError = "NETWORK_ERROR",
+  Unknown = "UNKNOWN_ERROR",
+  NotLoggedIn = "NOT_LOGGED_IN",
+  BookNotFound = "BOOK_NOT_FOUND",
 }
 
 // Extended types for frontend use

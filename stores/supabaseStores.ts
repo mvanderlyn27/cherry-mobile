@@ -9,7 +9,7 @@ import uuid from "react-native-uuid";
 import { LoggingService } from "@/services/loggingService";
 import { appStore$ } from "./appStores";
 import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
-import { ChapterProgress } from "@/types/app";
+import { ChapterProgress, CherryLedger } from "@/types/app";
 
 // provide a function to generate ids locally
 export const generateId = () => uuid.v4();
@@ -79,11 +79,26 @@ export const users$ = observable(
   syncedSupabase({
     supabase,
     collection: "users",
+    realtime: true,
     select: (from) => from.select("*"),
     actions: ["read", "create", "update"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "users" }, false);
     },
+  })
+);
+
+export const cherryLedger$ = observable(
+  syncedSupabase({
+    supabase,
+    collection: "cherry_ledger",
+    select: (from) => from.select("*"),
+    actions: ["read", "create", "update"],
+    onError: (error) => {
+      LoggingService.handleError(error, { collection: "users" }, false);
+    },
+    waitForSet: ({ value }: WaitForSetCrudFnParams<CherryLedger>) =>
+      transactions$[value.transaction_id].created_at && users$[value.user_id].created_at, // Wait until the created_at timestamp is set before setting the value in the state
   })
 );
 export const profiles$ = observable(
@@ -174,7 +189,7 @@ export const transactions$ = observable(
     supabase,
     collection: "transactions",
     select: (from) => from.select("*"),
-    actions: ["read", "create"],
+    actions: ["read", "create", "update"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "transactions" }, false);
     },
@@ -187,7 +202,7 @@ export const userUnlocks$ = observable(
     collection: "user_unlocks",
     realtime: true,
     select: (from) => from.select("*"),
-    actions: ["read"],
+    actions: ["read", "update", "create"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "user_unlocks" }, false);
     },
@@ -213,6 +228,7 @@ export const areStoresLoaded = () => {
     interactions$,
     transactions$,
     userUnlocks$,
+    cherryLedger$,
   ];
 
   // Check if all stores have been initialized (not in loading state)

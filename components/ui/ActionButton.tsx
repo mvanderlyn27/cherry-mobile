@@ -16,7 +16,16 @@ import Animated, {
 const colors = require("@/config/colors");
 
 // Update the ActionButtonMode type to include the new mode
-type ActionButtonMode = "read" | "unlock" | "info" | "buy" | "buyGradient" | "review1" | "review2" | "continue";
+type ActionButtonMode =
+  | "read"
+  | "unlock"
+  | "info"
+  | "buy"
+  | "buyGradient"
+  | "review1"
+  | "review2"
+  | "continue"
+  | "cancel";
 type ActionButtonSize = "small" | "medium" | "large";
 
 type ActionButtonProps = {

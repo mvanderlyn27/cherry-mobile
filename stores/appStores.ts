@@ -3,7 +3,16 @@
 import { computed, observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
-import { Book, BookProgress, ExtendedBook, ExtendedChapter, ExtendedTag, SavedTag, Tag } from "@/types/app";
+import {
+  Book,
+  BookProgress,
+  ExtendedBook,
+  ExtendedChapter,
+  ExtendedTag,
+  PurchaseError,
+  SavedTag,
+  Tag,
+} from "@/types/app";
 import { bookProgress$, books$, chapters$, generateId, tags$ } from "./supabaseStores";
 import { BookService } from "@/services/bookService";
 import { authStore$ } from "./authStore";
@@ -79,6 +88,14 @@ interface ReaderStore {
   error: string | null;
   initialize: (bookId: string) => void;
   setChapter: (chapterNumber: number) => void;
+}
+interface PurchaseStore {
+  purchaseType: string | null;
+  purchaseAmount: number;
+  purchaseStatus: "pending" | "completed" | "failed" | null;
+  bookId: string | null;
+  chapterId: string | null;
+  error: PurchaseError | null;
 }
 
 // Create the observables with their respective types
@@ -273,6 +290,15 @@ export const readerStore$ = observable<ReaderStore>({
   },
 });
 
+export const purchaseStore$ = observable<PurchaseStore>({
+  // Add any state related to the purchase process here
+  purchaseType: null,
+  purchaseAmount: 0,
+  purchaseStatus: null,
+  bookId: null,
+  chapterId: null,
+  error: null,
+});
 //need to figure out how we actually want to handle this
 //probably just grab from users in supabase table
 export const cherryStore$ = observable<CherryStore>({

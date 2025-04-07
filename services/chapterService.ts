@@ -9,7 +9,7 @@ import {
   likedChapters$,
   userUnlocks$,
 } from "@/stores/supabaseStores";
-import { BookProgress, ChapterLike, ChapterProgress, ExtendedChapter } from "@/types/app";
+import { BookProgress, ChapterLike, ChapterProgress, ExtendedChapter, UserUnlock } from "@/types/app";
 import { LoggingService } from "./loggingService";
 import { BookService } from "./bookService";
 
@@ -26,7 +26,7 @@ export class ChapterService {
     }
 
     // Get chapters for the book
-    const chapters = this.getChapters(bookId);
+    let chapters = this.getChapters(bookId);
     if (!chapters || Object.values(chapters).length === 0) {
       throw new Error("No chapters found");
     }
@@ -234,7 +234,10 @@ export class ChapterService {
     const extendedChapters: ExtendedChapter[] = chapters.map((chapter) => {
       const likes = chapter_likes.filter((like) => like.chapter_id === chapter.id).length;
       const comments_count = comments.filter((comment) => comment.chapter_id === chapter.id).length;
-      const is_owned = owns_book || unlocked_chapters.some((unlock) => unlock.chapter_id === chapter.id);
+      const is_owned =
+        owns_book ||
+        unlocked_chapters.some((unlock) => unlock.chapter_id === chapter.id) ||
+        chapter.chapter_number === 1;
       const is_liked =
         chapter_likes.filter((like) => like.chapter_id === chapter.id && like.user_id === userId).length > 0;
       const is_unlocked = unlocked_chapters.filter((unlock) => unlock.chapter_id === chapter.id).length > 0;
@@ -386,5 +389,38 @@ export class ChapterService {
 
     // Update UI state
     readerStore$.chapters[chapterNumber].is_liked.set(!chapter.is_liked);
+  }
+
+  /**
+   * Refresh reader data after a purchase or other changes
+   */
+  static async refreshData(bookId: string) {
+    const userId = authStore$.userId.get();
+    if (!userId) {
+      throw new Error("No user found");
+    }
+
+    try {
+      // Get updated book details
+      const book = BookService.getBookDetails(bookId);
+      if (!book) {
+        throw new Error("Book not found");
+      }
+
+      // Get updated chapters
+      const chapters = this.getChapters(bookId);
+      if (!chapters || Object.values(chapters).length === 0) {
+        throw new Error("No chapters found");
+      }
+
+      // Update reader store with fresh data
+      readerStore$.book.set(book);
+      readerStore$.chapters.set(chapters);
+
+      return { book, chapters };
+    } catch (error) {
+      LoggingService.handleError("Failed to refresh reader data", { bookId, error }, false);
+      throw error;
+    }
   }
 }

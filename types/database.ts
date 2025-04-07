@@ -1,10 +1,3 @@
-// export type Json =
-//   | string
-//   | number
-//   | boolean
-//   | null
-//   | { [key: string]: Json | undefined }
-//   | Json[]
 export type Json = Record<string, any>;
 
 export type Database = {
@@ -588,11 +581,12 @@ export type Database = {
           book_id: string | null;
           chapter_id: string | null;
           created_at: string;
-          credits: number;
+          credits: number | null;
+          error: string | null;
           id: string;
           payment_intent_id: string | null;
-          price: number;
-          status: Database["public"]["Enums"]["transaction_status"] | null;
+          price: number | null;
+          status: Database["public"]["Enums"]["transaction_status"];
           transaction_type: Database["public"]["Enums"]["transaction_type"];
           updated_at: string;
           user_id: string | null;
@@ -601,11 +595,12 @@ export type Database = {
           book_id?: string | null;
           chapter_id?: string | null;
           created_at?: string;
-          credits: number;
+          credits?: number | null;
+          error?: string | null;
           id?: string;
           payment_intent_id?: string | null;
-          price: number;
-          status?: Database["public"]["Enums"]["transaction_status"] | null;
+          price?: number | null;
+          status?: Database["public"]["Enums"]["transaction_status"];
           transaction_type: Database["public"]["Enums"]["transaction_type"];
           updated_at?: string;
           user_id?: string | null;
@@ -614,11 +609,12 @@ export type Database = {
           book_id?: string | null;
           chapter_id?: string | null;
           created_at?: string;
-          credits?: number;
+          credits?: number | null;
+          error?: string | null;
           id?: string;
           payment_intent_id?: string | null;
-          price?: number;
-          status?: Database["public"]["Enums"]["transaction_status"] | null;
+          price?: number | null;
+          status?: Database["public"]["Enums"]["transaction_status"];
           transaction_type?: Database["public"]["Enums"]["transaction_type"];
           updated_at?: string;
           user_id?: string | null;

@@ -24,13 +24,14 @@ import Animated, {
 } from "react-native-reanimated";
 import { BookService } from "@/services/bookService";
 import { authStore$ } from "@/stores/authStore";
-import { readerStore$ } from "@/stores/appStores";
+import { purchaseStore$, readerStore$ } from "@/stores/appStores";
 import { ChapterService } from "@/services/chapterService";
 import { ExtendedChapter } from "@/types/app";
-import { generateId } from "@/stores/supabaseStores";
+import { generateId, users$ } from "@/stores/supabaseStores";
 import { when } from "@legendapp/state";
 import { RatingSheet } from "@/components/reader/RatingBottomDrawer";
 import { LoggingService } from "@/services/loggingService";
+import { TransactionService } from "@/services/transactionService";
 
 const ReaderScreen = observer(() => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -44,7 +45,10 @@ const ReaderScreen = observer(() => {
   const currentChapterNumber = use$(readerStore$.currentChapterNumber);
   const chapterContent = use$(readerStore$.chapterContent);
   const loading = use$(readerStore$.loading);
+  const credits = use$(users$[userId].credits);
   const error = use$(readerStore$.error);
+  const purchaseStatus = use$(purchaseStore$.purchaseStatus);
+  const purchaseError = use$(purchaseStore$.error);
 
   // Derived state for current chapter
   const currentChapter = use$(() => {
@@ -58,7 +62,6 @@ const ReaderScreen = observer(() => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [chapterToUnlock, setChapterToUnlock] = useState<number | null>(null);
   const [fontSize, setFontSize] = useState(18);
-  const [credits] = useState(100);
   const [uiVisible, setUiVisible] = useState(true);
   const [isInitialized, setInitialized] = useState(false);
   const [showRatingDrawer, setShowRatingDrawer] = useState(false);
@@ -321,7 +324,23 @@ const ReaderScreen = observer(() => {
   };
 
   // Handle chapter purchase
-  const handlePurchaseChapter = () => {
+  const handlePurchaseChapter = async () => {
+    if (!chapters || !chapterToUnlock) {
+      LoggingService.handleError("missing info for chapter purchase", { bookId: id }, false);
+      return;
+    }
+    const { success } = TransactionService.buyChapter(chapters[chapterToUnlock!]?.id);
+    if (success) {
+      try {
+        await ChapterService.refreshData(id);
+        readerStore$.setChapter(chapterToUnlock); // Assuming this method exists in readerStore$
+        setShowPurchaseModal(false);
+        setShowChapterList(false);
+      } catch (error) {
+        LoggingService.handleError("Failed to refresh after purchase", { bookId: id, error }, false);
+      }
+    }
+
     // Implementation for purchasing chapters
     // if (chapterToUnlock !== null && credits >= 50) {
     //   // Update chapter to unlocked
@@ -363,6 +382,7 @@ const ReaderScreen = observer(() => {
                 onPress={handleContentPress}
                 onScrollEnd={handleScrollEnd} // Add the new scroll end handler
                 fontSize={fontSize}
+                lastChapter={currentChapterNumber === Object.keys(chapters).length}
               />
             ) : (
               <LoadingScreen />
@@ -406,17 +426,23 @@ const ReaderScreen = observer(() => {
       {showPurchaseModal && chapterToUnlock !== null && chapters && (
         <PurchaseModal
           chapter={chapters[chapterToUnlock]}
-          credits={credits}
+          credits={credits || 0}
           onPurchase={handlePurchaseChapter}
-          onClose={() => setShowPurchaseModal(false)}
+          onClose={() => {
+            setShowPurchaseModal(false);
+            purchaseStore$.error.set(null);
+            purchaseStore$.purchaseStatus.set(null);
+          }}
+          status={purchaseStatus}
+          error={purchaseError}
         />
       )}
 
       {/* Book Completion Rating Drawer */}
-      {showRatingDrawer && book && <RatingSheet />}
+      {/* {showRatingDrawer && book && <RatingSheet />} */}
 
       {/* Confetti effect when book is completed */}
-      {showRatingDrawer && <ConfettiCannon count={100} origin={{ x: -10, y: 0 }} autoStart={true} fadeOut={true} />}
+      {/* {showRatingDrawer && <ConfettiCannon count={100} origin={{ x: -10, y: 0 }} autoStart={true} fadeOut={true} />} */}
     </GestureHandlerRootView>
   );
 });
