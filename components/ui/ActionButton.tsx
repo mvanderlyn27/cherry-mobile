@@ -154,7 +154,7 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size =
       case "buy":
         return "| Unlock Full Story";
       case "buyGradient":
-        return "| Unlock Full Story";
+        return "| Add More Cherries";
       case "review1":
         return "Read Story";
       case "review2":

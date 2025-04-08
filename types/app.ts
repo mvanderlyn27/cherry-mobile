@@ -38,6 +38,7 @@ export enum PurchaseError {
   Unknown = "UNKNOWN_ERROR",
   NotLoggedIn = "NOT_LOGGED_IN",
   BookNotFound = "BOOK_NOT_FOUND",
+  PaymentFailed = "PAYMENT_FAILED",
 }
 
 // Extended types for frontend use

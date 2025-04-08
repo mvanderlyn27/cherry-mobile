@@ -11,6 +11,7 @@ import {
   likedChapters$,
   savedTags$,
   generateId,
+  users$,
 } from "../stores/supabaseStores";
 import { LoggingService } from "./loggingService";
 import { Observable, syncState, when } from "@legendapp/state";
@@ -37,32 +38,37 @@ export class BookService {
    * @returns Detailed book information with chapters and user-specific data
    */
   static getBookDetails(bookId: string): ExtendedBook | null {
-    const userId = authStore$.userId.get();
+    const userId = authStore$.userId.peek();
     if (!userId) return null;
     try {
-      // Get the book data
-      const book = books$[bookId].get();
+      const hasPremium = users$[userId]?.premium_user.peek() || false;
+      // peek the book data
+      const book = books$[bookId].peek();
       //   console.log("book", book, "bookid", bookId, "userid", userId);
       if (!book) return null;
 
-      // get is saved
+      // peek is saved
       const is_saved = userId
-        ? Object.values(savedBooks$.get() || {}).some((saved) => saved.book_id === bookId && saved.user_id === userId)
+        ? Object.values(savedBooks$.peek() || {}).some((saved) => saved.book_id === bookId && saved.user_id === userId)
         : false;
 
-      // get is  hot
+      // peek is  hot
       const is_hot = (book.like_count || 0) > HOT_THRESHOLD;
       //map of sums of likes per book
 
-      // Get book Tags
-      const bookTags: BookTag[] = Object.values(bookTags$.get() || {}).filter((tag) => tag.book_id === bookId);
-      // Get user unlocks for this book
-      const allUserUnlocks = Object.values(userUnlocks$.get() || {});
-      const userBookUnlocks = allUserUnlocks.filter((unlock) => unlock.user_id === userId && unlock.book_id === bookId);
-
+      // peek book Tags
+      const bookTags: BookTag[] = Object.values(bookTags$.peek() || {}).filter((tag) => tag.book_id === bookId);
+      // peek user unlocks for this book
+      const allUserUnlocks = Object.values(userUnlocks$.peek() || {});
       // Check if the entire book is unlocked (user has an unlock entry with just the book_id)
-      const isEntireBookUnlocked = userBookUnlocks.some((unlock) => unlock.book_id === bookId && !unlock.chapter_id);
-      const bookProgress = Object.values(bookProgress$.get() || {}).find(
+      const bookUnlocked =
+        allUserUnlocks.find(
+          (unlock) =>
+            unlock.user_id === userId &&
+            unlock.book_id === bookId &&
+            (unlock.chapter_id === null || unlock.chapter_id === undefined)
+        ) !== undefined;
+      const bookProgress = Object.values(bookProgress$.peek() || {}).find(
         (progress) => progress.book_id === bookId && userId === progress.user_id
       );
       // Extended chapter data with likes and locked status, and progress
@@ -72,7 +78,7 @@ export class BookService {
       return {
         ...book,
         tags: bookTags,
-        is_owned: userId ? isEntireBookUnlocked : false,
+        is_owned: hasPremium || bookUnlocked,
         is_saved,
         is_hot,
         progress: bookProgress,

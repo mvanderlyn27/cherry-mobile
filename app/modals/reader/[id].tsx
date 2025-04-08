@@ -361,7 +361,7 @@ const ReaderScreen = observer(() => {
     ChapterService.toggleChapterLike(currentChapterNumber);
   };
   if (!book || !chapters || currentChapterNumber === null || !chapterContent) {
-    console.log("loading", book, chapters, currentChapterNumber, chapterContent);
+    // console.log("loading", book, chapters, currentChapterNumber, chapterContent);
     return <LoadingScreen />;
   }
   return (

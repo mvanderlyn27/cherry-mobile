@@ -6,6 +6,10 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Icon } from "@/types/app";
 import Header from "@/components/ui/Header";
 import { useColorScheme } from "nativewind";
+import { authStore$ } from "@/stores/authStore";
+import { users$ } from "@/stores/supabaseStores";
+import { use$ } from "@legendapp/state/react";
+import ActionButton from "@/components/ui/ActionButton";
 const colors = require("@/config/colors");
 
 // Mock user data - replace with your actual auth logic
@@ -14,8 +18,10 @@ const mockUser: null | { name: string; email: string } = null; // Set to null to
 export default function Page() {
   const { colorScheme, setColorScheme } = useColorScheme();
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
+  const userId = use$(authStore$.userId);
+  if (!userId) return null;
+  const credits = use$(users$[userId].credits);
 
   const handleCreateAccount = () => {
     // Navigate to sign up screen or show modal
@@ -58,19 +64,35 @@ export default function Page() {
     <ScrollView className="bg-background-light dark:bg-background-dark">
       {!mockUser ? (
         // Logged out state
+        // <View className="mb-6">
+        //   <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl">
+        //     <Text className="font-kaisei-medium text-lg text-story-light dark:text-story-dark mb-2">
+        //       Create an account
+        //     </Text>
+        //     <Text className="text-story-light dark:text-story-dark mb-4">
+        //       Sign up to sync your library and purchases across devices
+        //     </Text>
+        //     <TouchableOpacity
+        //       className="bg-buttons-light dark:bg-buttons-dark py-3 rounded-lg items-center"
+        //       onPress={handleCreateAccount}>
+        //       <Text className="text-white font-medium">Create Account</Text>
+        //     </TouchableOpacity>
+        //   </View>
+
+        //   {renderSettingItem(Icon.diamond, "Restore Purchases", handleRestorePurchases)}
+        // </View>
         <View className="mb-6">
-          <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl">
-            <Text className="font-kaisei-medium text-lg text-story-light dark:text-story-dark mb-2">
-              Create an account
+          <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl flex-col items-center justify-center gap-4">
+            <Text className="font-kaisei-medium  p-2  text-2xl text-story-light dark:text-story-dark mb-2">
+              Cherry Balance:
             </Text>
-            <Text className="text-story-light dark:text-story-dark mb-4">
-              Sign up to sync your library and purchases across devices
+
+            <Text className="font-kaisei-medium  text-5xl font-bold text-cherry-light dark:text-cherry-dark mb-4">
+              {credits}
             </Text>
-            <TouchableOpacity
-              className="bg-buttons-light dark:bg-buttons-dark py-3 rounded-lg items-center"
-              onPress={handleCreateAccount}>
-              <Text className="text-white font-medium">Create Account</Text>
-            </TouchableOpacity>
+            <View className="flex-row justify-center items-center">
+              <ActionButton label="Buy Cherries" mode={"buy"} onPress={() => router.navigate("/(tabs)/cherry")} />
+            </View>
           </View>
 
           {renderSettingItem(Icon.diamond, "Restore Purchases", handleRestorePurchases)}
@@ -108,9 +130,8 @@ export default function Page() {
           "Dark Mode",
           undefined,
           <Switch
-            value={darkMode}
+            value={colorScheme === "dark"}
             onValueChange={(val) => {
-              setDarkMode(val);
               setColorScheme(val ? "dark" : "light");
             }}
             trackColor={{ false: "#D1D1D6", true: "#E57373" }}

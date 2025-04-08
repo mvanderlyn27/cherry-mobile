@@ -32,6 +32,10 @@ import { appStore$, bookDetailsStore$ } from "@/stores/appStores";
 import { authStore$ } from "@/stores/authStore";
 import { use$ } from "@legendapp/state/react";
 import { tags$, users$ } from "@/stores/supabaseStores";
+import { TransactionService } from "@/services/transactionService";
+import { NotificationService } from "@/services/notificationService";
+import { LoggingService } from "@/services/loggingService";
+import { ChapterService } from "@/services/chapterService";
 const colors = require("@/config/colors");
 
 type BookPageProps = {
@@ -49,7 +53,8 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
   if (!userId) {
     return null;
   }
-  const books = use$(bookDetailsStore$.books);
+  const books = use$(bookDetailsStore$.books.get());
+  console.log(books);
   if (!books) {
     return null;
   }
@@ -72,13 +77,22 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 4000));
-      console.log("Book purchased:", bookId);
+      const { success, error } = TransactionService.buyBook(bookId);
+      if (success) {
+        console.log("test");
+        await ChapterService.refreshData(bookId);
+        bookDetailsStore$.refreshBooks();
+        NotificationService.showInfo("Bought book!");
+        onReadNow(bookId);
+      }
+      if (error) {
+        LoggingService.handleError(new Error(error), { method: "handle buy book" }, true);
+      }
     } catch (error) {
+      NotificationService.showError("Add more credits to buy");
       console.error("Failed to purchase book:", error);
     } finally {
       setIsLoading(false);
-      onReadNow(bookId);
     }
   };
   const handleBookChange = (bookId: string) => {

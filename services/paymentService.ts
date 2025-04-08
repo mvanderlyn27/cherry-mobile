@@ -1,4 +1,9 @@
 import { observable } from "@legendapp/state";
+import Purchases, { MakePurchaseResult, PurchasesPackage } from "react-native-purchases";
+import { Platform } from "react-native";
+import { appStore$, purchaseStore$ } from "@/stores/appStores";
+import { LoggingService } from "./loggingService";
+import { Component } from "react";
 
 // Credit package options
 export type CreditPackage = {
@@ -10,45 +15,27 @@ export type CreditPackage = {
   featured?: boolean;
 };
 
-// Transaction history item
-export type Transaction = {
-  id: string;
-  date: Date;
-  credits: number;
-  amount: number;
-  type: "purchase" | "spent" | "refund" | "bonus";
-  description: string;
-};
-
-// User credit state
-export const userCredits$ = observable({
-  balance: 0,
-  transactions: [] as Transaction[],
-  loading: false,
-  error: null as string | null,
-});
-
 // Available credit packages
 export const creditPackages: CreditPackage[] = [
   {
     id: "basic",
     name: "Basic",
     credits: 50,
-    price: 4.99,
+    price: 2.49,
   },
   {
     id: "popular",
     name: "Popular",
-    credits: 125,
-    price: 9.99,
+    credits: 100,
+    price: 5.99,
     discount: 15,
     featured: true,
   },
   {
     id: "premium",
     name: "Premium",
-    credits: 300,
-    price: 19.99,
+    credits: 250,
+    price: 7.99,
     discount: 25,
   },
   {
@@ -60,120 +47,54 @@ export const creditPackages: CreditPackage[] = [
   },
 ];
 
-// Fetch user credit balance
-export const fetchUserCredits = async (userId: string): Promise<void> => {
-  try {
-    userCredits$.loading.set(true);
-    userCredits$.error.set(null);
-
-    // TODO: Replace with actual API call
-    // Simulating API response
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Mock data
-    userCredits$.balance.set(75);
-    userCredits$.transactions.set([
-      {
-        id: "1",
-        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        credits: 100,
-        amount: 9.99,
-        type: "purchase",
-        description: "Purchased 100 credits",
-      },
-      {
-        id: "2",
-        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        credits: -25,
-        amount: 0,
-        type: "spent",
-        description: 'Unlocked "The Secret Promise"',
-      },
-    ]);
-  } catch (error) {
-    userCredits$.error.set("Failed to fetch credit balance");
-    console.error("Error fetching credits:", error);
-  } finally {
-    userCredits$.loading.set(false);
-  }
-};
-
-// Purchase credits
-export const purchaseCredits = async (packageId: string, paymentMethod: string): Promise<boolean> => {
-  try {
-    userCredits$.loading.set(true);
-    userCredits$.error.set(null);
-
-    const selectedPackage = creditPackages.find((pkg) => pkg.id === packageId);
-    if (!selectedPackage) {
-      throw new Error("Invalid package selected");
+export class PaymentService {
+  // interact with revenu cat  for IAP, and restoring purchases
+  static initializeRevenueCat = (userId: string) => {
+    // Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+    if (Platform.OS === "ios") {
+      Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_REVENUE_CAT_IOS_API_KEY!, appUserID: userId });
+    } else if (Platform.OS === "android") {
+      Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_REVENUE_CAT_ANDROID_API_KEY!, appUserID: userId });
     }
+    appStore$.revenueCatReady.set(true);
+  };
 
-    // TODO: Implement actual payment processing
-    // Simulating payment processing
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Update balance after successful purchase
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
-      date: new Date(),
-      credits: selectedPackage.credits,
-      amount: selectedPackage.price,
-      type: "purchase",
-      description: `Purchased ${selectedPackage.name} package`,
-    };
-
-    userCredits$.balance.set((prev) => prev + selectedPackage.credits);
-    userCredits$.transactions.set((prev) => [newTransaction, ...prev]);
-
-    return true;
-  } catch (error) {
-    userCredits$.error.set("Failed to complete purchase");
-    console.error("Error purchasing credits:", error);
-    return false;
-  } finally {
-    userCredits$.loading.set(false);
-  }
-};
-
-// Spend credits (for unlocking content)
-export const spendCredits = async (amount: number, itemId: string, itemName: string): Promise<boolean> => {
-  try {
-    const currentBalance = userCredits$.balance.peek();
-    if (currentBalance < amount) {
-      userCredits$.error.set("Insufficient credits");
-      return false;
+  static loadCreditPackages = async () => {
+    try {
+      const offerings = await Purchases.getOfferings();
+      if (offerings.current !== null && offerings.current.availablePackages.length !== 0) {
+        // Display packages for sale
+        const packages: PurchasesPackage[] = offerings.all["cherries"].availablePackages;
+        purchaseStore$.cherryPackages.set(packages);
+        appStore$.cherryPackagesReady.set(true);
+      } else {
+        LoggingService.handleError(
+          new Error("no cherry packages loaded"),
+          { components: "PaymentService.getCreditPackages" },
+          false
+        );
+        purchaseStore$.cherryPackages.set([]);
+      }
+    } catch (e) {
+      LoggingService.handleError(e, { components: "PaymentService.getCreditPackages" }, false);
+      purchaseStore$.cherryPackages.set([]);
     }
-
-    userCredits$.loading.set(true);
-
-    // TODO: Implement actual API call to record the transaction
-    // Simulating API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
-      date: new Date(),
-      credits: -amount,
-      amount: 0,
-      type: "spent",
-      description: `Unlocked "${itemName}"`,
-    };
-
-    userCredits$.balance.set((prev) => prev - amount);
-    userCredits$.transactions.set((prev) => [newTransaction, ...prev]);
-
-    return true;
-  } catch (error) {
-    userCredits$.error.set("Failed to process transaction");
-    console.error("Error spending credits:", error);
-    return false;
-  } finally {
-    userCredits$.loading.set(false);
-  }
-};
-
-// Get transaction history
-export const getTransactionHistory = (): Transaction[] => {
-  return userCredits$.transactions.get();
-};
+  };
+  static purchaseCreditPackage = async (
+    cherryPackage: PurchasesPackage
+  ): Promise<{ data: MakePurchaseResult | null; error: string | null }> => {
+    try {
+      const purchase = await Purchases.purchasePackage(cherryPackage);
+      console.log("purchase", purchase);
+      return { data: purchase, error: null };
+    } catch (e) {
+      console.log("purchase error", e);
+      return { data: null, error: JSON.stringify(e) };
+    }
+  };
+  static restorePurchases = async () => {
+    //find existing user if available, clone users info in the DB
+    // const purchaserInfo = await Purchases.getPurchaserInfo();
+    // return purchaserInfo;
+  };
+}

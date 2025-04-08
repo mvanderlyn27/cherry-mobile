@@ -18,12 +18,16 @@ import { BookService } from "@/services/bookService";
 import { authStore$ } from "./authStore";
 import { ChapterService } from "@/services/chapterService";
 import { LoggingService } from "@/services/loggingService";
+import { PurchasesPackage } from "react-native-purchases";
 
 // Type interfaces for the stores
 interface AppStore {
   fontsReady: boolean;
   loggedIn: boolean;
   storesLoaded: boolean;
+  revenueCatReady: boolean;
+  subscriptionStatusReady: boolean;
+  cherryPackagesReady: boolean;
   error: string | null;
   userId: string | null;
 }
@@ -76,6 +80,7 @@ interface UserPreferencesStore {
 interface BookDetailsStore {
   bookIds: string[] | null; // Assuming this is a string, adjust as needed for your use case and data structure
   books: ExtendedBook[] | null;
+  refreshBooks: () => void; // Function typ
   loading: boolean;
   error: string | null;
 }
@@ -90,6 +95,7 @@ interface ReaderStore {
   setChapter: (chapterNumber: number) => void;
 }
 interface PurchaseStore {
+  cherryPackages: PurchasesPackage[] | null;
   purchaseType: string | null;
   purchaseAmount: number;
   purchaseStatus: "pending" | "completed" | "failed" | null;
@@ -103,6 +109,9 @@ export const appStore$ = observable<AppStore>({
   fontsReady: false,
   loggedIn: false,
   storesLoaded: false,
+  revenueCatReady: false,
+  subscriptionStatusReady: false,
+  cherryPackagesReady: false,
   error: null,
   userId: null,
 });
@@ -204,6 +213,12 @@ export const bookDetailsStore$ = observable<BookDetailsStore>({
     const bookIds = bookDetailsStore$.bookIds.get();
     return userId && bookIds && bookIds.length > 0 ? bookIds.map((bookId) => BookService.getBookDetails(bookId)) : [];
   },
+  refreshBooks() {
+    const bookIds = bookDetailsStore$.bookIds.get();
+    if (!bookIds) return;
+    const books = bookIds.map((bookId) => BookService.getBookDetails(bookId)).filter((book) => book) as ExtendedBook[];
+    bookDetailsStore$.books.set(books);
+  },
   loading: false,
   error: null,
 });
@@ -292,6 +307,7 @@ export const readerStore$ = observable<ReaderStore>({
 
 export const purchaseStore$ = observable<PurchaseStore>({
   // Add any state related to the purchase process here
+  cherryPackages: null,
   purchaseType: null,
   purchaseAmount: 0,
   purchaseStatus: null,

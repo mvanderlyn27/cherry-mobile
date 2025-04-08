@@ -21,7 +21,7 @@ export default function Page() {
   // Combine current book with category books for display
   const userId = use$(authStore$.userId);
   if (!userId) return null;
-  const allBooks = use$(bookDetailsStore$.books.get());
+  const allBooks = use$(bookDetailsStore$.books);
   if (!allBooks || allBooks.length === 0) return null;
   const index = allBooks.findIndex((book) => book?.id === id);
   if (index === -1) return null;

@@ -23,11 +23,25 @@ import { appStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
 import { BookService } from "@/services/bookService";
 import { waitForStoresLoaded } from "@/stores/supabaseStores";
+import { useColorScheme } from "nativewind";
+import { PaymentService } from "@/services/paymentService";
+import { authStore$ } from "@/stores/authStore";
+import { SubscriptionService } from "@/services/subscriptionService";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const loading = use$(() => appStore$.fontsReady && appStore$.loggedIn && appStore$.storesLoaded);
+  const { setColorScheme } = useColorScheme();
+  const loading = use$(
+    () =>
+      appStore$.fontsReady &&
+      appStore$.loggedIn &&
+      appStore$.storesLoaded &&
+      appStore$.revenueCatReady &&
+      appStore$.subscriptionStatusReady &&
+      appStore$.cherryPackagesReady
+  );
+  const userId = use$(authStore$.userId);
   const [fontsLoaded, error] = useFonts({
     KaiseiDecol_400Regular,
     KaiseiDecol_500Medium,
@@ -39,11 +53,20 @@ export default function RootLayout() {
   useEffect(() => {
     //initialize all services
     const init = async () => {
+      setColorScheme("light");
       await AuthService.initialize();
       await waitForStoresLoaded();
+      await PaymentService.loadCreditPackages();
     };
     init();
   }, []);
+  useEffect(() => {
+    //initialize all services
+    if (userId) {
+      PaymentService.initializeRevenueCat(userId);
+      SubscriptionService.listenToSubscriptionStatus(userId);
+    }
+  }, [userId]);
   useEffect(() => {
     if (!loading) {
       //if we're logged in and all services are ready, hide the splash screen

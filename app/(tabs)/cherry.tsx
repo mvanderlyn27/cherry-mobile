@@ -8,13 +8,14 @@ import { WatchAdsCard } from "@/components/cherry/WatchAdsCard";
 import Header from "@/components/ui/Header";
 import { Icon } from "@/types/app";
 import { useRouter } from "expo-router";
+import { SubscriptionService } from "@/services/subscriptionService";
 
 export default function Page({ modalMode }: { modalMode?: boolean }) {
   const router = useRouter();
-  const handleSubscribe = () => {
-    // TODO: handle subscribe
-    console.log("handle subsscribe");
+  const handleSubscribe = async () => {
+    const subscriptionResult = await SubscriptionService.presentPaywall();
   };
+
   return (
     <SafeAreaView
       className="flex-1 bg-background-light dark:bg-background-dark"
@@ -33,8 +34,8 @@ export default function Page({ modalMode }: { modalMode?: boolean }) {
       <ScrollView className="flex-1 px-4">
         <SubscriptionCard handleSubscribe={handleSubscribe} />
         <PurchaseCard />
-        <StreakCard />
-        <WatchAdsCard />
+        {/* <StreakCard /> */}
+        {/* <WatchAdsCard /> */}
       </ScrollView>
     </SafeAreaView>
   );

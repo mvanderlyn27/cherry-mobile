@@ -12,6 +12,8 @@ import { LoggingService } from "./loggingService";
 import { CherryLedger, PurchaseError, Transaction, UserUnlock } from "@/types/app";
 import { purchaseStore$ } from "@/stores/appStores";
 import { currentISOTime } from "posthog-react-native/lib/posthog-core/src/utils";
+import { PurchasesPackage } from "react-native-purchases";
+import { PaymentService } from "./paymentService";
 
 export class TransactionService {
   //eventually need to move this to use supabse functions to handle checking
@@ -229,7 +231,10 @@ export class TransactionService {
     return { success: true };
   }
 
-  static buyCherries(cherries: number): { success: boolean; error?: PurchaseError } {
+  static async buyCherries(
+    cherries: number,
+    cherryPackage: PurchasesPackage
+  ): Promise<{ success: boolean; error?: PurchaseError }> {
     purchaseStore$.purchaseStatus.set("pending");
     const userId = authStore$.userId.get();
     if (!userId) {
@@ -275,7 +280,19 @@ export class TransactionService {
     }
 
     // Do the IAP With revenue cat here
-
+    const { data, error } = await PaymentService.purchaseCreditPackage(cherryPackage);
+    if (error) {
+      LoggingService.handleError(
+        new Error("Error purchasing cherries"),
+        { collection: "transactions", action: "buyCherries" },
+        false
+      );
+      transactions$[transactionId].assign({ status: "failed", error: PurchaseError.PaymentFailed });
+      purchaseStore$.purchaseStatus.set("failed");
+      purchaseStore$.error.set(PurchaseError.PaymentFailed);
+      return { success: false, error: PurchaseError.PaymentFailed };
+    }
+    const paymentTransactionId = data?.transaction?.transactionIdentifier;
     users$[userId].credits.set(cherries + curCherries);
     //update user_unlocks
     //update ledger
@@ -289,7 +306,7 @@ export class TransactionService {
     //   new_balance: cherries + curCherries,
     // } as CherryLedger);
     //complete transaction
-    transactions$[transactionId].status.set("completed");
+    transactions$[transactionId].assign({ status: "completed", payment_intent_id: paymentTransactionId });
     purchaseStore$.purchaseStatus.set("completed");
     purchaseStore$.error.set(null);
     return { success: true };

@@ -7,6 +7,7 @@ import {
   comments$,
   generateId,
   likedChapters$,
+  users$,
   userUnlocks$,
 } from "@/stores/supabaseStores";
 import { BookProgress, ChapterLike, ChapterProgress, ExtendedChapter, UserUnlock } from "@/types/app";
@@ -162,7 +163,7 @@ export class ChapterService {
     if (!userId) {
       throw new Error("No user found");
     }
-    console.log("Loading chapter", chapterNumber);
+    // console.log("Loading chapter", chapterNumber);
 
     const chapters = this.getChapters(bookId);
     if (!chapters || !chapters[chapterNumber]) {
@@ -216,12 +217,15 @@ export class ChapterService {
    */
   static getChapters(bookId: string): Record<number, ExtendedChapter> {
     const userId = authStore$.userId.get();
+    if (!userId) {
+      return {};
+    }
+    const book = BookService.getBookDetails(bookId);
+    const owns_book = book && book.is_owned;
+    const hasPremium = users$[userId].premium_user.get();
     const chapters = Object.values(chapters$.get() || {}).filter((chapter) => chapter.book_id === bookId);
     const comments = Object.values(comments$.get() || {}).filter((comment) => comment.book_id === bookId);
-    const owns_book =
-      Object.values(userUnlocks$.get() || {}).find(
-        (unlock) => unlock.book_id === bookId && userId === unlock.user_id && unlock.chapter_id === null
-      ) !== undefined;
+
     const unlocked_chapters = Object.values(userUnlocks$.get() || {}).filter(
       (unlock) => unlock.book_id === bookId && userId === unlock.user_id
     );
@@ -235,6 +239,7 @@ export class ChapterService {
       const likes = chapter_likes.filter((like) => like.chapter_id === chapter.id).length;
       const comments_count = comments.filter((comment) => comment.chapter_id === chapter.id).length;
       const is_owned =
+        hasPremium ||
         owns_book ||
         unlocked_chapters.some((unlock) => unlock.chapter_id === chapter.id) ||
         chapter.chapter_number === 1;
@@ -242,7 +247,6 @@ export class ChapterService {
         chapter_likes.filter((like) => like.chapter_id === chapter.id && like.user_id === userId).length > 0;
       const is_unlocked = unlocked_chapters.filter((unlock) => unlock.chapter_id === chapter.id).length > 0;
       const progress = chapter_progress.find((progress) => progress.chapter_id === chapter.id);
-
       return {
         ...chapter,
         likes,
@@ -412,7 +416,10 @@ export class ChapterService {
       if (!chapters || Object.values(chapters).length === 0) {
         throw new Error("No chapters found");
       }
-
+      console.log(
+        "chapter owned: ",
+        Object.values(chapters || {}).map((chapter) => chapter.is_owned)
+      );
       // Update reader store with fresh data
       readerStore$.book.set(book);
       readerStore$.chapters.set(chapters);
