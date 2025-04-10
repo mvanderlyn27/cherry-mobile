@@ -5,8 +5,9 @@ import { LoggingService } from "@/services/loggingService";
 
 const GoogleSignInButton = () => {
   GoogleSignin.configure({
-    scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+    // scopes: ["https://www.googleapis.com/auth/drive.readonly"],
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
+    // webClientId: "",
   });
   const signIn = async () => {
     try {
