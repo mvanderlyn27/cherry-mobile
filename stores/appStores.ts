@@ -24,6 +24,7 @@ import { PurchasesPackage } from "react-native-purchases";
 interface AppStore {
   fontsReady: boolean;
   loggedIn: boolean;
+  anonymous: boolean;
   storesLoaded: boolean;
   revenueCatReady: boolean;
   subscriptionStatusReady: boolean;
@@ -108,6 +109,7 @@ interface PurchaseStore {
 export const appStore$ = observable<AppStore>({
   fontsReady: false,
   loggedIn: false,
+  anonymous: false,
   storesLoaded: false,
   revenueCatReady: false,
   subscriptionStatusReady: false,
@@ -266,8 +268,8 @@ export const readerStore$ = observable<ReaderStore>({
     readerStore$.loading.set(true);
 
     try {
-      const book = readerStore$.book.peek();
-      const chapters = readerStore$.chapters.peek();
+      const book = readerStore$.book.get();
+      const chapters = readerStore$.chapters.get();
 
       if (!book || !chapters) {
         throw new Error("Book or chapters not loaded");

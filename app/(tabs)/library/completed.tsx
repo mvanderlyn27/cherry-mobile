@@ -15,10 +15,9 @@ const CompletedPage = observer(() => {
   const router = useRouter();
 
   const userId = use$(authStore$.userId);
-  if (!userId) return null;
-  const credits = use$(users$[userId].credits) || 0;
+  const credits = use$(users$[userId || "placeholder"].credits);
   //need logic to get this, will be finished owned books
-  const books = use$(() => BookService.getCompletedBooks());
+  const books = use$(() => (userId ? BookService.getCompletedBooks() : []));
   // const isLoading = use$(libraryStore$.isLoading);
   const isLoading = false;
   const handleBookPress = (id: string) => {
@@ -44,7 +43,7 @@ const CompletedPage = observer(() => {
           onBookPress={(id) => handleBookPress(id)}
           onBookRead={(id) => handleBookRead(id)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
-          credits={credits}
+          credits={credits || 0}
         />
       )}
     </View>

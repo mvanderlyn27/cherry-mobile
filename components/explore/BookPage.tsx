@@ -67,9 +67,9 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
   //get is owned
   const isUnlocked = currentBook.is_owned;
   //get if the user can buy the book
-  const curCredits = use$(users$[userId].credits) || 0;
+  const curCredits = use$(users$[userId || "placeholder"].credits);
   //check if we can buy
-  const canBuy = curCredits >= currentBook.price;
+  const canBuy = curCredits ? curCredits >= currentBook.price : false;
   //is saved
   // console.log("current book", currentBook.is_saved);
 

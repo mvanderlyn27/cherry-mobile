@@ -4,6 +4,7 @@ import { Platform } from "react-native";
 import { appStore$, purchaseStore$ } from "@/stores/appStores";
 import { LoggingService } from "./loggingService";
 import { Component } from "react";
+import { AuthService } from "./authService";
 
 // Credit package options
 export type CreditPackage = {
@@ -80,21 +81,16 @@ export class PaymentService {
       purchaseStore$.cherryPackages.set([]);
     }
   };
+
   static purchaseCreditPackage = async (
     cherryPackage: PurchasesPackage
   ): Promise<{ data: MakePurchaseResult | null; error: string | null }> => {
     try {
       const purchase = await Purchases.purchasePackage(cherryPackage);
-      console.log("purchase", purchase);
       return { data: purchase, error: null };
     } catch (e) {
       console.log("purchase error", e);
       return { data: null, error: JSON.stringify(e) };
     }
-  };
-  static restorePurchases = async () => {
-    //find existing user if available, clone users info in the DB
-    // const purchaserInfo = await Purchases.getPurchaserInfo();
-    // return purchaserInfo;
   };
 }

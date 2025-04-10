@@ -81,7 +81,7 @@ export const users$ = observable(
     collection: "users",
     realtime: true,
     select: (from) => from.select("*"),
-    actions: ["read", "create", "update"],
+    actions: ["read", "create", "update", "delete"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "users" }, false);
     },
@@ -106,7 +106,7 @@ export const profiles$ = observable(
     supabase,
     collection: "profiles",
     select: (from) => from.select("*"),
-    actions: ["read", "create", "update"],
+    actions: ["read", "create", "update", "delete"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "profiles" }, false);
     },
@@ -177,7 +177,7 @@ export const interactions$ = observable(
     supabase,
     collection: "interactions",
     select: (from) => from.select("*"),
-    actions: ["create"],
+    actions: ["read", "create", "update", "delete"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "interactions" }, false);
     },
@@ -189,7 +189,7 @@ export const transactions$ = observable(
     supabase,
     collection: "transactions",
     select: (from) => from.select("*"),
-    actions: ["read", "create", "update"],
+    actions: ["read", "create", "update", "delete"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "transactions" }, false);
     },
@@ -202,7 +202,7 @@ export const userUnlocks$ = observable(
     collection: "user_unlocks",
     realtime: true,
     select: (from) => from.select("*"),
-    actions: ["read", "update", "create"],
+    actions: ["read", "create", "update", "delete"],
     onError: (error) => {
       LoggingService.handleError(error, { collection: "user_unlocks" }, false);
     },

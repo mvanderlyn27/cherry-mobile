@@ -6,11 +6,12 @@ import ActionButton from "../ui/ActionButton";
 import { LinearGradient } from "expo-linear-gradient";
 import { useColorScheme } from "nativewind";
 import { TransactionService } from "@/services/transactionService";
-import { purchaseStore$ } from "@/stores/appStores";
+import { appStore$, purchaseStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
 import { PurchasesPackage } from "react-native-purchases";
 import { MotiView } from "moti";
 import { LoggingService } from "@/services/loggingService";
+import { router } from "expo-router";
 const colors = require("@/config/colors");
 
 // Skeleton loader for purchase options
@@ -67,7 +68,6 @@ type PurchaseOptionProps = {
 
 const PurchaseOption = ({ cherryPackage, cherryCount, cherryPrice, onBuy }: PurchaseOptionProps) => {
   const { colorScheme } = useColorScheme();
-
   return (
     <View className="flex-1 items-center border-white  p-4 ">
       <LinearGradient
@@ -106,6 +106,7 @@ const PurchaseOption = ({ cherryPackage, cherryCount, cherryPrice, onBuy }: Purc
 };
 
 export const PurchaseCard = () => {
+  const loggedIn = use$(appStore$.loggedIn);
   const { colorScheme } = useColorScheme();
   const cherryPackages = use$(purchaseStore$.cherryPackages);
   const handlePurchase = async (cherryPackage: PurchasesPackage) => {
@@ -119,7 +120,11 @@ export const PurchaseCard = () => {
       );
       return;
     }
-    TransactionService.buyCherries(cherryCount, cherryPackage);
+    const { success, error } = await TransactionService.buyCherries(cherryCount, cherryPackage);
+    console.log("logged in ", loggedIn);
+    if (!loggedIn && success) {
+      router.navigate("/modals/signIn");
+    }
   };
   const getCherryCount = (identifier: string): number => {
     const count = Number(identifier.split("_")[0]);

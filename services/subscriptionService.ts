@@ -5,6 +5,10 @@ import { LoggingService } from "./loggingService";
 import { authStore$ } from "@/stores/authStore";
 import { users$ } from "@/stores/supabaseStores";
 import { appStore$ } from "@/stores/appStores";
+import { PaymentService } from "./paymentService";
+import { ChapterService } from "./chapterService";
+import { AuthService } from "./authService";
+import { NotificationService } from "./notificationService";
 
 export class SubscriptionService {
   //handles checking setting, subscriptions with revenue cat
@@ -56,11 +60,22 @@ export class SubscriptionService {
     Purchases.addCustomerInfoUpdateListener((info) => {
       // handle any changes to purchaserInfo
       appStore$.subscriptionStatusReady.set(false);
-      console.log("subscription info", info);
       const hasPremium = info.entitlements.active["Pro"] !== undefined;
-      console.log("Listener: userId", userId, "hasPremium", hasPremium);
       users$[userId].premium_user.set(hasPremium);
       appStore$.subscriptionStatusReady.set(true);
     });
+  }
+
+  static async restoreSubscriptions() {
+    appStore$.revenueCatReady.set(false);
+    try {
+      // Restore subscriptions via revenue cat
+      await Purchases.restorePurchases();
+      appStore$.revenueCatReady.set(true);
+    } catch (e) {
+      LoggingService.handleError(e, { service: "SubscriptionService", method: "restoreSubscriptions" }, false);
+      NotificationService.showInfo("Restore Failed", "please try again or reach out to our support team");
+      appStore$.revenueCatReady.set(true);
+    }
   }
 }

@@ -35,7 +35,7 @@ export default function RootLayout() {
   const loading = use$(
     () =>
       appStore$.fontsReady &&
-      appStore$.loggedIn &&
+      (appStore$.loggedIn || appStore$.anonymous) &&
       appStore$.storesLoaded &&
       appStore$.revenueCatReady &&
       appStore$.subscriptionStatusReady &&

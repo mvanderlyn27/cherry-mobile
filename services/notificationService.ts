@@ -1,6 +1,6 @@
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = "success" | "error" | "info";
 
 export class NotificationService {
   /**
@@ -10,17 +10,12 @@ export class NotificationService {
    * @param message2 Optional secondary message
    * @param duration Optional duration in milliseconds (default: 3000)
    */
-  static showToast(
-    type: ToastType, 
-    message1: string, 
-    message2?: string, 
-    duration: number = 3000
-  ): void {
+  static showToast(type: ToastType, message1: string, message2?: string, duration: number = 5000): void {
     Toast.show({
       type,
       text1: message1,
       text2: message2,
-      position: 'bottom',
+      position: "bottom",
       visibilityTime: duration,
       autoHide: true,
     });
@@ -30,20 +25,20 @@ export class NotificationService {
    * Show a success toast
    */
   static showSuccess(message: string, details?: string): void {
-    this.showToast('success', message, details);
+    this.showToast("success", message, details);
   }
 
   /**
    * Show an error toast
    */
   static showError(message: string, details?: string): void {
-    this.showToast('error', message, details);
+    this.showToast("error", message, details);
   }
 
   /**
    * Show an info toast
    */
   static showInfo(message: string, details?: string): void {
-    this.showToast('info', message, details);
+    this.showToast("info", message, details);
   }
 }

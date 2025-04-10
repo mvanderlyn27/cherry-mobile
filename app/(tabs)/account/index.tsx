@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Switch, ScrollView, Image } from "react-native";
+import { View, Text, TouchableOpacity, Switch, ScrollView, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -10,18 +10,23 @@ import { authStore$ } from "@/stores/authStore";
 import { users$ } from "@/stores/supabaseStores";
 import { use$ } from "@legendapp/state/react";
 import ActionButton from "@/components/ui/ActionButton";
+import { appStore$ } from "@/stores/appStores";
+import { AuthService } from "@/services/authService";
+import { LoggingService } from "@/services/loggingService";
+import { NotificationService } from "@/services/notificationService";
 const colors = require("@/config/colors");
 
 // Mock user data - replace with your actual auth logic
-const mockUser: null | { name: string; email: string } = null; // Set to null to show logged out state
 
 export default function Page() {
+  const loggedIn = use$(appStore$.loggedIn);
   const { colorScheme, setColorScheme } = useColorScheme();
   const router = useRouter();
   const [notifications, setNotifications] = useState(true);
   const userId = use$(authStore$.userId);
-  if (!userId) return null;
-  const credits = use$(users$[userId].credits);
+
+  // Move this hook outside of the conditional
+  const credits = use$(users$[userId ? userId : "placeholder"].credits);
 
   const handleCreateAccount = () => {
     // Navigate to sign up screen or show modal
@@ -37,11 +42,38 @@ export default function Page() {
 
   const handleLogout = () => {
     // Logic to log user out
-    console.log("Logout");
+    AuthService.signOut();
   };
   const handleDelete = () => {
-    // Logic to log user out
-    console.log("Delete");
+    // Show confirmation alert before deleting account
+    if (!userId) {
+      LoggingService.handleError(new Error("No user ID"), { component: "AccountPage", method: "handleDelete" }, true);
+      return;
+    }
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone and all your data will be lost.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const { success, error } = await AuthService.deleteAccount(userId);
+            if (success) {
+              NotificationService.showInfo("Account Deleted", "Your account has been successfully deleted.");
+            } else {
+              LoggingService.handleError(error, { component: "AccountPage", method: "handleDelete" }, true);
+            }
+            // Add actual account deletion logic here
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const renderSettingItem = (icon: Icon, title: string, onPress?: () => void, rightElement?: React.ReactNode) => (
@@ -62,65 +94,69 @@ export default function Page() {
 
   return (
     <ScrollView className="bg-background-light dark:bg-background-dark">
-      {!mockUser ? (
+      {!loggedIn ? (
         // Logged out state
-        // <View className="mb-6">
-        //   <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl">
-        //     <Text className="font-kaisei-medium text-lg text-story-light dark:text-story-dark mb-2">
-        //       Create an account
-        //     </Text>
-        //     <Text className="text-story-light dark:text-story-dark mb-4">
-        //       Sign up to sync your library and purchases across devices
-        //     </Text>
-        //     <TouchableOpacity
-        //       className="bg-buttons-light dark:bg-buttons-dark py-3 rounded-lg items-center"
-        //       onPress={handleCreateAccount}>
-        //       <Text className="text-white font-medium">Create Account</Text>
-        //     </TouchableOpacity>
-        //   </View>
-
-        //   {renderSettingItem(Icon.diamond, "Restore Purchases", handleRestorePurchases)}
-        // </View>
-        <View className="mb-6">
-          <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl flex-col items-center justify-center gap-4">
-            <Text className="font-kaisei-medium  p-2  text-2xl text-story-light dark:text-story-dark mb-2">
-              Cherry Balance:
-            </Text>
-
-            <Text className="font-kaisei-medium  text-5xl font-bold text-cherry-light dark:text-cherry-dark mb-4">
-              {credits}
-            </Text>
-            <View className="flex-row justify-center items-center">
-              <ActionButton label="Buy Cherries" mode={"buy"} onPress={() => router.navigate("/(tabs)/cherry")} />
+        <View className="flex-col gap-4">
+          <View className="mb-6">
+            <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl">
+              <Text className="font-kaisei-medium text-lg text-story-light dark:text-story-dark mb-2">
+                Create Account
+              </Text>
+              <Text className="text-story-light dark:text-story-dark mb-4">
+                Sign up to sync your library and purchases across devices
+              </Text>
+              <TouchableOpacity
+                className="bg-buttons-light dark:bg-buttons-dark py-3 rounded-lg items-center"
+                onPress={handleCreateAccount}>
+                <Text className="text-white font-medium"> Sign Up / Sign In</Text>
+              </TouchableOpacity>
             </View>
           </View>
+          <View className="mb-6">
+            <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl flex-col items-center justify-center gap-4">
+              <Text className="font-kaisei-medium  p-2  text-2xl text-story-light dark:text-story-dark mb-2">
+                Cherry Balance:
+              </Text>
 
-          {renderSettingItem(Icon.diamond, "Restore Purchases", handleRestorePurchases)}
+              <Text className="font-kaisei-medium  text-5xl font-bold text-cherry-light dark:text-cherry-dark mb-4">
+                {credits}
+              </Text>
+              <View className="flex-row justify-center items-center">
+                <ActionButton label="Buy Cherries" mode={"buy"} onPress={() => router.navigate("/modals/cherry")} />
+              </View>
+            </View>
+          </View>
         </View>
       ) : (
         // Logged in state
         <View className="mb-6">
-          <View className="flex-row items-center p-4 border-b border-tab_bar_border-light dark:border-tab_bar_border-dark">
-            <Image
-              source={{ uri: "https://randomuser.me/api/portraits/women/44.jpg" }}
-              className="w-16 h-16 rounded-full mr-4"
-            />
-            <View>
-              <Text className="font-kaisei-medium text-lg">{mockUser.name}</Text>
-              <Text className="text-story-light dark:text-story-dark ">{mockUser.email}</Text>
+          <View className="mb-6">
+            <View className="bg-tabs_selected-light/20 mx-4 my-4 p-4 rounded-xl flex-col items-center justify-center gap-4">
+              <Text className="font-kaisei-medium  p-2  text-2xl text-story-light dark:text-story-dark mb-2">
+                Cherry Balance:
+              </Text>
+
+              <Text className="font-kaisei-medium  text-5xl font-bold text-cherry-light dark:text-cherry-dark mb-4">
+                {credits}
+              </Text>
+              <View className="flex-row justify-center items-center">
+                <ActionButton label="Buy Cherries" mode={"buy"} onPress={() => router.navigate("/modals/cherry")} />
+              </View>
             </View>
           </View>
 
-          {renderSettingItem(Icon.account, "Edit Profile", () => console.log("Edit profile"))}
+          {/* {renderSettingItem(Icon.account, "Edit Profile", () => console.log("Edit profile"))} */}
 
-          {renderSettingItem(Icon.diamond, "My Purchases", () => console.log("View purchases"))}
-
+          {/* {renderSettingItem(Icon.diamond, "My Purchases", () => console.log("View purchases"))} */}
+          <Text className="px-4 py-2 text-sm font-medium text-story-light dark:text-story-dark  uppercase">
+            Account
+          </Text>
           {renderSettingItem(Icon.logout, "Logout", handleLogout)}
           {renderSettingItem(Icon.close, "Delete", handleDelete)}
         </View>
       )}
 
-      <View className="mb-6">
+      {/* <View className="mb-6">
         <Text className="px-4 py-2 text-sm font-medium text-story-light dark:text-story-dark  uppercase">
           Preferences
         </Text>
@@ -139,7 +175,7 @@ export default function Page() {
           />
         )}
 
-        {renderSettingItem(
+         {renderSettingItem(
           Icon.bell,
           "Notifications",
           undefined,
@@ -152,7 +188,7 @@ export default function Page() {
         )}
 
         {renderSettingItem(Icon.font, "Reading Settings", () => router.navigate("/account/readingSettings"))}
-      </View>
+      </View> */}
 
       <View className="mb-6">
         <Text className="px-4 py-2 text-sm font-medium text-story-light dark:text-story-dark  uppercase">Support</Text>
@@ -162,6 +198,7 @@ export default function Page() {
         {renderSettingItem(Icon.document, "Terms of Service", () => router.navigate("/account/termsOfService"))}
 
         {renderSettingItem(Icon.shield, "Privacy Policy", () => router.navigate("/account/privacyPolicy"))}
+        {renderSettingItem(Icon.diamond, "Restore Purchases", handleRestorePurchases)}
       </View>
 
       <View className="items-center py-6">

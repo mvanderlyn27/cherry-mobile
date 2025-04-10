@@ -20,13 +20,11 @@ const Page = observer(() => {
   const router = useRouter();
   // const isLoading = syncState(books$).isGetting;
 
-  const books = use$(() => BookService.getReadingBooks());
   // console.log("books", books);
   const userId = use$(authStore$.userId);
-  if (!userId) {
-    return null;
-  }
-  const credits = use$(users$[userId].credits) || 0;
+
+  const books = use$(() => (userId ? BookService.getReadingBooks() : []));
+  const credits = use$(users$[userId || "placeholder"].credits);
 
   // if (!credits) {
   //   return null;
@@ -57,7 +55,7 @@ const Page = observer(() => {
           onBookPress={(id) => handleBookPress(id)}
           onBookRead={(id) => handleBookRead(id)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
-          credits={credits}
+          credits={credits || 0}
         />
       )}
     </View>

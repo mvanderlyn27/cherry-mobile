@@ -1,9 +1,13 @@
 import { authStore$ } from "@/stores/authStore";
 import {
+  bookProgress$,
   books$,
+  chapterProgress$,
   chapters$,
   cherryLedger$,
   generateId,
+  savedBooks$,
+  savedTags$,
   transactions$,
   users$,
   userUnlocks$,
@@ -246,7 +250,7 @@ export class TransactionService {
       const transactionId = generateId();
       transactions$[transactionId].set({
         id: transactionId,
-        user_id: "unknown",
+        user_id: userId,
         transaction_type: "PURCHASE_CREDITS",
         credits: cherries,
         status: "failed",
@@ -282,11 +286,7 @@ export class TransactionService {
     // Do the IAP With revenue cat here
     const { data, error } = await PaymentService.purchaseCreditPackage(cherryPackage);
     if (error) {
-      LoggingService.handleError(
-        new Error("Error purchasing cherries"),
-        { collection: "transactions", action: "buyCherries" },
-        false
-      );
+      LoggingService.handleError(error, { collection: "transactions", action: "buyCherries" }, false);
       transactions$[transactionId].assign({ status: "failed", error: PurchaseError.PaymentFailed });
       purchaseStore$.purchaseStatus.set("failed");
       purchaseStore$.error.set(PurchaseError.PaymentFailed);

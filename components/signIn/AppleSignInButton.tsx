@@ -3,6 +3,8 @@ import { StyleSheet, View, Platform } from "react-native";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { Alert } from "react-native";
 import { supabase } from "@/services/supabase";
+import { AuthService } from "@/services/authService";
+import { router } from "expo-router";
 
 export const AppleSignInButton: React.FC = () => {
   // Check if Apple authentication is available on this device
@@ -31,14 +33,9 @@ export const AppleSignInButton: React.FC = () => {
 
       // Add this code to handle the successful authentication
       if (credential.identityToken) {
-        const {
-          error,
-          data: { user },
-        } = await supabase.auth.signInWithIdToken({ provider: "apple", token: credential.identityToken });
-        console.log(JSON.stringify({ error, user }, null, 2));
-        if (!error) {
-          // User is signed in.
-        }
+        await AuthService.signInWithApple(credential.identityToken);
+        // Redirect to the desired page after successful sign-in
+        router.back();
       } else {
         throw new Error("No identityToken.");
       }

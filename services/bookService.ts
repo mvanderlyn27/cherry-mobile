@@ -38,28 +38,28 @@ export class BookService {
    * @returns Detailed book information with chapters and user-specific data
    */
   static getBookDetails(bookId: string): ExtendedBook | null {
-    const userId = authStore$.userId.peek();
+    const userId = authStore$.userId.get();
     if (!userId) return null;
     try {
-      const hasPremium = users$[userId]?.premium_user.peek() || false;
-      // peek the book data
-      const book = books$[bookId].peek();
+      const hasPremium = users$[userId]?.premium_user.get() || false;
+      // get the book data
+      const book = books$[bookId].get();
       //   console.log("book", book, "bookid", bookId, "userid", userId);
       if (!book) return null;
 
-      // peek is saved
+      // get is saved
       const is_saved = userId
-        ? Object.values(savedBooks$.peek() || {}).some((saved) => saved.book_id === bookId && saved.user_id === userId)
+        ? Object.values(savedBooks$.get() || {}).some((saved) => saved.book_id === bookId && saved.user_id === userId)
         : false;
 
-      // peek is  hot
+      // get is  hot
       const is_hot = (book.like_count || 0) > HOT_THRESHOLD;
       //map of sums of likes per book
 
-      // peek book Tags
-      const bookTags: BookTag[] = Object.values(bookTags$.peek() || {}).filter((tag) => tag.book_id === bookId);
-      // peek user unlocks for this book
-      const allUserUnlocks = Object.values(userUnlocks$.peek() || {});
+      // get book Tags
+      const bookTags: BookTag[] = Object.values(bookTags$.get() || {}).filter((tag) => tag.book_id === bookId);
+      // get user unlocks for this book
+      const allUserUnlocks = Object.values(userUnlocks$.get() || {});
       // Check if the entire book is unlocked (user has an unlock entry with just the book_id)
       const bookUnlocked =
         allUserUnlocks.find(
@@ -68,7 +68,7 @@ export class BookService {
             unlock.book_id === bookId &&
             (unlock.chapter_id === null || unlock.chapter_id === undefined)
         ) !== undefined;
-      const bookProgress = Object.values(bookProgress$.peek() || {}).find(
+      const bookProgress = Object.values(bookProgress$.get() || {}).find(
         (progress) => progress.book_id === bookId && userId === progress.user_id
       );
       // Extended chapter data with likes and locked status, and progress
@@ -157,8 +157,8 @@ export class BookService {
   // Get books by category/tag
   static getBooksByCategory(categoryId: string): Book[] {
     try {
-      const allBookTags = Object.values(bookTags$.peek());
-      const allBooks = books$.peek();
+      const allBookTags = Object.values(bookTags$.get());
+      const allBooks = books$.get();
 
       // Find all book IDs that have this tag
       const bookIds = allBookTags.filter((bookTag) => bookTag.tag_id === categoryId).map((bookTag) => bookTag.book_id);
@@ -195,7 +195,7 @@ export class BookService {
       // Filter by category if provided
       if (tags && tags.length > 0) {
         const tagIds = tags.map((tag) => tag.id);
-        const allBookTags = Object.values(bookTags$.peek());
+        const allBookTags = Object.values(bookTags$.get());
         const bookIdsInCategory = allBookTags
           .filter((bookTag) => bookTag.tag_id && tagIds.includes(bookTag.tag_id))
           .map((bookTag) => bookTag.book_id);

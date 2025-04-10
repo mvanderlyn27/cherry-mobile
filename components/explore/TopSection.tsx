@@ -22,13 +22,8 @@ export const TopSection: React.FC<Props> = observer(({ onBookPress }) => {
   return (
     <ScrollView className="flex-1">
       <Suspense fallback={<ActivityIndicator size="large" />}>
-        <Memo>
-          <TopBookCarousel onBookPress={onBookPress} onBookSave={onBookSave} />
-        </Memo>
-
-        <Memo>
-          <TopCategoryList onBookPress={onBookPress} onSave={onBookSave} />
-        </Memo>
+        <TopBookCarousel onBookPress={onBookPress} onBookSave={onBookSave} />
+        <TopCategoryList onBookPress={onBookPress} onSave={onBookSave} />
       </Suspense>
     </ScrollView>
   );

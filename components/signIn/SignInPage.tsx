@@ -2,14 +2,14 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppleSignInButton } from "./AppleSignInButton";
-import { GoogleSignInButton } from "./GoogleSignInButton";
+import GoogleSignInButton from "./GoogleSignInButton";
 
 export const SignInPage: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Cherry</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
+        <Text style={styles.title}>Sign in to Cherry</Text>
+        <Text style={styles.subtitle}>Sign in to save info across downloads/devices</Text>
 
         <View style={styles.buttonContainer}>
           <GoogleSignInButton />

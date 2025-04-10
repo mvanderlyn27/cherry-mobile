@@ -16,8 +16,8 @@ const UnreadPage = observer(() => {
   //need logic to get this, will be unread owned books, and saved books
   const userId = use$(authStore$.userId);
   if (!userId) return null;
-  const credits = use$(users$[userId].credits) || 0;
-  const books = use$(() => BookService.getUnreadBooks());
+  const credits = use$(users$[userId].credits);
+  const books = use$(() => (userId ? BookService.getUnreadBooks() : []));
   const isLoading = false;
   const handleBookPress = (id: string) => {
     bookDetailsStore$.bookIds.set([id]);
@@ -43,7 +43,7 @@ const UnreadPage = observer(() => {
           onBookPress={(id) => handleBookPress(id)}
           onBookRead={(id) => handleBookRead(id)}
           onUnlockBook={(id) => console.log("Unlock book:", id)}
-          credits={credits}
+          credits={credits || 0}
         />
       )}
     </View>

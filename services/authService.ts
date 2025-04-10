@@ -3,6 +3,7 @@ import { supabase } from "./supabase";
 import { Platform } from "react-native";
 import { LoggingService } from "./loggingService";
 import { appStore$ } from "@/stores/appStores";
+import { create } from "react-test-renderer";
 
 export class AuthService {
   // Track the current auth state
@@ -26,7 +27,11 @@ export class AuthService {
 
         console.log(`[AuthService] User already signed in as ${authState}`);
         authStore$.assign({ userId: user.id, isLoading: false, authState });
-        appStore$.loggedIn.set(true);
+        if (user.is_anonymous) {
+          appStore$.anonymous.set(true);
+        } else {
+          appStore$.loggedIn.set(true);
+        }
         return;
       }
 
@@ -43,29 +48,29 @@ export class AuthService {
    */
   static async createAnonymousUser(): Promise<void> {
     try {
+      await supabase.auth.signOut();
       const { data, error } = await supabase.auth.signInAnonymously();
 
       if (error) throw error;
       if (!data.user) throw new Error("No user returned");
 
       console.log("[AuthService] Anonymous user created");
+      //get old user id from secure store
       authStore$.assign({ userId: data.user.id, isLoading: false, authState: "anonymous" });
-      appStore$.loggedIn.set(true);
+      appStore$.assign({ anonymous: true, loggedIn: false });
     } catch (error) {
       LoggingService.handleError(error, { service: "AuthService", method: "createAnonymousUser" }, true);
       authStore$.assign({ isLoading: false, authState: "unauthenticated" });
     }
   }
-
   /**
    * Sign out the current user and create a new anonymous user
    */
   static async signOut(): Promise<void> {
     try {
+      authStore$.assign({ isLoading: true, authState: "unauthenticated" });
       await supabase.auth.signOut();
-      authStore$.assign({ isLoading: false, authState: "unauthenticated" });
-
-      // Create a new anonymous user
+      //new anon account
       await this.createAnonymousUser();
     } catch (error) {
       LoggingService.handleError(error, { service: "AuthService", method: "signOut" });
@@ -73,20 +78,26 @@ export class AuthService {
   }
 
   /**
-   * Link anonymous account to authenticated account
+   *
    */
-  static async linkAccounts(anonymousId: string, oAuthCode: string): Promise<void> {
+  static async deleteAccount(
+    userId: string,
+    createAnonAfter: boolean = true
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log(`[AuthService] Linking accounts: ${anonymousId}`);
+      const { error } = await supabase.rpc("delete_user_data", { p_user_id: userId });
+      if (error) throw error;
+      console.log("[AuthService] Account deleted");
+      authStore$.assign({ isLoading: false, authState: "unauthenticated" });
+      if (createAnonAfter) {
+        await this.createAnonymousUser();
+      }
+      return { success: true }; // Return success tru
     } catch (error) {
-      LoggingService.handleError(error, {
-        service: "AuthService",
-        method: "linkAccounts",
-        anonymousId,
-      });
+      LoggingService.handleError(error, { service: "AuthService", method: "deleteAccount" });
+      return { success: false, error: JSON.stringify(error) };
     }
   }
-
   /**
    * Get the current user
    */
@@ -112,4 +123,162 @@ export class AuthService {
     }
   }
   //maybe add authstatechange listener to update auth store
+
+  /**
+   * Sign in with Google
+   */
+  static async signInWithGoogle(token: string): Promise<void> {
+    authStore$.isLoading.set(false);
+    appStore$.loggedIn.set(false);
+    try {
+      // Get current anonymous user ID before signing in
+      const { data: currentUserData } = await this.getCurrentUser();
+      const currentUserId = currentUserData.user?.id;
+
+      // if (!currentUserId) {
+      //   throw new Error("No current user found before Google sign-in");
+      // }
+
+      // Sign in with Google
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token,
+      });
+
+      if (error) throw error;
+
+      // After successful sign-in, get the new user
+      const newUserId = data.user?.id;
+
+      if (!newUserId) {
+        throw new Error("Failed to get new user ID after Google sign-in");
+      }
+      if (currentUserId) {
+        console.log("migrating: ", currentUserId, " -> ", newUserId);
+        // Migrate user data using Supabase RPC function
+        const { data: migrationData, error: migrationError } = await supabase.rpc("migrate_user_data", {
+          old_user_id: currentUserId,
+          new_user_id: newUserId,
+        });
+
+        if (migrationError) {
+          console.error("Error migrating user data:", migrationError);
+          LoggingService.handleError(
+            migrationError,
+            {
+              service: "AuthService",
+              method: "signInWithGoogle",
+              oldUserId: currentUserId,
+              newUserId: newUserId,
+            },
+            false
+          );
+        }
+        // const { success, error: deleteAnonError } = await this.deleteAccount(currentUserId, false);
+        // if (deleteAnonError) {
+        //   // Update auth store with new user ID
+        //   LoggingService.handleError(
+        //     deleteAnonError,
+        //     {
+        //       service: "AuthService",
+        //       method: "signInWithGoogle",
+        //       oldUserId: currentUserId,
+        //       newUserId: newUserId,
+        //     },
+        //     false
+        //   );
+        // }
+      }
+      appStore$.loggedIn.set(true);
+      console.log("[AuthService] Successfully signed in with Google and migrated data");
+    } catch (e) {
+      LoggingService.handleError(e, { service: "AuthService", method: "signInWithGoogle" }, true);
+      // Try to restore anonymous session if social login fails
+      appStore$.loggedIn.set(true);
+    }
+  }
+
+  /**
+   * Sign in with Apple
+   */
+  static async signInWithApple(token: string): Promise<void> {
+    appStore$.loggedIn.set(false);
+    authStore$.isLoading.set(true);
+    try {
+      // Get current anonymous user ID before signing in
+      const { data: currentUserData } = await this.getCurrentUser();
+      const currentUserId = currentUserData.user?.id;
+
+      // if (!currentUserId) {
+      //   throw new Error("No current user found before Apple sign-in");
+      // }
+
+      // Sign in with Apple
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: "apple",
+        token,
+      });
+
+      if (error) throw error;
+
+      const newUserId = data.user?.id;
+
+      if (!newUserId) {
+        throw new Error("Failed to get new user ID after Apple sign-in");
+      }
+
+      //only migrate/delete old account if it exists
+      // Migrate user data using Supabase RPC function
+      if (currentUserId) {
+        console.log("migrating: ", currentUserId, " -> ", newUserId);
+        const { data: migrationData, error: migrationError } = await supabase.rpc("migrate_user_data", {
+          old_user_id: currentUserId,
+          new_user_id: newUserId,
+        });
+
+        if (migrationError) {
+          console.error("Error migrating user data:", migrationError);
+          LoggingService.handleError(
+            migrationError,
+            {
+              service: "AuthService",
+              method: "signInWithApple",
+              oldUserId: currentUserId,
+              newUserId: newUserId,
+            },
+            false
+          );
+        }
+
+        // after migration remove old anon account
+        // const { success, error: deleteAnonError } = await this.deleteAccount(currentUserId, false);
+        // if (deleteAnonError) {
+        //   // Update auth store with new user ID
+        //   LoggingService.handleError(
+        //     deleteAnonError,
+        //     {
+        //       service: "AuthService",
+        //       method: "signInWithGoogle",
+        //       oldUserId: currentUserId,
+        //       newUserId: newUserId,
+        //     },
+        //     false
+        //   );
+        // }
+      }
+      // Update auth store with new user ID
+      authStore$.assign({
+        userId: newUserId,
+        isLoading: false,
+        authState: "authenticated",
+      });
+      appStore$.anonymous.set(false);
+      appStore$.loggedIn.set(true);
+      console.log("[AuthService] Successfully signed in with Apple and migrated data");
+    } catch (e) {
+      LoggingService.handleError(e, { service: "AuthService", method: "signInWithApple" }, true);
+      authStore$.isLoading.set(false);
+      // Try to restore anonymous session if social login fails
+    }
+  }
 }
