@@ -17,7 +17,7 @@ const CompletedPage = observer(() => {
   const userId = use$(authStore$.userId);
   const credits = use$(users$[userId || "placeholder"].credits);
   //need logic to get this, will be finished owned books
-  const books = use$(() => (userId ? BookService.getCompletedBooks() : []));
+  const books = use$(() => BookService.getCompletedBooks(userId));
   // const isLoading = use$(libraryStore$.isLoading);
   const isLoading = false;
   const handleBookPress = (id: string) => {

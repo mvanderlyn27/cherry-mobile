@@ -23,7 +23,7 @@ const Page = observer(() => {
   // console.log("books", books);
   const userId = use$(authStore$.userId);
 
-  const books = use$(() => (userId ? BookService.getReadingBooks() : []));
+  const books = use$(() => BookService.getReadingBooks(userId));
   const credits = use$(users$[userId || "placeholder"].credits);
 
   // if (!credits) {

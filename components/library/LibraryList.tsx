@@ -3,6 +3,8 @@ import { View, Text } from "react-native";
 import { ListBookCard } from "../ui/ListBookCard";
 import { Book } from "@/types/app";
 import { LegendList } from "@legendapp/list";
+import { authStore$ } from "@/stores/authStore";
+import { use$ } from "@legendapp/state/react";
 
 type LibraryListProps = {
   books: Book[];
@@ -12,14 +14,12 @@ type LibraryListProps = {
   credits: number;
 };
 
-export const LibraryList = ({ books = [], onBookPress, onBookRead, onUnlockBook, credits }: LibraryListProps) => {
-  if (!books || books.length === 0) {
-    return <Text>No Data</Text>;
-  }
-
+export const LibraryList = ({ books, onBookPress, onBookRead, onUnlockBook, credits }: LibraryListProps) => {
+  const userId = use$(authStore$.userId);
   return (
     <LegendList
       data={books}
+      extraData={userId}
       className="flex-1"
       recycleItems
       estimatedItemSize={178}

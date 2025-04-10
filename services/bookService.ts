@@ -27,6 +27,7 @@ import {
   BookProgress,
 } from "@/types/app";
 import { authStore$ } from "@/stores/authStore";
+import { AuthService } from "./authService";
 
 const HOT_THRESHOLD = 5;
 
@@ -357,14 +358,21 @@ export class BookService {
     }
   }
   // Get books the user owns but hasn't started reading yet
-  static getUnreadBooks() {
-    const userId = authStore$.userId.get();
+  static getUnreadBooks(userId: string | null) {
+    console.log("getting unread books, for: ", userId);
     if (!userId) return [];
     try {
+      console.log("getting unread books now");
+      // Force fresh data retrieval by getting the latest state
       const allBooks = books$.get() || {};
-      const allUserUnlocks = Object.values(userUnlocks$.get() || {});
-      const allBookProgress = Object.values(bookProgress$.get() || {});
-      const savedBooks = Object.values(savedBooks$.get() || {});
+      const allUserUnlocks = Object.values(userUnlocks$.get() || {}).filter((u) => u.user_id === userId);
+      const allBookProgress = Object.values(bookProgress$.get() || {}).filter((p) => p.user_id === userId);
+      const savedBooks = Object.values(savedBooks$.get() || {}).filter((s) => s.user_id === userId);
+
+      // Debug logging to verify we're getting the right data
+      console.log("User unlocks count:", allUserUnlocks.filter((u) => u.user_id === userId).length);
+      console.log("Book progress count:", allBookProgress.filter((p) => p.user_id === userId).length);
+      console.log("Saved books count:", savedBooks.filter((s) => s.user_id === userId).length);
 
       // Get all books the user owns
       const ownedBookIds = allUserUnlocks
@@ -384,6 +392,7 @@ export class BookService {
         .filter((book_id) => !allBookProgressIds.includes(book_id));
 
       // Get the actual book objects
+      console.log("unreadBookIds", unreadBookIds, "savedBookIds", savedBookIds);
       return [...unreadBookIds, ...savedBookIds].map((id) => allBooks[id]).filter(Boolean);
     } catch (error) {
       LoggingService.handleError(error, { method: "BookService.getUnreadingBooks", userId }, false);
@@ -430,8 +439,7 @@ export class BookService {
   }
 
   // Get recently read books
-  static getReadingBooks() {
-    const userId = authStore$.userId.get();
+  static getReadingBooks(userId: string | null) {
     if (!userId) return [];
     try {
       const allBooks = books$.get() || {};
@@ -449,8 +457,7 @@ export class BookService {
   }
 
   // Get completed books
-  static getCompletedBooks() {
-    const userId = authStore$.userId.get(); // Replace with actual user ID from yo
+  static getCompletedBooks(userId: string | null) {
     if (!userId) return [];
     try {
       const allBooks = books$.get() || {};

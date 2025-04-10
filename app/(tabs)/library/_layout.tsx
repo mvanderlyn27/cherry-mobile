@@ -6,6 +6,8 @@ import Header from "@/components/ui/Header";
 import { TabFilter } from "@/components/ui/TabFilter";
 import { Icon } from "@/types/app";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { authStore$ } from "@/stores/authStore";
+import { use$ } from "@legendapp/state/react";
 
 export default function LibraryLayout() {
   const router = useRouter();
@@ -15,6 +17,7 @@ export default function LibraryLayout() {
     { id: "/library/unread", label: "Unread" },
     { id: "/library/completed", label: "Completed" },
   ];
+  const userId = use$(authStore$.userId);
 
   return (
     <ErrorBoundary>
