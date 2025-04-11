@@ -24,11 +24,11 @@ export const authStore$ = observable<AuthStoreState>({
 });
 
 // Setup persistence
-// syncObservable(authStore$, {
-//   persist: {
-//     name: "auth-store",
-//     plugin: ObservablePersistMMKV,
-//   },
-// });
+syncObservable(authStore$, {
+  persist: {
+    name: "auth-store",
+    plugin: ObservablePersistMMKV,
+  },
+});
 // const sync$ = syncState(authStore$);
 // sync$.clearPersist();

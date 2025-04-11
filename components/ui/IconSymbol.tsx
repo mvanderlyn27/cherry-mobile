@@ -127,6 +127,8 @@ export function IconSymbol({
       return <MaterialIcons name="comment" size={size} color={color} />;
     case "bookmark":
       return <MaterialIcons name="bookmark" size={size} color={color} />;
+    case "gift":
+      return <Feather name="gift" size={size} color={color} />;
     default:
       return <MaterialIcons name="error" size={size} color={color} />;
   }

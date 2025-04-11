@@ -106,38 +106,17 @@ const ReaderScreen = observer(() => {
     ) {
       console.log("At bottom, completing chapter");
       handleChapterComplete();
-      setUiVisible(true);
-      scrollY.value = withTiming(0, { duration: ANIMATION_DURATION });
     }
+    setUiVisible(true);
+    scrollY.value = withTiming(0, { duration: ANIMATION_DURATION });
   };
 
-  // Scroll handler to track scroll position - simplified to focus on UI visibility
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      const currentScrollY = event.contentOffset.y;
-      const scrollDelta = currentScrollY - lastScrollY.value;
-      const animationRate = 0.15;
-
-      // Handle scroll direction for UI visibility
-      if (scrollDelta > 0 && currentScrollY > SCROLL_THRESHOLD) {
-        // Scrolling down - hide UI
-        scrollY.value = withTiming(1, { duration: ANIMATION_DURATION });
-
-        if (uiVisible && scrollY.value > 0.9) {
-          runOnJS(setUiVisible)(false);
-        }
-      } else if (scrollDelta < 0) {
-        // Scrolling up - show UI
-        scrollY.value = withTiming(0, { duration: ANIMATION_DURATION });
-
-        if (!uiVisible) {
-          runOnJS(setUiVisible)(true);
-        }
-      }
-
-      lastScrollY.value = currentScrollY;
-    },
-  });
+  // Scroll handler to track scroll position
+  const handleScroll = () => {
+    console.log("Handling scroll");
+    setUiVisible(false);
+    scrollY.value = withTiming(1, { duration: ANIMATION_DURATION });
+  };
 
   // Animated styles for header
   const headerAnimatedStyle = useAnimatedStyle(() => {
@@ -266,6 +245,7 @@ const ReaderScreen = observer(() => {
 
   // Update the handleChapterComplete function
   const handleChapterComplete = () => {
+    console.log("Handling chapter complete");
     if (!chapters || currentChapterNumber === null) {
       LoggingService.handleError("Chapters not found", { bookId: id }, false);
       return;
@@ -312,20 +292,31 @@ const ReaderScreen = observer(() => {
   const isPreviousDisabled = () => {
     if (currentChapterNumber === null || !chapters) return true;
 
-    const ownsPrevChapter = chapters[currentChapterNumber - 1]?.is_owned;
-    return !ownsPrevChapter;
+    const prevDisabled = currentChapterNumber - 1 <= 0;
+    return prevDisabled;
   };
-
+  const isNextOwned = () => {
+    if (currentChapterNumber === null || !chapters) return true;
+    const ownsPrevChapter = chapters[currentChapterNumber + 1]?.is_owned;
+    return ownsPrevChapter;
+  };
+  const isPreviousOwned = () => {
+    if (currentChapterNumber === null || !chapters) return true;
+    const ownsPrevChapter = chapters[currentChapterNumber - 1]?.is_owned;
+    return ownsPrevChapter;
+  };
   const isNextDisabled = () => {
     if (currentChapterNumber === null || !chapters) return true;
 
-    const ownsPrevChapter = chapters[currentChapterNumber + 1]?.is_owned;
-    return !ownsPrevChapter;
+    // const ownsPrevChapter = chapters[currentChapterNumber + 1]?.is_owned;
+    const nextDisabled = currentChapterNumber + 1 > Object.keys(chapters).length;
+    return nextDisabled;
   };
 
   // Handle chapter purchase
   const handlePurchaseChapter = async () => {
     if (!chapters || !chapterToUnlock) {
+      console.log("chapters, chapterToUnlock", chapters, chapterToUnlock, currentChapterNumber);
       LoggingService.handleError("missing info for chapter purchase", { bookId: id }, false);
       return;
     }
@@ -378,7 +369,7 @@ const ReaderScreen = observer(() => {
             {chapterContent && !loading ? (
               <ReaderView
                 content={chapterContent}
-                onScroll={scrollHandler}
+                onScroll={handleScroll}
                 onPress={handleContentPress}
                 onScrollEnd={handleScrollEnd} // Add the new scroll end handler
                 fontSize={fontSize}
@@ -411,6 +402,16 @@ const ReaderScreen = observer(() => {
               onSettingsPress={() => setShowSettings(true)}
               onPreviousPress={goToPreviousChapter}
               onNextPress={goToNextChapter}
+              isNextOwned={isNextOwned()}
+              purchaseNext={() => {
+                setChapterToUnlock(currentChapterNumber + 1);
+                setShowPurchaseModal(true);
+              }}
+              isPreviousOwned={isPreviousOwned()}
+              purchasePrevious={() => {
+                setChapterToUnlock(currentChapterNumber - 1);
+                setShowPurchaseModal(true);
+              }}
               isPreviousDisabled={isPreviousDisabled()}
               isNextDisabled={isNextDisabled()}
             />

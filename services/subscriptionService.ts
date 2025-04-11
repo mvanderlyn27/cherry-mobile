@@ -21,28 +21,32 @@ export class SubscriptionService {
       return null;
     }
   }
-  static async presentPaywall(): Promise<boolean> {
+  static async presentPaywall(): Promise<{ success: boolean; subscribed: boolean; error?: string }> {
     // Present paywall for current offering:
     const offerings = await this.getSubscriptionOfferings();
     if (offerings === null || offerings.current === null) {
       LoggingService.handleError(new Error("No subscriptions found"), {}, true);
-      return false;
+      return { success: false, subscribed: false, error: "No subscriptions found" };
     }
 
     const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall({
       offering: offerings.current, // Optional Offering object obtained through getOfferings
+      fontFamily: "KaiseiDecol_400Regular",
     });
 
     switch (paywallResult) {
       case PAYWALL_RESULT.NOT_PRESENTED:
+        return { success: false, subscribed: false, error: "error presenting paywall" };
       case PAYWALL_RESULT.ERROR:
+        return { success: false, subscribed: false, error: "paywall error" };
       case PAYWALL_RESULT.CANCELLED:
-        return false;
+        return { success: true, subscribed: false };
       case PAYWALL_RESULT.PURCHASED:
+        return { success: true, subscribed: true };
       case PAYWALL_RESULT.RESTORED:
-        return true;
+        return { success: true, subscribed: true };
       default:
-        return false;
+        return { success: false, subscribed: false, error: "unknown paywall result" };
     }
   }
   static async checkSubscriptionStatus(userId: string): Promise<boolean> {

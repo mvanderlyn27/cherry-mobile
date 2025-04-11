@@ -95,7 +95,7 @@ export const SettingsSheet = ({ onClose, fontSize, onFontSizeChange }: SettingsS
             </TouchableOpacity>
           </View>
 
-          <View className="flex-row gap-4 mb-6">
+          {/* <View className="flex-row gap-4 mb-6">
             <TouchableOpacity
               className={` flex-1 px-3 py-5 bg-white border rounded-3xl  ${
                 !isDark ? `border-2 border-${colors.cherry.light}` : "border-buttons_text-light"
@@ -112,7 +112,7 @@ export const SettingsSheet = ({ onClose, fontSize, onFontSizeChange }: SettingsS
               <IconSymbol name={Icon.moon} size={24} color="#fff" />
               <Text className="mt-1 text-white">Dark</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </BottomSheetView>
       </BottomSheet>
     </View>

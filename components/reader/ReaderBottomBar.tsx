@@ -12,6 +12,10 @@ type ReaderBottomBarProps = {
   onNextPress: () => void;
   isPreviousDisabled: boolean;
   isNextDisabled: boolean;
+  isNextOwned: boolean;
+  isPreviousOwned: boolean;
+  purchaseNext: () => void;
+  purchasePrevious: () => void;
 };
 
 export const ReaderBottomBar = ({
@@ -20,6 +24,10 @@ export const ReaderBottomBar = ({
   onSettingsPress,
   onPreviousPress,
   onNextPress,
+  isNextOwned,
+  isPreviousOwned,
+  purchaseNext,
+  purchasePrevious,
   isPreviousDisabled,
   isNextDisabled,
 }: ReaderBottomBarProps) => {
@@ -44,7 +52,7 @@ export const ReaderBottomBar = ({
       <ReaderBottomBarButton
         icon={Icon["left-arrow"]}
         label="Previous"
-        onPress={() => handlePress(onPreviousPress)}
+        onPress={() => (isNextOwned ? handlePress(onPreviousPress) : purchasePrevious())}
         disabled={isPreviousDisabled}
       />
 
@@ -52,7 +60,7 @@ export const ReaderBottomBar = ({
       <ReaderBottomBarButton
         icon={Icon["right-arrow"]}
         label="Next"
-        onPress={() => handlePress(onNextPress)}
+        onPress={() => (isNextOwned ? handlePress(onNextPress) : purchaseNext())}
         disabled={isNextDisabled}
       />
     </View>

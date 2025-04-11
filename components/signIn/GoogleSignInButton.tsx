@@ -2,8 +2,11 @@ import { GoogleSignin, GoogleSigninButton, statusCodes } from "@react-native-goo
 import { AuthService } from "@/services/authService";
 import { router } from "expo-router";
 import { LoggingService } from "@/services/loggingService";
+import { IconSymbol } from "../ui/IconSymbol";
+import { Icon } from "@/types/app";
+import { TouchableOpacity, Text } from "react-native";
 
-const GoogleSignInButton = () => {
+const GoogleSignInButton = ({ onPress }: { onPress?: () => void }) => {
   GoogleSignin.configure({
     // scopes: ["https://www.googleapis.com/auth/drive.readonly"],
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
@@ -15,7 +18,11 @@ const GoogleSignInButton = () => {
       const userInfo = await GoogleSignin.signIn();
       if (userInfo.data && userInfo.data.idToken) {
         await AuthService.signInWithGoogle(userInfo.data.idToken);
-        router.back();
+        if (onPress) {
+          onPress();
+        } else {
+          router.back();
+        }
       } else {
         throw new Error("no ID token present!");
       }
@@ -39,7 +46,12 @@ const GoogleSignInButton = () => {
   };
 
   return (
-    <GoogleSigninButton size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={signIn} />
+    <TouchableOpacity
+      onPress={signIn}
+      className="bg-black w-full p-4 rounded-lg items-center justify-center flex flex-row">
+      <IconSymbol name={Icon.google} size={16} color={"white"} />
+      <Text className="text-white text-xl font-bold ml-2">Sign in with Google</Text>
+    </TouchableOpacity>
   );
 };
 export default GoogleSignInButton;

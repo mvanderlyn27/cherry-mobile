@@ -1,23 +1,25 @@
-import React, { useRef } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import React, { useRef, useState } from "react";
+import { Text, View, StyleSheet, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import * as Haptics from "expo-haptics";
-import Animated, { runOnJS } from "react-native-reanimated";
+import Animated, { runOnJS, useAnimatedScrollHandler } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import ActionButton from "../ui/ActionButton";
 import { router } from "expo-router";
 
 type ReaderViewProps = {
   content: string;
-  onScroll: any;
+  // onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   lastChapter: boolean;
   onPress: () => void;
+  onScroll: () => void;
   fontSize: number;
-  onScrollEnd?: (isAtBottom: boolean) => void; // Make sure this prop is defined
+  onScrollEnd?: (isAtBottom: boolean) => void;
 };
 
 export const ReaderView = ({ content, onScroll, lastChapter, onPress, fontSize, onScrollEnd }: ReaderViewProps) => {
-  // Reference to track content size and scroll position
   const scrollViewRef = useRef<any>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(false);
 
   const handleTap = () => {
     if (onPress) {
@@ -25,36 +27,43 @@ export const ReaderView = ({ content, onScroll, lastChapter, onPress, fontSize, 
       onPress();
     }
   };
+
   // Create a tap gesture
   const tapGesture = Gesture.Tap().onEnd(() => {
     runOnJS(handleTap)();
   });
 
-  const handleScrollEnd = (event: any) => {
+  // Handle scroll with debouncing for bottom detection
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    onScroll();
+  };
+
+  // Check if user has reached the bottom when scrolling stops
+  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!onScrollEnd) return;
 
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-
-    // Check if we're near the bottom (within 20px)
     const paddingToBottom = 20;
-    const isAtBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    const currentIsAtBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
 
-    // Notify parent component
-    onScrollEnd(isAtBottom);
+    // Only call the callback if we're at the bottom
+    if (currentIsAtBottom) {
+      onScrollEnd(true);
+    }
+
+    setIsScrolling(false);
   };
-  console.log("lastChapter", lastChapter);
+
   return (
     <GestureDetector gesture={tapGesture}>
       <View className="flex-1">
         <Animated.ScrollView
           ref={scrollViewRef}
-          onScroll={onScroll}
-          onMomentumScrollEnd={handleScrollEnd} // Check bottom on momentum scroll end
-          onScrollEndDrag={handleScrollEnd} // Check bottom on drag end
-          // onContentSizeChange={handleContentSizeChange}
-          // onLayout={handleLayout}
+          onScroll={handleScroll}
+          onMomentumScrollEnd={handleScrollEnd}
+          scrollEventThrottle={32}
+          overScrollMode={"always"}
           showsVerticalScrollIndicator={false}
-          // scrollEventThrottle={16}
           contentContainerStyle={{
             paddingTop: 30,
             paddingHorizontal: 20,

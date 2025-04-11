@@ -6,7 +6,7 @@ import { supabase } from "@/services/supabase";
 import { AuthService } from "@/services/authService";
 import { router } from "expo-router";
 
-export const AppleSignInButton: React.FC = () => {
+export const AppleSignInButton = ({ onPress }: { onPress?: () => void }) => {
   // Check if Apple authentication is available on this device
   const [isAppleAuthAvailable, setIsAppleAuthAvailable] = React.useState(false);
 
@@ -35,7 +35,11 @@ export const AppleSignInButton: React.FC = () => {
       if (credential.identityToken) {
         await AuthService.signInWithApple(credential.identityToken);
         // Redirect to the desired page after successful sign-in
-        router.back();
+        if (onPress) {
+          onPress();
+        } else {
+          router.back();
+        }
       } else {
         throw new Error("No identityToken.");
       }

@@ -13,7 +13,7 @@ import { SubscriptionService } from "@/services/subscriptionService";
 export default function Page({ modalMode }: { modalMode?: boolean }) {
   const router = useRouter();
   const handleSubscribe = async () => {
-    const subscriptionResult = await SubscriptionService.presentPaywall();
+    await SubscriptionService.presentPaywall();
   };
 
   return (

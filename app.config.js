@@ -62,8 +62,8 @@ module.exports = () => {
               "minSdkVersion": 26
             }
           }
-        ]
-      ],
+        ],
+              ],
       experiments: {
         typedRoutes: true
       },

@@ -21,7 +21,7 @@ export const PurchaseModal = ({ chapter, credits, onPurchase, onClose, status = 
   const isDark = colorScheme === "dark";
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
-
+  const hasEnoughCredits = credits >= chapter.price;
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -80,7 +80,7 @@ export const PurchaseModal = ({ chapter, credits, onPurchase, onClose, status = 
     }
 
     // Error state - needs more cherries
-    if (status === "failed" && error === PurchaseError.NeedsMoreCherries) {
+    if ((status === "failed" && error === PurchaseError.NeedsMoreCherries) || !hasEnoughCredits) {
       return (
         <>
           <Text className="text-xl mb-4 text-center text-gray-900 dark:text-white">Not Enough Cherries</Text>

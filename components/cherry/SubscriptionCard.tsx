@@ -48,7 +48,7 @@ export const SubscriptionCard = ({ handleSubscribe }: { handleSubscribe: () => v
             <Text className="text-5xl font-kaisei-bold text-story-light dark:text-story-dark">Free Trial</Text>
           </View>
           <Text className="font-kaisei-medium text-story-light dark:text-story-dark mb-6">
-            1 Week trial, then $4.99/month, cancel anytime.
+            1 Week trial, cancel anytime.
           </Text>
           {/* <ActionButton mode="unlock" onPress={() => console.log("Subscribe")} label="Unlock Now" /> */}
           <TouchableOpacity
@@ -72,7 +72,7 @@ export const SubscriptionCard = ({ handleSubscribe }: { handleSubscribe: () => v
                 paddingVertical: 15,
                 paddingHorizontal: 20,
               }}>
-              <Text className="text-center font-heebo-medium text-lg text-white">Begin Trial</Text>
+              <Text className="text-center font-heebo-medium text-lg text-white">See Options</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

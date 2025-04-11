@@ -4,6 +4,7 @@ import { Platform } from "react-native";
 import { LoggingService } from "./loggingService";
 import { appStore$ } from "@/stores/appStores";
 import { create } from "react-test-renderer";
+import { users$ } from "@/stores/supabaseStores";
 
 export class AuthService {
   // Track the current auth state
@@ -42,6 +43,20 @@ export class AuthService {
       authStore$.assign({ isLoading: false, authState: "unauthenticated" });
     }
   }
+  static welcomeGift = () => {
+    console.log("welcome gift");
+    const userId = authStore$.userId.get();
+    if (!userId) {
+      LoggingService.handleError(new Error("No user found"), { service: "AuthService", method: "welcomeGift" }, false);
+      return;
+    }
+    const cherries = users$[userId].credits.get();
+    if (cherries === null) {
+      LoggingService.handleError(new Error("No user found"), { service: "AuthService", method: "welcomeGift" }, false);
+      return;
+    }
+    users$[userId].credits.set(cherries + 100);
+  };
 
   /**
    * Create an anonymous user

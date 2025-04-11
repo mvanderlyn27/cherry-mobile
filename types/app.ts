@@ -125,4 +125,5 @@ export enum Icon {
   "error" = "error",
   "comment" = "comment",
   "bookmark" = "bookmark",
+  "gift" = "gift",
 }
