@@ -45,17 +45,17 @@ export default function AccountScreen() {
   const handleGoogleSignIn = () => {
     // Handle Google sign in
     // router.push("/onboarding/welcome-gift");
-    router.push("/onboarding/free-chapters");
+    router.push("/onboarding/premium");
   };
 
   const handleAppleSignIn = () => {
     // Handle Apple sign in
     // router.push("/onboarding/welcome-gift");
-    router.push("/onboarding/free-chapters");
+    router.push("/onboarding/premium");
   };
 
   const handleSkip = () => {
-    router.push("/onboarding/free-chapters");
+    router.push("/onboarding/premium");
   };
 
   return (
@@ -95,7 +95,7 @@ export default function AccountScreen() {
                 className="bg-buttons-light dark:bg-buttons-dark py-5 rounded-2xl items-center shadow-md"
                 onPress={handleSkip}>
                 <Text className=" rounded-full  px-6 py-3 text-story-light dark:text-story-dark font-bold text-lg font-kaisei-bold">
-                  Skip Sign Up
+                  Skip
                 </Text>
               </TouchableOpacity>
             </Animated.View>

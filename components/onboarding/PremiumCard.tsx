@@ -30,7 +30,7 @@ export const PremiumCard = ({ handleSubscribe }: { handleSubscribe: () => void }
         </View>
         <View className="flex-row items-center  justify-center m-4">
           <Text className="text-4xl font-kaisei-bold text-story-light text-center dark:text-story-dark">
-            Cherry: Unlimited
+            Cherry: Premium
           </Text>
         </View>
         <Text className="font-kaisei-medium text-story-light dark:text-story-dark mb-6">

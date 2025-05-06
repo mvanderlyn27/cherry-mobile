@@ -21,6 +21,7 @@ const bookCovers = [
   { id: "3", image: require("@/assets/images/book_cover/3.png") },
   { id: "4", image: require("@/assets/images/book_cover/4.png") },
   { id: "5", image: require("@/assets/images/book_cover/5.png") },
+  { id: "6", image: require("@/assets/images/book_cover/6.png") },
 ];
 
 export default function DiscoverScreen() {
@@ -73,9 +74,11 @@ export default function DiscoverScreen() {
                 data={bookCovers}
                 renderItem={renderBookCover}
                 keyExtractor={(item) => item.id}
-                horizontal
+                numColumns={3}
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 10 }}
+                contentContainerStyle={{ padding: 10 }}
+                ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                columnWrapperStyle={{ marginBottom: 10 }}
               />
             </View>
 
@@ -86,14 +89,14 @@ export default function DiscoverScreen() {
             </Animated.Text>
 
             <Animated.View style={textStyle} className="px-8">
-              <Text className="text-lg opacity-70 text-center text-story-light dark:text-story-dark leading-6 font-kaisei-bold">
-                From sweet encounters to passionate sagas, our library has stories for every mood. New tales added
-                regularly!
+              <Text className="text-xl opacity-70 text-center text-story-light dark:text-story-dark leading-6 font-kaisei-bold">
+                From sweet encounters to passionate sagas, our library has stories for every mood. New tales books
+                weekly!
               </Text>
             </Animated.View>
           </View>
 
-          <View className="items-end mt-4">
+          <View className="items-center mt-4">
             <Animated.View style={buttonStyle}>
               <TouchableOpacity
                 className="bg-buttons-light dark:bg-buttons-dark py-5 rounded-2xl items-center shadow-md"

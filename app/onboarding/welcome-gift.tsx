@@ -31,33 +31,38 @@ export default function WelcomeGiftScreen() {
 
   useEffect(() => {
     // Animate content
-    contentOpacity.value = withTiming(1, { duration: 800 });
+    contentOpacity.value = withTiming(1, { duration: 400 });
 
     // Animate gift box
-    giftScale.value = withDelay(300, withSpring(1, { damping: 10, stiffness: 100 }));
+    giftScale.value = withDelay(150, withSpring(1, { damping: 10, stiffness: 100 }));
 
     // Animate gift opening
     setTimeout(() => {
       giftRotate.value = withSequence(
-        withTiming(-0.05, { duration: 200 }),
-        withTiming(0.05, { duration: 200 }),
-        withTiming(-0.03, { duration: 150 }),
-        withTiming(0.03, { duration: 150 }),
-        withTiming(0, { duration: 100 })
+        withTiming(-0.05, { duration: 100 }),
+        withTiming(0.05, { duration: 100 }),
+        withTiming(-0.03, { duration: 75 }),
+        withTiming(0.03, { duration: 75 }),
+        withTiming(0, { duration: 50 })
       );
 
-      // Show cherries
+      // Make gift disappear
       setTimeout(() => {
-        cherryOpacity.value = withTiming(1, { duration: 500 });
-        cherryScale.value = withSpring(1, { damping: 12, stiffness: 100 });
-        cherryY.value = withSpring(0, { damping: 8, stiffness: 80 });
+        giftScale.value = withTiming(0, { duration: 200 });
 
-        // Show button
+        // Show cherries after gift disappears
         setTimeout(() => {
-          buttonOpacity.value = withTiming(1, { duration: 500 });
-        }, 500);
-      }, 700);
-    }, 1500);
+          cherryOpacity.value = withTiming(1, { duration: 250 });
+          cherryScale.value = withSpring(1, { damping: 12, stiffness: 100 });
+          cherryY.value = withSpring(0, { damping: 8, stiffness: 80 });
+
+          // Show button
+          setTimeout(() => {
+            buttonOpacity.value = withTiming(1, { duration: 250 });
+          }, 250);
+        }, 200);
+      }, 350);
+    }, 750);
   }, []);
 
   const contentStyle = useAnimatedStyle(() => {
@@ -96,27 +101,31 @@ export default function WelcomeGiftScreen() {
       <SafeAreaView className="flex-1">
         <View className="flex-1 px-6 py-6">
           <Animated.View style={contentStyle} className="flex-1 justify-center items-center">
-            <Animated.View style={giftStyle} className="mb-8">
-              <IconSymbol name={Icon.gift} size={120} color={colors.cherry.light} />
-            </Animated.View>
+            <View className="relative">
+              <Animated.View style={giftStyle} className="mb-8">
+                <IconSymbol name={Icon.gift} size={120} color={colors.cherry.light} />
+              </Animated.View>
 
-            <Animated.View style={cherryStyle} className="absolute">
-              <View className="flex-row items-center">
-                <IconSymbol name={Icon.cherry} size={40} color={colors.cherry.light} />
-                <Text className="text-3xl font-bold text-cherry-light dark:text-cherry-dark ml-2 font-kaisei-bold">
-                  50
-                </Text>
-              </View>
-            </Animated.View>
+              <Animated.View
+                style={cherryStyle}
+                className="absolute top-0 left-0 right-0 bottom-0 items-center justify-center">
+                <View className="flex-row items-center">
+                  <IconSymbol name={Icon.cherry} size={120} color={colors.cherry.light} />
+                  <Text className="text-5xl font-bold text-cherry-light dark:text-cherry-dark ml-2 font-kaisei-bold">
+                    50
+                  </Text>
+                </View>
+              </Animated.View>
+            </View>
 
             <Animated.Text
-              entering={FadeIn.delay(200).withInitialValues({ opacity: 0 })}
+              entering={FadeIn.withInitialValues({ opacity: 0 })}
               className="text-3xl font-bold text-center text-story-light dark:text-story-dark px-4 mb-4 font-kaisei-bold mt-16">
-              Welcome to Cherry!
+              Lets get started!
             </Animated.Text>
 
             <Animated.Text
-              entering={FadeIn.delay(400).withInitialValues({ opacity: 0 })}
+              entering={FadeIn.delay(200).withInitialValues({ opacity: 0 })}
               className="text-lg opacity-70 text-center text-story-light dark:text-story-dark leading-6 mb-8 px-4 font-kaisei-bold">
               We've added 50 cherries to your account to get you started. Enjoy unlocking premium chapters!
             </Animated.Text>
@@ -125,9 +134,11 @@ export default function WelcomeGiftScreen() {
           <View className="items-center mt-4">
             <Animated.View style={buttonStyle}>
               <TouchableOpacity
-                className="bg-cherry-light dark:bg-cherry-dark py-3 px-8 rounded-full items-center shadow-md"
+                className="bg-buttons-light dark:bg-buttons-dark py-5 rounded-2xl items-center shadow-md"
                 onPress={handleFinish}>
-                <Text className="text-white font-bold text-lg font-kaisei-bold">Start Reading</Text>
+                <Text className="bg-cherry-light rounded-full  px-6 py-3 text-white font-bold text-lg font-kaisei-bold">
+                  Lets Go!
+                </Text>
               </TouchableOpacity>
             </Animated.View>
           </View>

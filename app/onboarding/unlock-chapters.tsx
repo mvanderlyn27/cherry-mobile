@@ -124,7 +124,7 @@ export default function UnlockChaptersScreen() {
                 <View className="flex-row items-center">
                   <MaterialCommunityIcons name="circle-medium" size={24} color="#E57373" />
                   <Text className="text-lg text-story-light dark:text-story-dark font-kaisei">
-                    Having <Text className="font-kaisei-bold">Cherry: Unlimited</Text>
+                    Having <Text className="font-kaisei-bold">Cherry: Premium</Text>
                   </Text>
                 </View>
               </View>

@@ -55,7 +55,7 @@ export class AuthService {
       LoggingService.handleError(new Error("No user found"), { service: "AuthService", method: "welcomeGift" }, false);
       return;
     }
-    users$[userId].credits.set(cherries + 100);
+    users$[userId].credits.set(cherries + 50);
   };
 
   /**

@@ -83,7 +83,7 @@ export default function WelcomeScreen() {
               </Text>
             </Animated.View>
           </View>
-          <View className="items-end mt-4">
+          <View className="items-center mt-4">
             <Animated.View style={buttonStyle}>
               <TouchableOpacity
                 className="bg-buttons-light dark:bg-buttons-dark py-5 rounded-2xl items-center shadow-md"

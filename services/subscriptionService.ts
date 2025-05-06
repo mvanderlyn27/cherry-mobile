@@ -31,7 +31,6 @@ export class SubscriptionService {
 
     const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall({
       offering: offerings.current, // Optional Offering object obtained through getOfferings
-      fontFamily: "KaiseiDecol_400Regular",
     });
 
     switch (paywallResult) {

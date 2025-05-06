@@ -242,7 +242,7 @@ export class ChapterService {
         hasPremium ||
         owns_book ||
         unlocked_chapters.some((unlock) => unlock.chapter_id === chapter.id) ||
-        chapter.chapter_number === 1;
+        chapter.is_free === true;
       const is_liked =
         chapter_likes.filter((like) => like.chapter_id === chapter.id && like.user_id === userId).length > 0;
       const is_unlocked = unlocked_chapters.filter((unlock) => unlock.chapter_id === chapter.id).length > 0;

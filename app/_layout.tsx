@@ -9,12 +9,8 @@ import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PostHogProvider } from "posthog-react-native";
 import { superwallService } from "@/services/superwall";
-import {
-  useFonts,
-  KaiseiDecol_400Regular,
-  KaiseiDecol_500Medium,
-  KaiseiDecol_700Bold,
-} from "@expo-google-fonts/kaisei-decol";
+import { useFonts } from "expo-font";
+import { KaiseiDecol_400Regular, KaiseiDecol_500Medium, KaiseiDecol_700Bold } from "@expo-google-fonts/kaisei-decol";
 import { Heebo_400Regular, Heebo_500Medium, Heebo_700Bold } from "@expo-google-fonts/heebo";
 import Toast from "react-native-toast-message";
 import { posthog } from "@/services/posthog";

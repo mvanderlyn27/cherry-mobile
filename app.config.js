@@ -10,7 +10,7 @@ module.exports = () => {
       slug: "cherry-mobile",
       version: "1.0.0",
       orientation: "portrait",
-      icon: "./assets/images/icon.png",
+      icon: "./assets/images/cherry_icon_square.png",
       scheme: "myapp",
       userInterfaceStyle: "automatic",
       newArchEnabled: true,
@@ -24,7 +24,7 @@ module.exports = () => {
       },
       android: {
         adaptiveIcon: {
-          foregroundImage: "./assets/images/adaptive-icon.png",
+          foregroundImage: "./assets/images/cherry_icon_square.png",
           backgroundColor: "#ffffff"
         },
         package: "com.cherrystories.cherrystories",
@@ -33,7 +33,7 @@ module.exports = () => {
       web: {
         bundler: "metro",
         output: "static",
-        favicon: "./assets/images/favicon.png"
+        favicon: "./assets/images/cherry_icon.png"
       },
       plugins: [
         [
@@ -49,7 +49,7 @@ module.exports = () => {
         [
           "expo-splash-screen",
           {
-            image: "./assets/images/splash-icon.png",
+            image: "./assets/images/cherry_icon.png",
             imageWidth: 200,
             resizeMode: "contain",
             backgroundColor: "#ffffff"
@@ -63,7 +63,20 @@ module.exports = () => {
             }
           }
         ],
-              ],
+        // [
+        //   "expo-font",
+        //   {
+        //     "fonts": [
+        //       "node_modules/@expo-google-fonts/kaisei-decol/KaiseiDecol_400Regular.ttf",
+        //       "node_modules/@expo-google-fonts/kaisei-decol/KaiseiDecol_500Medium.ttf",
+        //       "node_modules/@expo-google-fonts/kaisei-decol/KaiseiDecol_700Bold.ttf",
+        //       "node_modules/@expo-google-fonts/heebo/Heebo_400Regular.ttf",
+        //       "node_modules/@expo-google-fonts/heebo/Heebo_500Medium.ttf",
+        //       "node_modules/@expo-google-fonts/heebo/Heebo_700Bold.ttf"
+        //     ]
+        //   }
+        // ]
+      ],
       experiments: {
         typedRoutes: true
       },
