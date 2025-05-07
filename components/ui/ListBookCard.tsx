@@ -119,7 +119,7 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
       <View className="flex-1">
         <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-1">{book.title}</Text>
 
-        <TagList tags={tags} />
+        <TagList tags={tags.slice(0, 2)} />
 
         <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
           {book.description}

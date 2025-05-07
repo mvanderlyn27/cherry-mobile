@@ -68,9 +68,9 @@ export const ChapterSidebar = ({
                     } ${!chapter.is_owned ? "text-gray-400 dark:text-gray-500" : ""}`}>
                     Chapter {chapter.chapter_number}
                   </Text>
-                  <Text className="font-kaisei-medium text-tags-light dark:text-tags-dark font-thin text-sm ">
+                  {/* <Text className="font-kaisei-medium text-tags-light dark:text-tags-dark font-thin text-sm ">
                     {chapter.title}
-                  </Text>
+                  </Text> */}
                 </View>
                 {!chapter.is_owned && <IconSymbol name={Icon.lock} size={18} color={isDark ? "#aaa" : "#666"} />}
                 {chapter.progress?.status === "completed" && (

@@ -113,7 +113,6 @@ const ReaderScreen = observer(() => {
 
   // Scroll handler to track scroll position
   const handleScroll = () => {
-    console.log("Handling scroll");
     setUiVisible(false);
     scrollY.value = withTiming(1, { duration: ANIMATION_DURATION });
   };

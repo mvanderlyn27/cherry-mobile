@@ -31,6 +31,7 @@ import { useRouter } from "expo-router";
 import { appStore$, bookDetailsStore$ } from "@/stores/appStores";
 import { authStore$ } from "@/stores/authStore";
 import { use$ } from "@legendapp/state/react";
+import { computed } from "@legendapp/state"; // Import computed from @legendapp/state
 import { tags$, users$ } from "@/stores/supabaseStores";
 import { TransactionService } from "@/services/transactionService";
 import { NotificationService } from "@/services/notificationService";
@@ -47,27 +48,57 @@ type BookPageProps = {
 export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow, toggleSave }) => {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
+
   const [currentBookIndex, setCurrentBookIndex] = useState(initialBookIndex);
   const [isLoading, setIsLoading] = useState(false);
   const userId = use$(authStore$.userId);
-  if (!userId) {
-    return null;
+  const booksArray = use$(bookDetailsStore$.books); // This is now the plain array
+
+  // currentBook will be reactive.
+  const currentBook = booksArray?.[currentBookIndex];
+
+  // Define allIndividualChaptersOwned as a computed observable (lowercase c)
+  const allIndividualChaptersOwned$ = computed(() => {
+    if (!currentBook || !userId) {
+      // currentBook here refers to the one derived from booksArray
+      return false;
+    }
+    const bookChapters = ChapterService.getChapters(currentBook.id);
+
+    if (bookChapters && Object.keys(bookChapters).length > 0) {
+      return Object.values(bookChapters).every((chapter) => chapter.is_owned);
+    } else if (currentBook.is_owned) {
+      return true;
+    }
+    return false;
+  });
+
+  const allChaptersOwned = use$(allIndividualChaptersOwned$);
+
+  // Updated isUnlocked logic
+  const isUnlocked = currentBook?.is_owned || allChaptersOwned;
+
+  // Define heights for the bottom action button container based on number of buttons
+  // A large ActionButton has py-4 (16px vert padding). Assume content height ~24px. Total button height ~56px.
+  // Container has py-4 (16px vert padding) and gap-2 (8px).
+  const singleButtonContainerHeight = 16 + 56 + 16; // 88px
+  const doubleButtonContainerHeight = 16 + 56 + 8 + 56 + 16; // 152px
+  const fixedBottomBarHeight = isUnlocked ? singleButtonContainerHeight : doubleButtonContainerHeight;
+
+  if (!userId || !currentBook) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center bg-background-light dark:bg-background-dark">
+        <Text className="text-text-light dark:text-text-dark">Loading book details...</Text>
+      </SafeAreaView>
+    );
   }
-  const books = use$(bookDetailsStore$.books.get());
-  console.log(books);
-  if (!books) {
-    return null;
-  }
-  // get current book
-  const currentBook: ExtendedBook = books[currentBookIndex];
+
   //get like count
   const like_count = currentBook.like_count || 0;
   //get tags
   const tags: Tag[] = use$(() => currentBook.tags.map((bookTag: BookTag) => tags$[bookTag.tag_id].get()));
-  //get is owned
-  const isUnlocked = currentBook.is_owned;
   //get if the user can buy the book
-  const curCredits = use$(users$[userId || "placeholder"].credits);
+  const curCredits = use$(users$[userId].credits);
   //check if we can buy
   const canBuy = curCredits ? curCredits >= currentBook.price : false;
   //is saved
@@ -96,16 +127,20 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
     }
   };
   const handleBookChange = (bookId: string) => {
-    const newIndex = books.findIndex((b) => b.id === bookId);
-    if (newIndex !== -1) {
-      setCurrentBookIndex(newIndex);
+    if (booksArray) {
+      // Use booksArray directly
+      const newIndex = booksArray.findIndex((b: ExtendedBook) => b.id === bookId);
+      if (newIndex !== -1) {
+        setCurrentBookIndex(newIndex);
+      }
     }
   };
 
   return (
-    <SafeAreaView className="h-full relative">
+    <SafeAreaView className="flex-1 relative bg-background-light dark:bg-background-dark">
+      {/* Top section with Carousel or BookCover */}
       <View className="w-full flex justify-center items-center p-8">
-        {books.length > 1 ? (
+        {booksArray && booksArray.length > 1 ? ( // Use booksArray directly
           <BookPageCarousel initialIndex={currentBookIndex} onBookPress={handleBookChange} onBookSave={toggleSave} />
         ) : (
           <BookCover book={currentBook} size={"large"} onSave={toggleSave} />
@@ -156,7 +191,14 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
             <Text className="text-sm mt-1 text-white">Save</Text>
           </TouchableOpacity>
         </View>
+      </View>
 
+      {/* Scrollable content area */}
+      <ScrollView
+        className="flex-1 px-6"
+        contentContainerStyle={{ paddingBottom: fixedBottomBarHeight }} // Add paddingBottom here
+        showsVerticalScrollIndicator={false} // Optional: hide scrollbar if not needed
+      >
         {/* Summary Section */}
         <View className="py-4">
           <Animated.Text
@@ -171,39 +213,47 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
         </View>
 
         {/* Tags Section */}
+        {/* REMOVE mb-36 from here, it's now handled by ScrollView's paddingBottom */}
         <Animated.View
-          className="py-2 mb-4"
+          className="py-2" // Removed mb-36
           key={currentBook.id}
           entering={FadeIn.duration(300)
             .delay(100)
             .withInitialValues({ transform: [{ translateX: -20 }] })}>
           <TagList tags={tags} />
         </Animated.View>
-      </View>
+      </ScrollView>
 
-      {/* Fixed Read Now Button */}
-      <View className="flex flex-col gap-2 px-4 py-4 mx-4 mb-6 bg-background-light dark:bg-background-dark">
-        <ActionButton mode="read" size="large" onPress={() => onReadNow(currentBook.id)} />
-        {!isUnlocked ? (
-          canBuy ? (
-            <ActionButton
-              mode="buy"
-              size="large"
-              credits={currentBook.price}
-              onPress={() => handleBuyBook(currentBook.id)}
-              isLoading={isLoading}
-            />
+      {/* Fixed Read Now Button Bar - Give it a fixed height */}
+      <View
+        className="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark"
+        style={{ height: fixedBottomBarHeight }} // Apply the fixed height
+      >
+        {/* Inner container for padding and flex layout - ensure it fills the fixed height */}
+        {/* Using justify-end to push buttons to the bottom of this fixed height view, with py-4 for vertical padding within the button area */}
+        <View className="flex-1 flex flex-col justify-end gap-2 px-8 py-4">
+          <ActionButton mode="read" size="large" onPress={() => onReadNow(currentBook.id)} />
+          {!isUnlocked ? (
+            canBuy ? (
+              <ActionButton
+                mode="buy"
+                size="large"
+                credits={currentBook.price}
+                onPress={() => handleBuyBook(currentBook.id)}
+                isLoading={isLoading}
+              />
+            ) : (
+              <ActionButton
+                mode="buyGradient"
+                size="large"
+                credits={currentBook.price}
+                onPress={() => router.push("/modals/cherry")}
+              />
+            )
           ) : (
-            <ActionButton
-              mode="buyGradient"
-              size="large"
-              credits={currentBook.price}
-              onPress={() => router.push("/modals/cherry")}
-            />
-          )
-        ) : (
-          <></>
-        )}
+            <></>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );

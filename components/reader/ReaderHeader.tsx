@@ -13,7 +13,7 @@ export const ReaderHeader = ({ title, chapter, onMenuPress, onClosePress }: Read
   return (
     <Header
       title={title}
-      subTitle={`Chapter ${chapter.chapter_number}: ${chapter.title}`}
+      subTitle={`${chapter.title}`}
       leftActions={[{ icon: Icon.menu, onPress: onMenuPress }]}
       rightActions={[{ icon: Icon.close, onPress: onClosePress }]}
     />
