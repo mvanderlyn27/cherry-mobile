@@ -52,7 +52,7 @@ export const ReaderBottomBar = ({
       <ReaderBottomBarButton
         icon={Icon["left-arrow"]}
         label="Previous"
-        onPress={() => (isNextOwned ? handlePress(onPreviousPress) : purchasePrevious())}
+        onPress={() => (isPreviousOwned ? handlePress(onPreviousPress) : purchasePrevious())}
         disabled={isPreviousDisabled}
       />
 

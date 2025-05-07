@@ -210,6 +210,7 @@ const ReaderScreen = observer(() => {
     if (prevChapterNumber < 1) return; // Already at first chapter
 
     const prevChapter = chapters[prevChapterNumber];
+    console.log("prevChapter", prevChapter, "current", currentChapter);
     if (!prevChapter.is_owned) {
       setChapterToUnlock(prevChapterNumber);
       setShowPurchaseModal(true);
