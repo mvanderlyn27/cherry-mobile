@@ -45,7 +45,6 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
 }) => {
   const finished = progress === 100;
   const userId = use$(authStore$.userId);
-  console.log("userId", userId);
   if (!userId) return null;
   const extendedBook = BookService.getBookDetails(book.id);
   const tags = use$(() => extendedBook?.tags.map((bookTag) => tags$[bookTag.tag_id].get())) || [];

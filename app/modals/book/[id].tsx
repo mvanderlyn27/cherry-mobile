@@ -14,7 +14,6 @@ import { BookService } from "@/services/bookService";
 export default function Page() {
   const { id }: { id: string } = useLocalSearchParams();
   const router = useRouter();
-
   // Get all relevant books (current book + related books if available)
   // const currentBook = use$(bookDetailsStore$.currentBook);
 
@@ -24,7 +23,9 @@ export default function Page() {
   const allBooks = use$(bookDetailsStore$.books);
   if (!allBooks || allBooks.length === 0) return null;
   const index = allBooks.findIndex((book) => book?.id === id);
-  if (index === -1) return null;
+  if (index === -1) {
+    return null;
+  }
 
   const handleReadNow = (bookId: string) => {
     router.push(`/modals/reader/${bookId}`);

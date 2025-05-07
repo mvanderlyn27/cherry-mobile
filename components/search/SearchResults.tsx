@@ -22,11 +22,11 @@ export const SearchResults: React.FC<SearchResultsProps> = ({}) => {
   const handleBookPress = (bookId: string, bookIds: string[]) => {
     console.log("going to book", bookId);
     bookDetailsStore$.bookIds.set(bookIds);
-    router.navigate(`/modals/book/${bookId}`);
+    router.push(`/modals/book/${bookId}`);
   };
 
   const handleBookRead = (bookId: string) => {
-    router.navigate(`/modals/reader/${bookId}`);
+    router.push(`/modals/reader/${bookId}`);
   };
 
   return (
@@ -46,7 +46,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({}) => {
               onClick={() =>
                 handleBookPress(
                   item.id,
-                  books.slice(0, 5).map((book) => book.id)
+                  books.map((book) => book.id)
                 )
               }
             />
