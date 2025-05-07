@@ -53,7 +53,7 @@ export const TopBookCarousel: React.FC<Props> = ({ onBookPress, onBookSave }) =>
   };
 
   return (
-    <View className="flex flex-col gap-2">
+    <View className="flex flex-col gap-2 mb-4">
       <View style={{ height: PAGE_HEIGHT }}>
         <Carousel
           ref={carouselRef}
