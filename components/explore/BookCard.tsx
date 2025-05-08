@@ -18,7 +18,7 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onRead, onMoreInfo, on
   return (
     <View className="bg-buttons-light/10 dark:bg-button-dark/20 rounded-3xl overflow-hidden  flex-1 flex flex-col p-8">
       <View className="flex-1 items-center">
-        <BookCover book={book} size="x-large" onSave={() => onSave?.(book.id)} />
+        <BookCover book={book} size="x-large" onPress={() => onMoreInfo(book.id)} onSave={() => onSave?.(book.id)} />
 
         <View className="flex-1 w-full">
           <Text className="text-4xl text-center font-kaisei-bold text-story-light dark:text-story-dark mt-4 mb-2">
