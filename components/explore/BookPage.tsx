@@ -43,9 +43,10 @@ type BookPageProps = {
   initialBookIndex: number;
   onReadNow: (bookId: string) => void;
   toggleSave: (bookId: string) => void;
+  onCarouselSnap?: (index: number) => void; // Added optional prop
 };
 
-export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow, toggleSave }) => {
+export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow, toggleSave, onCarouselSnap }) => {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
 
@@ -87,9 +88,9 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
 
   if (!userId || !currentBook) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-background-light dark:bg-background-dark">
+      <View className="flex-1 justify-center items-center bg-background-light dark:bg-background-dark">
         <Text className="text-text-light dark:text-text-dark">Loading book details...</Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -137,68 +138,74 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
   };
 
   return (
-    <SafeAreaView className="flex-1 relative bg-background-light dark:bg-background-dark">
+    <View className="flex-1 relative bg-background-light dark:bg-background-dark">
       {/* Top section with Carousel or BookCover */}
-      <View className="w-full flex justify-center items-center p-8">
-        {booksArray && booksArray.length > 1 ? ( // Use booksArray directly
-          <BookPageCarousel initialIndex={currentBookIndex} onBookPress={handleBookChange} onBookSave={toggleSave} />
-        ) : (
-          <BookCover book={currentBook} size={"large"} onSave={toggleSave} />
-        )}
-      </View>
-
-      <View className="px-6">
-        {/* Action Buttons */}
-        <View className="flex-row justify-between py-4">
-          <Animated.View
-            layout={LinearTransition.springify()}
-            className="flex-1 flex-row items-center justify-center gap-2 bg-time-light dark:bg-time-dark mx-2 rounded-2xl py-3">
-            <IconSymbol name={Icon.time} color={"#fff"} />
-            <View className="overflow-hidden">
-              <Animated.Text
-                entering={FlipInEasyX.duration(300).delay(300)}
-                // exiting={FlipOutEasyX.duration(300)}
-                key={currentBook.id}
-                className="text-sm mt-1 text-white dark:text-white">
-                {formatReadingTime(currentBook.reading_time || 0, 100)}
-              </Animated.Text>
-            </View>
-          </Animated.View>
-
-          <Animated.View
-            layout={LinearTransition.springify()}
-            className="flex-1 flex-row items-center justify-center gap-2 bg-white mx-2 rounded-2xl py-3">
-            <IconSymbol name={Icon.eye} color={colors["buttons_text"][colorScheme || "light"]} />
-            <View className="overflow-hidden">
-              <Animated.Text
-                entering={FadeIn.duration(300).delay(300)}
-                // exiting={FlipOutEasyX.duration(300)}
-                key={currentBook.id}
-                className="text-sm mt-1 text-buttons_text-light dark:text-buttons_text-dark">
-                {like_count}
-              </Animated.Text>
-            </View>
-          </Animated.View>
-          <TouchableOpacity
-            onPress={() => toggleSave(currentBook.id)}
-            className="flex-1 flex-row items-center justify-center gap-2 bg-story-light dark:bg-story-dark mx-2 rounded-2xl py-3">
-            {currentBook.is_saved ? (
-              <IconSymbol key="saved" name={Icon.saved} color={"white"} />
-            ) : (
-              <IconSymbol key="unsaved" name={Icon.save} color={"white"} />
-            )}
-
-            <Text className="text-sm mt-1 text-white">Save</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Scrollable content area */}
       <ScrollView
         className="flex-1 px-6"
         contentContainerStyle={{ paddingBottom: fixedBottomBarHeight }} // Add paddingBottom here
         showsVerticalScrollIndicator={false} // Optional: hide scrollbar if not needed
       >
+        <View className="w-full flex justify-center items-center p-8">
+          {booksArray && booksArray.length > 1 ? ( // Use booksArray directly
+            <BookPageCarousel
+              initialIndex={currentBookIndex}
+              onBookPress={handleBookChange}
+              onBookSave={toggleSave}
+              onCarouselSnap={onCarouselSnap} // Pass down the prop
+            />
+          ) : (
+            <BookCover book={currentBook} size={"large"} onSave={toggleSave} />
+          )}
+        </View>
+
+        <View className="px-6">
+          {/* Action Buttons */}
+          <View className="flex-row justify-between py-4">
+            <Animated.View
+              layout={LinearTransition.springify()}
+              className="flex-1 flex-row items-center justify-center gap-2 bg-time-light dark:bg-time-dark mx-2 rounded-2xl py-3">
+              <IconSymbol name={Icon.time} color={"#fff"} />
+              <View className="overflow-hidden">
+                <Animated.Text
+                  entering={FlipInEasyX.duration(300).delay(300)}
+                  // exiting={FlipOutEasyX.duration(300)}
+                  key={currentBook.id}
+                  className="text-sm mt-1 text-white dark:text-white">
+                  {formatReadingTime(currentBook.reading_time || 0, 100)}
+                </Animated.Text>
+              </View>
+            </Animated.View>
+
+            <Animated.View
+              layout={LinearTransition.springify()}
+              className="flex-1 flex-row items-center justify-center gap-2 bg-white mx-2 rounded-2xl py-3">
+              <IconSymbol name={Icon.eye} color={colors["buttons_text"][colorScheme || "light"]} />
+              <View className="overflow-hidden">
+                <Animated.Text
+                  entering={FadeIn.duration(300).delay(300)}
+                  // exiting={FlipOutEasyX.duration(300)}
+                  key={currentBook.id}
+                  className="text-sm mt-1 text-buttons_text-light dark:text-buttons_text-dark">
+                  {like_count}
+                </Animated.Text>
+              </View>
+            </Animated.View>
+            <TouchableOpacity
+              onPress={() => toggleSave(currentBook.id)}
+              className="flex-1 flex-row items-center justify-center gap-2 bg-story-light dark:bg-story-dark mx-2 rounded-2xl py-3">
+              {currentBook.is_saved ? (
+                <IconSymbol key="saved" name={Icon.saved} color={"white"} />
+              ) : (
+                <IconSymbol key="unsaved" name={Icon.save} color={"white"} />
+              )}
+
+              <Text className="text-sm mt-1 text-white">Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Scrollable content area */}
+
         {/* Summary Section */}
         <View className="py-4">
           <Animated.Text
@@ -223,38 +230,37 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
           <TagList tags={tags} />
         </Animated.View>
       </ScrollView>
-
       {/* Fixed Read Now Button Bar - Give it a fixed height */}
-      <View
-        className="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark"
-        style={{ height: fixedBottomBarHeight }} // Apply the fixed height
-      >
-        {/* Inner container for padding and flex layout - ensure it fills the fixed height */}
-        {/* Using justify-end to push buttons to the bottom of this fixed height view, with py-4 for vertical padding within the button area */}
-        <View className="flex-1 flex flex-col justify-end gap-2 px-8 py-4">
-          <ActionButton mode="read" size="large" onPress={() => onReadNow(currentBook.id)} />
-          {!isUnlocked ? (
-            canBuy ? (
-              <ActionButton
-                mode="buy"
-                size="large"
-                credits={currentBook.price}
-                onPress={() => handleBuyBook(currentBook.id)}
-                isLoading={isLoading}
-              />
-            ) : (
-              <ActionButton
-                mode="buyGradient"
-                size="large"
-                credits={currentBook.price}
-                onPress={() => router.push("/modals/cherry")}
-              />
-            )
+      {/* <View
+        className=" bg-background-light dark:bg-background-dark"
+        // style={{ height: fixedBottomBarHeight }} // Apply the fixed height
+      > */}
+      {/* Inner container for padding and flex layout - ensure it fills the fixed height */}
+      {/* Using justify-end to push buttons to the bottom of this fixed height view, with py-4 for vertical padding within the button area */}
+      <View className=" flex flex-col justify-end gap-4 px-8 py-4">
+        <ActionButton mode="read" size="large" onPress={() => onReadNow(currentBook.id)} />
+        {!isUnlocked ? (
+          canBuy ? (
+            <ActionButton
+              mode="buy"
+              size="large"
+              credits={currentBook.price}
+              onPress={() => handleBuyBook(currentBook.id)}
+              isLoading={isLoading}
+            />
           ) : (
-            <></>
-          )}
-        </View>
+            <ActionButton
+              mode="buyGradient"
+              size="large"
+              credits={currentBook.price}
+              onPress={() => router.push("/modals/cherry")}
+            />
+          )
+        ) : (
+          <></>
+        )}
+        {/* </View> */}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };

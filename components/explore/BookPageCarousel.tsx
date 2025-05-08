@@ -13,10 +13,12 @@ type Props = {
   initialIndex: number;
   onBookPress: (id: string) => void;
   onBookSave?: (id: string) => void;
+  onCarouselSnap?: (index: number) => void; // Added optional prop
 };
 
 // Custom parallax animation function
 const customParallaxLayout = ({ size }: { size: number }) => {
+  // Keep this line as is
   return (value: number, index: number) => {
     "worklet";
     const translateX = interpolate(value, [-1, 0, 1], [-size * 0.35, 0, size * 0.35]);
@@ -34,7 +36,7 @@ const customParallaxLayout = ({ size }: { size: number }) => {
   };
 };
 
-export const BookPageCarousel: React.FC<Props> = ({ initialIndex, onBookPress, onBookSave }) => {
+export const BookPageCarousel: React.FC<Props> = ({ initialIndex, onBookPress, onBookSave, onCarouselSnap }) => {
   const books = use$(bookDetailsStore$.books);
   if (!books || books.length === 0) return null;
   const { colorScheme } = useColorScheme();
@@ -68,6 +70,9 @@ export const BookPageCarousel: React.FC<Props> = ({ initialIndex, onBookPress, o
           onProgressChange={progress}
           onSnapToItem={(index) => {
             onBookPress(books[index].id);
+            if (onCarouselSnap) {
+              onCarouselSnap(index);
+            }
           }}
           style={{
             width: width,

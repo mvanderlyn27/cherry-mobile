@@ -87,7 +87,10 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="modals/search" options={{ presentation: "modal" }} />
-          <Stack.Screen name="modals/book/[id]" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="modals/book/[id]"
+            options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }}
+          />
           <Stack.Screen name="modals/cherry" options={{ presentation: "modal" }} />
           <Stack.Screen name="modals/reader" options={{ presentation: "fullScreenModal" }} />
           <Stack.Screen name="modals/cherryInfo" options={{ presentation: "modal" }} />

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Header from "@/components/ui/Header";
@@ -10,6 +10,7 @@ import { use$ } from "@legendapp/state/react";
 import { bookDetailsStore$ } from "@/stores/appStores";
 import { authStore$ } from "@/stores/authStore";
 import { BookService } from "@/services/bookService";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Page() {
   const { id }: { id: string } = useLocalSearchParams();
@@ -22,10 +23,12 @@ export default function Page() {
   if (!userId) return null;
   const allBooks = use$(bookDetailsStore$.books);
   if (!allBooks || allBooks.length === 0) return null;
-  const index = allBooks.findIndex((book) => book?.id === id);
-  if (index === -1) {
+  const initialBookIndex = allBooks.findIndex((book) => book?.id === id); // Renamed for clarity
+  if (initialBookIndex === -1) {
     return null;
   }
+
+  const [headerBookIndex, setHeaderBookIndex] = useState(initialBookIndex);
 
   const handleReadNow = (bookId: string) => {
     router.push(`/modals/reader/${bookId}`);
@@ -35,14 +38,19 @@ export default function Page() {
     BookService.toggleSavedBook(userId, bookId);
   };
   return (
-    <View className="h-full bg-background-light dark:bg-background-dark">
+    <SafeAreaView className="h-full w-full bg-background-light dark:bg-background-dark">
       <Header
-        title={allBooks[index].title}
-        subTitle={allBooks[index].author || undefined}
+        title={allBooks[headerBookIndex].title}
+        subTitle={allBooks[headerBookIndex].author || undefined}
         rightActions={[{ icon: Icon.close, onPress: () => router.back() }]}
       />
 
-      <BookPage initialBookIndex={index} onReadNow={handleReadNow} toggleSave={handleSaveToggle} />
-    </View>
+      <BookPage
+        initialBookIndex={initialBookIndex}
+        onReadNow={handleReadNow}
+        toggleSave={handleSaveToggle}
+        onCarouselSnap={setHeaderBookIndex}
+      />
+    </SafeAreaView>
   );
 }
