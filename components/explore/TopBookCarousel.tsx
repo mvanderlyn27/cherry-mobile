@@ -53,63 +53,61 @@ export const TopBookCarousel: React.FC<Props> = ({ onBookPress, onBookSave }) =>
   };
 
   return (
-    <View className="flex flex-col gap-2 mb-4">
-      <View style={{ height: PAGE_HEIGHT }}>
-        <Carousel
-          ref={carouselRef}
-          loop
-          width={PAGE_WIDTH}
-          height={PAGE_HEIGHT}
-          data={books}
-          scrollAnimationDuration={800}
-          autoPlay={false}
-          pagingEnabled={true}
-          snapEnabled={true}
-          onProgressChange={progress}
-          style={{
-            width: width,
-            height: PAGE_HEIGHT,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          customAnimation={customParallaxLayout({ size: PAGE_WIDTH })}
-          // Fix the onPress handler in renderItem
-          renderItem={({ item, index, animationValue }) => {
-            return (
-              <CustomBookCard
-                key={item.id}
-                book={item}
-                animationValue={animationValue}
-                onPress={() =>
-                  onBookPress(
-                    item.id,
-                    books.map((book) => book.id)
-                  )
-                } // Fixed: was passing a function that returns undefined
-                onSave={onBookSave || (() => console.log("Save", item.id))}
-              />
-            );
-          }}
-        />
+    <View className="flex flex-col gap-4 mb-10" style={{ height: PAGE_HEIGHT }}>
+      <Carousel
+        ref={carouselRef}
+        loop
+        width={PAGE_WIDTH}
+        height={PAGE_HEIGHT}
+        data={books}
+        scrollAnimationDuration={800}
+        autoPlay={false}
+        pagingEnabled={true}
+        snapEnabled={true}
+        onProgressChange={progress}
+        style={{
+          width: width,
+          height: PAGE_HEIGHT,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        customAnimation={customParallaxLayout({ size: PAGE_WIDTH })}
+        // Fix the onPress handler in renderItem
+        renderItem={({ item, index, animationValue }) => {
+          return (
+            <CustomBookCard
+              key={item.id}
+              book={item}
+              animationValue={animationValue}
+              onPress={() =>
+                onBookPress(
+                  item.id,
+                  books.map((book) => book.id)
+                )
+              } // Fixed: was passing a function that returns undefined
+              onSave={onBookSave || (() => console.log("Save", item.id))}
+            />
+          );
+        }}
+      />
 
-        {/* Updated Pagination */}
-        <Pagination.Basic
-          progress={progress}
-          data={books}
-          dotStyle={{
-            backgroundColor: colors["tabs_selected"][colorScheme || "light"],
-            opacity: 0.6,
-            borderRadius: 20,
-          }}
-          activeDotStyle={{
-            backgroundColor: colors["buttons_text"][colorScheme || "light"],
-            opacity: 1,
-            borderRadius: 20,
-          }}
-          containerStyle={{ gap: 10, marginBottom: 10 }}
-          onPress={onPressPagination}
-        />
-      </View>
+      {/* Updated Pagination */}
+      <Pagination.Basic
+        progress={progress}
+        data={books}
+        dotStyle={{
+          backgroundColor: colors["tabs_selected"][colorScheme || "light"],
+          opacity: 0.6,
+          borderRadius: 20,
+        }}
+        activeDotStyle={{
+          backgroundColor: colors["buttons_text"][colorScheme || "light"],
+          opacity: 1,
+          borderRadius: 20,
+        }}
+        containerStyle={{ gap: 10, marginBottom: 10 }}
+        onPress={onPressPagination}
+      />
     </View>
   );
 };
