@@ -38,7 +38,9 @@ export default function Page() {
     BookService.toggleSavedBook(userId, bookId);
   };
   return (
-    <SafeAreaView className="h-full w-full bg-background-light dark:bg-background-dark">
+    <SafeAreaView
+      className="flex-1 w-full h-full bg-background-light dark:bg-background-dark"
+      edges={["top", "left", "right", "bottom"]}>
       <Header
         title={allBooks[headerBookIndex].title}
         subTitle={allBooks[headerBookIndex].author || undefined}

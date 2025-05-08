@@ -11,7 +11,8 @@ const colors = require("@/config/colors");
 
 type Props = {
   initialIndex: number;
-  onBookPress: (id: string) => void;
+  onBookPress: (id: string) => void; // For snap changes to update details
+  onCenterItemPress: (id: string) => void; // For click on the centered item to read
   onBookSave?: (id: string) => void;
   onCarouselSnap?: (index: number) => void; // Added optional prop
 };
@@ -36,7 +37,13 @@ const customParallaxLayout = ({ size }: { size: number }) => {
   };
 };
 
-export const BookPageCarousel: React.FC<Props> = ({ initialIndex, onBookPress, onBookSave, onCarouselSnap }) => {
+export const BookPageCarousel: React.FC<Props> = ({
+  initialIndex,
+  onBookPress,
+  onCenterItemPress,
+  onBookSave,
+  onCarouselSnap,
+}) => {
   const books = use$(bookDetailsStore$.books);
   if (!books || books.length === 0) return null;
   const { colorScheme } = useColorScheme();
@@ -54,65 +61,63 @@ export const BookPageCarousel: React.FC<Props> = ({ initialIndex, onBookPress, o
   }, [initialIndex]);
 
   return (
-    <View className="flex flex-col gap-2">
-      <View style={{ height: PAGE_HEIGHT }}>
-        <Carousel
-          ref={carouselRef}
-          loop
-          width={PAGE_WIDTH}
-          height={PAGE_HEIGHT}
-          data={books}
-          defaultIndex={initialIndex}
-          scrollAnimationDuration={300}
-          autoPlay={false}
-          pagingEnabled={true}
-          snapEnabled={true}
-          onProgressChange={progress}
-          onSnapToItem={(index) => {
-            onBookPress(books[index].id);
-            if (onCarouselSnap) {
-              onCarouselSnap(index);
-            }
-          }}
-          style={{
-            width: width,
-            height: PAGE_HEIGHT,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          customAnimation={customParallaxLayout({ size: PAGE_WIDTH })}
-          renderItem={({ item, index, animationValue }) => (
-            <CustomBookCard
-              book={item}
-              animationValue={animationValue}
-              onPress={onBookPress}
-              onSave={onBookSave || (() => console.log("Save", item.id))}
-            />
-          )}
-        />
+    <View style={{ height: PAGE_HEIGHT }} className="flex flex-col gap-4">
+      <Carousel
+        ref={carouselRef}
+        loop
+        width={PAGE_WIDTH}
+        height={PAGE_HEIGHT}
+        data={books}
+        defaultIndex={initialIndex}
+        scrollAnimationDuration={300}
+        autoPlay={false}
+        pagingEnabled={true}
+        snapEnabled={true}
+        onProgressChange={progress}
+        onSnapToItem={(index) => {
+          onBookPress(books[index].id);
+          if (onCarouselSnap) {
+            onCarouselSnap(index);
+          }
+        }}
+        style={{
+          width: width,
+          height: PAGE_HEIGHT,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        customAnimation={customParallaxLayout({ size: PAGE_WIDTH })}
+        renderItem={({ item, index, animationValue }) => (
+          <CustomBookCard
+            book={item}
+            animationValue={animationValue}
+            onCardActivated={onCenterItemPress} // Changed from onPress to onCardActivated, linked to onCenterItemPress
+            onSave={onBookSave || (() => console.log("Save", item.id))}
+          />
+        )}
+      />
 
-        <Pagination.Basic
-          progress={progress}
-          data={books}
-          dotStyle={{
-            backgroundColor: colors["tabs_selected"][colorScheme || "light"],
-            opacity: 0.6,
-            borderRadius: 20,
-          }}
-          activeDotStyle={{
-            backgroundColor: colors["buttons_text"][colorScheme || "light"],
-            opacity: 1,
-            borderRadius: 20,
-          }}
-          containerStyle={{ gap: 10, marginBottom: 10 }}
-          onPress={(index) => {
-            carouselRef.current?.scrollTo({
-              count: index - progress.value,
-              animated: true,
-            });
-          }}
-        />
-      </View>
+      <Pagination.Basic
+        progress={progress}
+        data={books}
+        dotStyle={{
+          backgroundColor: colors["tabs_selected"][colorScheme || "light"],
+          opacity: 0.6,
+          borderRadius: 20,
+        }}
+        activeDotStyle={{
+          backgroundColor: colors["buttons_text"][colorScheme || "light"],
+          opacity: 1,
+          borderRadius: 20,
+        }}
+        containerStyle={{ gap: 10, marginBottom: 10 }}
+        onPress={(index) => {
+          carouselRef.current?.scrollTo({
+            count: index - progress.value,
+            animated: true,
+          });
+        }}
+      />
     </View>
   );
 };
@@ -120,12 +125,12 @@ export const BookPageCarousel: React.FC<Props> = ({ initialIndex, onBookPress, o
 interface CustomBookCardProps {
   book: ExtendedBook;
   animationValue: Animated.SharedValue<number>;
-  onPress: (id: string) => void;
+  onCardActivated: (id: string) => void; // Changed from onPress to onCardActivated
   onSave: (id: string) => void;
 }
 
 // In the CustomBookCard component
-const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, onPress, onSave }) => {
+const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, onCardActivated, onSave }) => {
   const cardStyle = useAnimatedStyle(() => {
     "worklet";
     const opacity = interpolate(animationValue.value, [-0.2, -0.05, 0, 0.05, 0.2], [0.8, 0.9, 1, 0.9, 0.8]);
@@ -139,7 +144,7 @@ const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, o
   const handlePress = () => {
     // If this is the center item (value close to 0), allow the press
     if (Math.abs(animationValue.value) < 0.05) {
-      onPress(book.id);
+      onCardActivated(book.id); // Changed from onPress to onCardActivated
     }
   };
 

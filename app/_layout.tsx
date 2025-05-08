@@ -1,14 +1,11 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import "../global.css";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Platform } from "react-native";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PostHogProvider } from "posthog-react-native";
-import { superwallService } from "@/services/superwall";
 import { useFonts } from "expo-font";
 import { KaiseiDecol_400Regular, KaiseiDecol_500Medium, KaiseiDecol_700Bold } from "@expo-google-fonts/kaisei-decol";
 import { Heebo_400Regular, Heebo_500Medium, Heebo_700Bold } from "@expo-google-fonts/heebo";
@@ -17,7 +14,6 @@ import { posthog } from "@/services/posthog";
 import { AuthService } from "@/services/authService";
 import { appStore$ } from "@/stores/appStores";
 import { use$ } from "@legendapp/state/react";
-import { BookService } from "@/services/bookService";
 import { waitForStoresLoaded } from "@/stores/supabaseStores";
 import { useColorScheme } from "nativewind";
 import { PaymentService } from "@/services/paymentService";
@@ -87,10 +83,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="modals/search" options={{ presentation: "modal" }} />
-          <Stack.Screen
-            name="modals/book/[id]"
-            options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }}
-          />
+          <Stack.Screen name="modals/book/[id]" options={{ animation: "slide_from_bottom" }} />
           <Stack.Screen name="modals/cherry" options={{ presentation: "modal" }} />
           <Stack.Screen name="modals/reader" options={{ presentation: "fullScreenModal" }} />
           <Stack.Screen name="modals/cherryInfo" options={{ presentation: "modal" }} />

@@ -149,12 +149,18 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
           {booksArray && booksArray.length > 1 ? ( // Use booksArray directly
             <BookPageCarousel
               initialIndex={currentBookIndex}
-              onBookPress={handleBookChange}
+              onBookPress={handleBookChange} // For snapping, updates details
+              onCenterItemPress={onReadNow} // For clicking the center book to read
               onBookSave={toggleSave}
               onCarouselSnap={onCarouselSnap} // Pass down the prop
             />
           ) : (
-            <BookCover book={currentBook} size={"large"} onSave={toggleSave} />
+            <BookCover
+              book={currentBook}
+              size={"large"}
+              onSave={toggleSave}
+              onPress={() => onReadNow(currentBook.id)}
+            />
           )}
         </View>
 
