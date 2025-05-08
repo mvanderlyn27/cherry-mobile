@@ -35,9 +35,18 @@ type ActionButtonProps = {
   credits?: number;
   isLoading?: boolean;
   size?: ActionButtonSize;
+  discountPercentage?: number;
 };
 
-const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size = "medium" }: ActionButtonProps) => {
+const ActionButton = ({
+  mode,
+  onPress,
+  credits,
+  label,
+  isLoading = false,
+  size = "medium",
+  discountPercentage,
+}: ActionButtonProps) => {
   const { colorScheme } = useColorScheme();
 
   // Animation values
@@ -346,6 +355,35 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size =
             </View>
           </LinearGradient>
         </TouchableOpacity>
+        {discountPercentage && !isLoading && (
+          <View
+            style={{
+              position: "absolute",
+              top: -14,
+              right: -14,
+              backgroundColor: "red",
+              width: 38,
+              height: 38,
+              borderRadius: 24,
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 20,
+              elevation: 5, // For Android shadow
+              shadowColor: "#000", // For iOS shadow
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 2,
+            }}>
+            <Text
+              style={{
+                color: "white",
+                fontSize: 12,
+                fontWeight: "bold",
+              }}>
+              {`-${discountPercentage}%`}
+            </Text>
+          </View>
+        )}
       </View>
     );
   }
@@ -365,6 +403,37 @@ const ActionButton = ({ mode, onPress, credits, label, isLoading = false, size =
 
       {/* Loading overlay */}
       {isLoading && <Animated.View style={loadingOverlayStyle}></Animated.View>}
+
+      {/* Discount Badge */}
+      {discountPercentage && !isLoading && (
+        <View
+          style={{
+            position: "absolute",
+            top: -14,
+            right: -14,
+            backgroundColor: "red",
+            width: 38,
+            height: 38,
+            borderRadius: 24,
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 20,
+            elevation: 5, // For Android shadow
+            shadowColor: "#000", // For iOS shadow
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 2,
+          }}>
+          <Text
+            style={{
+              color: "white",
+              fontSize: 12,
+              fontWeight: "bold",
+            }}>
+            {`-${discountPercentage}%`}
+          </Text>
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
