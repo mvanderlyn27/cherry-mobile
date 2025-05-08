@@ -10,6 +10,8 @@ import { TransactionService } from "@/services/transactionService";
 import { ChapterService } from "@/services/chapterService";
 import { bookDetailsStore$, purchaseStore$ } from "@/stores/appStores"; // For book price
 import { NotificationService } from "@/services/notificationService"; // For notifications
+import { books$ } from "@/stores/supabaseStores";
+import { use$ } from "@legendapp/state/react";
 
 type PurchaseModalProps = {
   chapter: Chapter;
@@ -25,7 +27,7 @@ export const PurchaseModal = ({ chapter, credits, onPurchase, onClose, status = 
   const isDark = colorScheme === "dark";
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
-  const book = bookDetailsStore$.books.get()?.find((b) => b.id === chapter.book_id);
+  const book = use$(books$[chapter.book_id]);
   const hasEnoughCreditsForChapter = credits >= chapter.price;
   let hasEnoughCreditsForBook = false;
   if (book) {
@@ -164,7 +166,9 @@ export const PurchaseModal = ({ chapter, credits, onPurchase, onClose, status = 
                 label={`| Unlock Full Book `}
                 credits={book.price}
                 mode="buyGradient"
-                discountPercentage={15}
+                discountPercentage={
+                  book.discount_percent && book.discount_percent > 0 ? book.discount_percent : undefined
+                }
                 size="medium"
               />
             )}

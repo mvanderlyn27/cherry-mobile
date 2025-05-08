@@ -247,7 +247,11 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
               credits={currentBook.price}
               onPress={() => handleBuyBook(currentBook.id)}
               isLoading={isLoading}
-              discountPercentage={15} // Added discount
+              discountPercentage={
+                currentBook.discount_percent && currentBook.discount_percent > 0
+                  ? currentBook.discount_percent
+                  : undefined
+              }
             />
           ) : (
             <ActionButton

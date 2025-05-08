@@ -110,6 +110,7 @@ export type Database = {
           cover_url: string | null
           created_at: string
           description: string | null
+          discount_percent: number | null
           id: string
           like_count: number | null
           price: number
@@ -124,6 +125,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          discount_percent?: number | null
           id?: string
           like_count?: number | null
           price: number
@@ -138,6 +140,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          discount_percent?: number | null
           id?: string
           like_count?: number | null
           price?: number
