@@ -90,8 +90,7 @@ export default function DiscoverScreen() {
 
             <Animated.View style={textStyle} className="px-8">
               <Text className="text-xl opacity-70 text-center text-story-light dark:text-story-dark leading-6 font-kaisei-bold">
-                From sweet encounters to passionate sagas, our library has stories for every mood. New tales books
-                weekly!
+                From sweet encounters to passionate sagas, our library has stories for every mood. New books weekly!
               </Text>
             </Animated.View>
           </View>

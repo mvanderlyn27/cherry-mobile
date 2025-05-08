@@ -98,11 +98,11 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
             <Text className="text-white text-xs ml-1">{formatReadingTime(book.reading_time, progress)}</Text>
           </View>
         )}
-        {!owned && (
+        {/* {!owned && (
           <View className="absolute top-4 right-4 bg-black/30 rounded-full p-1">
             <IconSymbol name={Icon.lock} size={16} color="white" />
           </View>
-        )}
+        )} */}
         {/* Progress bar container */}
         {started && !finished && (
           <View className="absolute bottom-4 left-4 right-4 h-1 bg-white rounded-3xl overflow-hidden">
@@ -116,11 +116,11 @@ export const ListBookCard: React.FC<ListBookCardProps> = ({
       </MotiView>
 
       <View className="flex-1">
-        <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-1">{book.title}</Text>
+        <Text className="font-kaisei-bold text-xl text-[#4A2B2B] mb-2">{book.title}</Text>
 
-        <TagList tags={tags.slice(0, 2)} />
+        {/* <TagList tags={tags.slice(0, 2)} /> */}
 
-        <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
+        <Text className="text-sm text-gray-600" numberOfLines={2}>
           {book.description}
         </Text>
 
