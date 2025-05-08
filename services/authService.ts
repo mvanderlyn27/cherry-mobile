@@ -204,6 +204,12 @@ export class AuthService {
         //   );
         // }
       }
+      authStore$.assign({
+        userId: newUserId,
+        isLoading: false,
+        authState: "authenticated",
+      });
+      appStore$.anonymous.set(false);
       appStore$.loggedIn.set(true);
       console.log("[AuthService] Successfully signed in with Google and migrated data");
     } catch (e) {
