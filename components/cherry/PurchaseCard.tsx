@@ -97,7 +97,7 @@ const PurchaseOption = ({ cherryPackage, cherryCount, cherryPrice, onBuy }: Purc
         }}>
         <TouchableOpacity className="rounded-full overflow-hidden border-[1.5px] border-white" onPress={onBuy}>
           <LinearGradient colors={["#DA6CFF", "#7E98FF"]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}>
-            <Text className="py-2 px-6 font-heebo-medium text-white">Buy</Text>
+            <Text className="py-2 px-6 font-heebo-medium text-white text-sm md:text-md">Buy</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

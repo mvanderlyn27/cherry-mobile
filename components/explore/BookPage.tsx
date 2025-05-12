@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Dimensions } from "react-native"; // Import Dimensions
 import { BookPageCarousel } from "./BookPageCarousel";
 import { TagList } from "../ui/TagList";
 import { IconSymbol } from "../ui/IconSymbol";
@@ -39,6 +39,9 @@ import { LoggingService } from "@/services/loggingService";
 import { ChapterService } from "@/services/chapterService";
 const colors = require("@/config/colors");
 
+// Define BookCoverSize type based on BookCover.tsx (or import if exported)
+type BookPageCoverSize = "small" | "medium" | "large" | "x-large";
+
 type BookPageProps = {
   initialBookIndex: number;
   onReadNow: (bookId: string) => void;
@@ -54,6 +57,7 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
   const [isLoading, setIsLoading] = useState(false);
   const userId = use$(authStore$.userId);
   const booksArray = use$(bookDetailsStore$.books); // This is now the plain array
+  const screenWidth = Dimensions.get("window").width; // Get screen width
 
   // currentBook will be reactive.
   const currentBook = booksArray?.[currentBookIndex];
@@ -85,6 +89,16 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
   const singleButtonContainerHeight = 16 + 56 + 16; // 88px
   const doubleButtonContainerHeight = 16 + 56 + 8 + 56 + 16; // 152px
   const fixedBottomBarHeight = isUnlocked ? singleButtonContainerHeight : doubleButtonContainerHeight;
+
+  // Determine BookCover size based on screen width
+  let bookCoverSize: BookPageCoverSize = "large"; // Default
+  if (screenWidth < 380) {
+    bookCoverSize = "medium"; // Use medium for small screens in this context
+  } else if (screenWidth >= 380 && screenWidth < 768) {
+    bookCoverSize = "large";
+  } else {
+    bookCoverSize = "x-large"; // Use x-large for very wide screens
+  }
 
   if (!userId || !currentBook) {
     return (
@@ -157,7 +171,7 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
           ) : (
             <BookCover
               book={currentBook}
-              size={"large"}
+              size={bookCoverSize} // Use dynamic size
               onSave={toggleSave}
               onPress={() => onReadNow(currentBook.id)}
             />
@@ -243,7 +257,7 @@ export const BookPage: React.FC<BookPageProps> = ({ initialBookIndex, onReadNow,
       > */}
       {/* Inner container for padding and flex layout - ensure it fills the fixed height */}
       {/* Using justify-end to push buttons to the bottom of this fixed height view, with py-4 for vertical padding within the button area */}
-      <View className=" flex flex-col justify-end gap-4 px-8 py-4">
+      <View className=" flex flex-col justify-end gap-4 px-8 py-4 border-t border-gray-700/40">
         <ActionButton mode="read" size="large" onPress={() => onReadNow(currentBook.id)} />
         {!isUnlocked ? (
           canBuy ? (

@@ -20,14 +20,14 @@ export default function SupportScreen() {
 
         <TouchableOpacity
           className="flex-row items-center py-3 border-b border-background-light dark:border-background-dark"
-          onPress={() => Linking.openURL("mailto:support@cherryapp.com")}>
+          onPress={() => Linking.openURL("mailto:cherry@sliceoflifeapp.com.com")}>
           <IconSymbol name={Icon.mail} size={20} color={colors.cherry[colorScheme || "light"]} />
-          <Text className="ml-3 text-cherry-light dark:text-cherry-dark">support@cherryapp.com</Text>
+          <Text className="ml-3 text-cherry-light dark:text-cherry-dark">cherry@sliceoflifeapp.com</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           className="flex-row items-center py-3"
-          onPress={() => Linking.openURL("https://cherryapp.com/support")}>
+          onPress={() => Linking.openURL("https://cherryapp.vercle.app/support")}>
           <IconSymbol name={Icon.globe} size={20} color={colors.cherry[colorScheme || "light"]} />
           <Text className="ml-3 text-cherry-light dark:text-cherry-dark">Visit Support Center</Text>
         </TouchableOpacity>

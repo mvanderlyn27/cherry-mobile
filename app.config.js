@@ -8,7 +8,7 @@ module.exports = () => {
           ? "Cherry (Preview)" 
           : "Cherry",
       slug: "cherry-mobile",
-      version: "1.0.1",
+      version: "1.0.2",
       orientation: "portrait",
       icon: "./assets/images/cherry_icon_square.png",
       scheme: "myapp",
@@ -16,7 +16,7 @@ module.exports = () => {
       newArchEnabled: true,
       ios: {
         usesAppleSignIn: true,
-        supportsTablet: true,
+        supportsTablet: false,
         bundleIdentifier: "com.cherrystories.cherrystories",
         infoPlist: {
           ITSAppUsesNonExemptEncryption: false

@@ -26,7 +26,7 @@ export const authStore$ = observable<AuthStoreState>({
 // Setup persistence
 syncObservable(authStore$, {
   persist: {
-    name: "auth-store",
+    name: "auth-store" + new Date(),
     plugin: ObservablePersistMMKV,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native";
+import { TouchableOpacity, Text, View, ActivityIndicator, Dimensions } from "react-native"; // Import Dimensions
 import { IconSymbol } from "./IconSymbol";
 import { Icon } from "@/types/app";
 import { useColorScheme } from "nativewind";
@@ -48,6 +48,20 @@ const ActionButton = ({
   discountPercentage,
 }: ActionButtonProps) => {
   const { colorScheme } = useColorScheme();
+  const screenWidth = Dimensions.get("window").width; // Get screen width
+
+  // Determine effective size based on screen width
+  let effectiveSize = size;
+  if (screenWidth < 380) {
+    // Small screen adjustments
+    if (size === "large") {
+      effectiveSize = "medium";
+    } else if (size === "medium") {
+      effectiveSize = "small";
+    }
+    // If size is 'small', it remains 'small'
+  }
+  // Add more breakpoints/adjustments if needed for medium screens etc.
 
   // Animation values
   const opacity = useSharedValue(0);
@@ -201,42 +215,48 @@ const ActionButton = ({
         return "";
     }
   };
-  // Get padding based on size
+  // Get padding based on effective size
   const getPaddingClasses = () => {
-    switch (size) {
+    switch (
+      effectiveSize // Use effectiveSize
+    ) {
       case "small":
-        return "px-3 py-2";
+        return "px-3 py-1.5"; // Slightly reduced vertical padding for small
       case "large":
         return "px-6 py-4";
       case "medium":
       default:
-        return "px-4 py-3";
+        return "px-4 py-2.5"; // Slightly reduced vertical padding for medium
     }
   };
 
-  // Get font size based on size
+  // Get font size based on effective size
   const getFontSizeClass = () => {
-    switch (size) {
+    switch (
+      effectiveSize // Use effectiveSize
+    ) {
       case "small":
-        return "text-md";
+        return "text-sm"; // Reduced from md
       case "large":
         return "text-xl";
       case "medium":
       default:
-        return "text-lg";
+        return "text-base"; // Reduced from lg
     }
   };
 
-  // Get icon size based on button size
+  // Get icon size based on effective button size
   const getIconSize = () => {
-    switch (size) {
+    switch (
+      effectiveSize // Use effectiveSize
+    ) {
       case "small":
-        return 14;
+        return 12; // Reduced from 14
       case "large":
         return 22;
       case "medium":
       default:
-        return 18;
+        return 16; // Reduced from 18
     }
   };
 

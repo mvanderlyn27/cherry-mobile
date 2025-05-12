@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { View, Dimensions } from "react-native";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
 import Animated, { interpolate, SharedTransition, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
-import { BookCover } from "../ui/BookCover";
+import { BookCover } from "../ui/BookCover"; // Assuming BookCoverSize is "x-large" | "large" | "medium" | "small"
 import { Book, ExtendedBook } from "@/types/app";
 import { useColorScheme } from "nativewind";
 import { BookService } from "@/services/bookService";
@@ -14,6 +14,9 @@ type Props = {
   onBookPress: (id: string, bookIds: string[]) => void;
   onBookSave?: (id: string) => void;
 };
+
+// Define BookCoverSize type based on BookCover.tsx (or import if exported)
+type CarouselBookCoverSize = "small" | "medium" | "large";
 
 // Custom parallax animation function
 const customParallaxLayout = ({ size }: { size: number }) => {
@@ -39,9 +42,27 @@ export const TopBookCarousel: React.FC<Props> = ({ onBookPress, onBookSave }) =>
   const books: ExtendedBook[] = use$(BookService.getPopularBooks);
   if (!userId) return null;
   const { colorScheme } = useColorScheme();
-  const width = Dimensions.get("window").width;
-  const PAGE_WIDTH = width * 0.7;
-  const PAGE_HEIGHT = PAGE_WIDTH * 1;
+  const screenWidth = Dimensions.get("window").width;
+
+  let bookCoverSize: CarouselBookCoverSize = "medium";
+  let pageWidthMultiplier = 0.65; // Default for medium
+
+  if (screenWidth < 380) {
+    // Small screens
+    bookCoverSize = "small";
+    pageWidthMultiplier = 0.5;
+  } else if (screenWidth >= 380 && screenWidth < 768) {
+    // Medium screens
+    bookCoverSize = "medium";
+    pageWidthMultiplier = 0.65;
+  } else {
+    // Large screens (screenWidth >= 768)
+    bookCoverSize = "large";
+    pageWidthMultiplier = 0.7;
+  }
+
+  const PAGE_WIDTH = screenWidth * pageWidthMultiplier;
+  const PAGE_HEIGHT = PAGE_WIDTH * 1; // Adjusted aspect ratio for typical book covers, can be tuned
   const progress = useSharedValue<number>(0);
   const carouselRef = useRef<ICarouselInstance>(null);
 
@@ -66,7 +87,7 @@ export const TopBookCarousel: React.FC<Props> = ({ onBookPress, onBookSave }) =>
         snapEnabled={true}
         onProgressChange={progress}
         style={{
-          width: width,
+          width: screenWidth,
           height: PAGE_HEIGHT,
           justifyContent: "center",
           alignItems: "center",
@@ -79,12 +100,13 @@ export const TopBookCarousel: React.FC<Props> = ({ onBookPress, onBookSave }) =>
               key={item.id}
               book={item}
               animationValue={animationValue}
+              bookCoverSize={bookCoverSize} // Pass the determined size
               onPress={() =>
                 onBookPress(
                   item.id,
                   books.map((book) => book.id)
                 )
-              } // Fixed: was passing a function that returns undefined
+              }
               onSave={onBookSave || (() => console.log("Save", item.id))}
             />
           );
@@ -115,12 +137,13 @@ export const TopBookCarousel: React.FC<Props> = ({ onBookPress, onBookSave }) =>
 interface CustomBookCardProps {
   book: ExtendedBook;
   animationValue: Animated.SharedValue<number>;
+  bookCoverSize: CarouselBookCoverSize; // Added prop
   onPress: () => void;
   onSave: (id: string) => void;
 }
 
 // In the CustomBookCard component
-const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, onPress, onSave }) => {
+const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, bookCoverSize, onPress, onSave }) => {
   const cardStyle = useAnimatedStyle(() => {
     "worklet";
     const opacity = interpolate(animationValue.value, [-0.2, -0.05, 0, 0.05, 0.2], [0.8, 0.9, 1, 0.9, 0.8]);
@@ -157,7 +180,7 @@ const CustomBookCard: React.FC<CustomBookCardProps> = ({ book, animationValue, o
         cardStyle,
       ]}
       sharedTransitionTag={book.id}>
-      <BookCover book={book} size="large" onPress={handlePress} onSave={onSave} />
+      <BookCover book={book} size={bookCoverSize} onPress={handlePress} onSave={onSave} />
     </Animated.View>
   );
 };

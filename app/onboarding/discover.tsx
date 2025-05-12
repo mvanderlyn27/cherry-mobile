@@ -60,7 +60,7 @@ export default function DiscoverScreen() {
 
   const renderBookCover = ({ item, index }: { item: any; index: number }) => (
     <Animated.View entering={FadeInDown.delay(200 * index).springify()} className="mx-2">
-      <Image source={item.image} className="w-32 h-48 rounded-lg shadow-md" resizeMode="cover" />
+      <Image source={item.image} className="w-24 h-32 md:w-32 md:h-48 rounded-lg shadow-md" resizeMode="cover" />
     </Animated.View>
   );
 
@@ -68,7 +68,7 @@ export default function DiscoverScreen() {
     <View className="flex-1 bg-background-light dark:bg-background-dark">
       <SafeAreaView className="flex-1">
         <View className="flex-1 px-6 justify-between py-6">
-          <View className="flex-1 items-center justify-center gap-6">
+          <View className="flex-1 items-center justify-center gap-2 md:gap-6">
             <View className="w-full py-4">
               <FlatList
                 data={bookCovers}
@@ -76,7 +76,7 @@ export default function DiscoverScreen() {
                 keyExtractor={(item) => item.id}
                 numColumns={3}
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ padding: 10 }}
+                contentContainerStyle={{ alignItems: "center", justifyContent: "center", padding: 10 }}
                 ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
                 columnWrapperStyle={{ marginBottom: 10 }}
               />
@@ -84,7 +84,7 @@ export default function DiscoverScreen() {
 
             <Animated.Text
               style={titleStyle}
-              className="text-3xl font-bold text-center text-story-light dark:text-story-dark px-2 mt-6 font-kaisei-bold">
+              className="text-2xl md:text-3xl font-bold text-center text-story-light dark:text-story-dark px-2 mt-2 md:mt-6 font-kaisei-bold">
               Explore a World of Romance
             </Animated.Text>
 

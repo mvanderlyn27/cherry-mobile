@@ -25,10 +25,10 @@ export default function CherryInfoPage() {
         </Text>
 
         <Text className="text-xl font-kaisei-bold text-text-light dark:text-text-dark mb-3">Contact Us</Text>
-        <TouchableOpacity onPress={() => Linking.openURL("mailto:support@cherryapp.com")} className="mb-2">
-          <Text className="text-cherry-light dark:text-cherry-dark">support@cherryapp.com</Text>
+        <TouchableOpacity onPress={() => Linking.openURL("mailto:cherry@sliceoflifeapp.com")} className="mb-2">
+          <Text className="text-cherry-light dark:text-cherry-dark">cherry@sliceoflifeapp.com</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => Linking.openURL("https://cherryapp.com/support")} className="mb-6">
+        <TouchableOpacity onPress={() => Linking.openURL("https://cherryapp.vercel.app/support")} className="mb-6">
           <Text className="text-cherry-light dark:text-cherry-dark">Visit our Support Center</Text>
         </TouchableOpacity>
       </View>
